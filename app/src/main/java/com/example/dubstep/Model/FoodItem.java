@@ -5,10 +5,21 @@ public class FoodItem {
     String base_url;
     String name;
 
-    public FoodItem(int base_price, String image_url, String name) {
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    String category;
+
+    public FoodItem(int base_price, String image_url, String name, String category) {
         this.base_price = base_price;
         this.base_url = image_url;
         this.name = name;
+        this.category = category;
     }
 
     public FoodItem(){

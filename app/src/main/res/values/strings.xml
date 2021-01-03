@@ -4,4 +4,6 @@
     <string name="closeNavDrawer">Navigation Drawer Close</string>
     <string name="title_activity_rider_maps">Map</string>
     <string name="rs_symbol">\u20B9</string>
+    <string name="cart_total">Cart Total : ₹ ---</string>
+    <string name="delivery_charge">Delivery Charge : ₹ --</string>
 </resources>

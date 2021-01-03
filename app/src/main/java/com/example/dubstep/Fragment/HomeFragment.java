@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,7 +74,7 @@ public class HomeFragment extends Fragment {
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
 
-    private FloatingActionButton mCartButton;
+    private ImageButton mCartButton;
     private ProgressDialog progressDialog;
 
     @Nullable
@@ -117,7 +118,8 @@ public class HomeFragment extends Fragment {
         recyclerView = view.findViewById(R.id.main_recyclerview);
         recyclerView.setHasFixedSize(true);
 
-        layoutManager = new GridLayoutManager(getContext(), 2);
+        layoutManager = new LinearLayoutManager(getContext());
+        //layoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(layoutManager);
 
         mCartButton.setOnClickListener(new View.OnClickListener() {
