@@ -2,7 +2,6 @@
 <LinearLayout android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D3B14343"
     android:orientation="vertical"
     android:padding="20dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -13,7 +12,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="60dp"
-            android:fontFamily="@font/aclonica"
             android:text="EDIT PROFILE"
             android:textColor="#650E08"
             android:textSize="30sp" />

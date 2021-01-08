@@ -8,62 +8,73 @@
 
     <TextView
         android:id="@+id/add_address_textView"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_width="wrap_content"
+        android:padding="12dp"
         android:text="Enter New Address"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:padding="12dp"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/pincode_editText"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:hint="Enter PinCode"
+        android:id="@+id/pincode_editText"
         android:inputType="number"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/add_address_textView"
-        android:padding="12dp"
-        />
+        app:layout_constraintTop_toBottomOf="@id/add_address_textView" />
+
     <EditText
-        android:id="@+id/address1_editText"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:hint="Address Line 1"
+        android:id="@+id/address1_editText"
         android:inputType="text"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pincode_editText"
-        android:padding="12dp"
-        />
+        app:layout_constraintTop_toBottomOf="@id/pincode_editText" />
 
     <EditText
-        android:id="@+id/address2_editText"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:hint="Address Line 2"
+        android:id="@+id/address2_editText"
         android:inputType="text"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/address1_editText"
-        android:padding="12dp"
-        />
+        app:layout_constraintTop_toBottomOf="@id/address1_editText" />
 
     <EditText
-        android:id="@+id/address3_editText"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:hint="Address Line 3"
+        android:id="@+id/address3_editText"
         android:inputType="text"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/address2_editText"
-        android:padding="12dp"
-        />
+        app:layout_constraintTop_toBottomOf="@id/address2_editText" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:layout_width="wrap_content"

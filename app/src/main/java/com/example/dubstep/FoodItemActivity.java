@@ -82,6 +82,7 @@ public class FoodItemActivity extends AppCompatActivity {
                     @Override
                     protected void onBindViewHolder(@NonNull final FoodItemViewHolder holder, final int position, @NonNull final FoodItem model) {
                         holder.mFoodItemName.setText(model.getName());
+                        model.setCategory(base_name);
                         holder.mFoodItemPrice.setText("Price: \u20B9 " + model.getBase_price());
                         holder.mAddToCart.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -114,6 +115,7 @@ public class FoodItemActivity extends AppCompatActivity {
         cartMap.put("Price", String.valueOf(addedItem.getBase_price()));
         cartMap.put("Quantity", "1");
         cartMap.put("Product_ID", base_name+"_"+position);
+        cartMap.put("Category" , addedItem.getCategory());
 
         cartref.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .child("Products")

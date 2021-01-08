@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ViewHolder.ThankYouActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/doodle_background">
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animation"
