@@ -1,5 +1,6 @@
 package com.example.dubstep.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +63,10 @@ public class FoodItemAdapter extends ListAdapter<Menu, FoodItemAdapter.FoodItemV
         holder.mAddToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.mAddToCart.setEnabled(false);
+                if(listener!=null && position!=RecyclerView.NO_POSITION){
+                    listener.onItemClick(model);
+                }
+//                holder.mAddToCart.setEnabled(false);
 //                Add that item to users cart
 //              addToCart(model);
             }
@@ -97,15 +101,6 @@ public class FoodItemAdapter extends ListAdapter<Menu, FoodItemAdapter.FoodItemV
             mAddToCart = (MaterialButton) itemView.findViewById(R.id.addtocart_btn);
             foodItemImageView = itemView.findViewById(R.id.food_item_imageView);
             vegNonNegMark = itemView.findViewById(R.id.veg_non_veg_icon);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if(position!=RecyclerView.NO_POSITION && listener!=null){
-                        listener.onItemClick(getFoodItemAt(position));
-                    }
-                }
-            });
         }
 
     }
