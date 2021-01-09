@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +34,12 @@ import com.example.dubstep.MainActivity;
 import com.example.dubstep.Model.FoodClass;
 import com.example.dubstep.Model.FoodItem;
 import com.example.dubstep.Model.GlideApp;
+import com.example.dubstep.Model.Menu;
 import com.example.dubstep.R;
 import com.example.dubstep.ViewHolder.FoodClassViewHolder;
 import com.example.dubstep.ViewHolder.FoodItemViewHolder;
+import com.example.dubstep.adapter.FoodClassAdapter;
+import com.example.dubstep.database.MenuDatabase;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -54,11 +59,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
@@ -95,17 +106,7 @@ public class HomeFragment extends Fragment {
         userref = FirebaseDatabase.getInstance().getReference("user").child(firebaseAuth.getCurrentUser().getUid());
 
 
-        foodref = FirebaseDatabase.getInstance().getReference().child("food_menu");
-
-
         cartref = FirebaseDatabase.getInstance().getReference("Cart");
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.show();
-        progressDialog.setContentView(R.layout.progress_dialog);
-        progressDialog.getWindow().setBackgroundDrawableResource(
-                android.R.color.transparent
-        );
-        loaderOnFoodMenuChange();
 
     }
 
@@ -132,63 +133,72 @@ public class HomeFragment extends Fragment {
 
     }
 
-
-    private void loaderOnFoodMenuChange() {
-        foodref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                progressDialog.dismiss();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
     @Override
     public void onStart() {
         super.onStart();
-
-        FirebaseRecyclerOptions<FoodClass> options = new FirebaseRecyclerOptions.Builder<FoodClass>().setQuery(foodref, FoodClass.class).build();
-        final FirebaseRecyclerAdapter<FoodClass, FoodClassViewHolder> adapter =
-                new FirebaseRecyclerAdapter<FoodClass, FoodClassViewHolder>(options) {
-
-                    private ItemClickListener listener;
-
-                    @Override
-                    protected void onBindViewHolder(@NonNull final FoodClassViewHolder holder, final int position, @NonNull final FoodClass model) {
-
-                        holder.foodClassTextView.setText(model.getBase_name());
-                        GlideApp.with(getActivity())
-                                .load(firebaseRef.child(model.getBase_url()))
-                                .centerCrop()
-                                .into(holder.foodClassImageView);
-
-                        holder.foodClassCardView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-//                                take to that particular class
-                                Intent intent = new Intent(getContext(), FoodItemActivity.class);
-                                intent.putExtra("base_name", model.getBase_name());
-                                intent.putExtra("index", String.valueOf(position));
-                                startActivity(intent);
+        final FoodClassAdapter adapter = new FoodClassAdapter();
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+        MenuDatabase.getInstance().getMenuList().enqueue(new Callback<List<Menu>>() {
+            @Override
+            public void onResponse(Call<List<Menu>> call, Response<List<Menu>> response) {
+                if(!response.isSuccessful()){
+                    Log.d("OnFailure", "onFailure: Unable to fetch "+response.message());
+                    return;
+                }
+                List<Menu> menuList = response.body();
+                List<FoodClass> foodClasses = new ArrayList<FoodClass>();
+                for (Menu menu:menuList){
+                    boolean found = false;
+                    if(foodClasses.isEmpty()){
+//                        foodclass list empty so added one right away
+                        FoodClass foodClass = new FoodClass();
+                        foodClass.setCategory(menu.getCategory());
+                        foodClass.addMenuItem(menu);
+                        foodClasses.add(foodClass);
+                    } else {
+//                        checked for category in each member of foodClass list
+                        for (FoodClass foodClass: foodClasses){
+                            if(menu.getCategory().equals(foodClass.getCategory())){
+                                foodClass.addMenuItem(menu);
+                                found = true;
+                                break;
                             }
-                        });
-                    }
+                        }
 
-                    @NonNull
+                        if(!found){
+                            FoodClass foodClass = new FoodClass();
+                            foodClass.setCategory(menu.getCategory());
+                            foodClass.addMenuItem(menu);
+                            foodClasses.add(foodClass);
+                        }
+                    }
+                }
+                adapter.submitList(foodClasses);
+                progressDialog.dismiss();
+                adapter.setOnItemClickListener(new FoodClassAdapter.OnItemClickListener() {
                     @Override
-                    public FoodClassViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.food_class_layout, parent, false);
-                        FoodClassViewHolder holder = new FoodClassViewHolder(view);
-                        return holder;
+                    public void onItemClick(FoodClass foodClass) {
+                        Intent intent = new Intent(getContext(), FoodItemActivity.class);
+                        intent.putExtra("category", foodClass.getCategory());
+                        ArrayList<Menu> menus = new ArrayList<Menu>();
+                        menus.addAll(foodClass.getMenuList());
+                        intent.putExtra("menu_list", menus);
+                        startActivity(intent);
                     }
-                };
+                });
+            }
 
+            @Override
+            public void onFailure(Call<List<Menu>> call, Throwable t) {
+                Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
+            }
+        });
         recyclerView.setAdapter(adapter);
-        adapter.startListening();
     }
 
 }

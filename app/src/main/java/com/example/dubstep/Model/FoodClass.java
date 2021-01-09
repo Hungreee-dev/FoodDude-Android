@@ -1,25 +1,38 @@
 package com.example.dubstep.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FoodClass {
-    String base_name;
-    String base_url;
+    String category;
+    String imageLink;
+    List<Menu> menuList;
 
-    public String getBase_name() {
-        return base_name;
+    public String getCategory() {
+        return category;
     }
 
-    public String getBase_url(){
-        return base_url;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public void setBase_name(String base_name) {
-        this.base_name = base_name;
+    public String getImageLink() {
+        return imageLink;
     }
 
-    public void setBase_url(String base_url){
-        this.base_url = base_url;
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
+    public List<Menu> getMenuList() {
+        return menuList;
+    }
+
+    public void addMenuItem(Menu menu) {
+        this.menuList.add(menu);
     }
 
     public FoodClass() {
+        menuList = new ArrayList<Menu>();
     }
 }
