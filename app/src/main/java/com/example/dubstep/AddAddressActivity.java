@@ -2,6 +2,9 @@ package com.example.dubstep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dubstep.Model.UserAddress;
+import com.example.dubstep.database.PinCodeDatabase;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,6 +26,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.List;
 
 public class AddAddressActivity extends AppCompatActivity {
 
@@ -102,34 +108,41 @@ public class AddAddressActivity extends AppCompatActivity {
             Toast.makeText(this,"Pincode can't be blank",Toast.LENGTH_SHORT).show();
         } else {
 //         1. Check pincode present or not
-            mPincode.child(pincode).addValueEventListener(new ValueEventListener() {
+            PinCodeDatabase.getInstance().getPinCodeList().enqueue(new Callback<List<String>>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        String address1 = (address1EditText.getText().toString() != null) ? address1EditText.getText().toString() : "";
-                        String address2 = (address2EditText.getText().toString() != null) ? address2EditText.getText().toString() : "";
-                        String address3 = (address3EditText.getText().toString() != null) ? address3EditText.getText().toString() : "";
-//              2. Add that address to user_address database under user uid
-                        UserAddress address = new UserAddress(pincode, address1, address2, address3);
-                        FirebaseDatabase.getInstance().getReference()
-                                .child("user_address")
-                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .setValue(address).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                onComplete();
-                            }
-                        });
+                public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+                    if (!response.isSuccessful()) {
+                        Log.d("OnFailure", "onFailure: Unable to fetch " + response.message());
+                        return;
                     } else {
-                        pincodeNotFound.setVisibility(View.VISIBLE);
+                        List<String> mPinCodes = response.body();
+                        if (mPinCodes.contains(pincode)) {
+                            String address1 = (address1EditText.getText().toString() != null) ? address1EditText.getText().toString() : "";
+                            String address2 = (address2EditText.getText().toString() != null) ? address2EditText.getText().toString() : "";
+                            String address3 = (address3EditText.getText().toString() != null) ? address3EditText.getText().toString() : "";
+//              2. Add that address to user_address database under user uid
+                            UserAddress address = new UserAddress(pincode, address1, address2, address3);
+                            FirebaseDatabase.getInstance().getReference()
+                                    .child("user_address")
+                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .setValue(address).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    onComplete();
+                                }
+                            });
+                        } else {
+                            pincodeNotFound.setVisibility(View.VISIBLE);
+                        }
+                        progressDialog.dismiss();
                     }
-                    progressDialog.dismiss();
-                }
+                    }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
+                public void onFailure(Call<List<String>> call, Throwable t) {
+                    Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
                 }
+
             });
         }
 
