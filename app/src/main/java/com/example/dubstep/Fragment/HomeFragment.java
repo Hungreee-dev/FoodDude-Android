@@ -114,7 +114,12 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
         mCartButton = view.findViewById(R.id.cart_btn);
         recyclerView = view.findViewById(R.id.main_recyclerview);
         recyclerView.setHasFixedSize(true);
@@ -130,19 +135,8 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
         final FoodClassAdapter adapter = new FoodClassAdapter();
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.show();
-        progressDialog.setContentView(R.layout.progress_dialog);
-        progressDialog.getWindow().setBackgroundDrawableResource(
-                android.R.color.transparent
-        );
+
         MenuDatabase.getInstance().getMenuList().enqueue(new Callback<List<Menu>>() {
             @Override
             public void onResponse(Call<List<Menu>> call, Response<List<Menu>> response) {
@@ -199,6 +193,14 @@ public class HomeFragment extends Fragment {
             }
         });
         recyclerView.setAdapter(adapter);
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+
     }
 
 }

@@ -189,7 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPreferences.Editor prefEditor = mPrefs.edit();
                         Gson gson = new Gson();
                         String json = gson.toJson(user);
-                        Log.d("user", json);
+
                         prefEditor.putString(getString(R.string.shared_prefs_user),json);
                         prefEditor.apply();
                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
