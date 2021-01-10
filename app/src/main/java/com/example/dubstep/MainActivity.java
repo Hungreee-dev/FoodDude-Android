@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -49,6 +50,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -125,23 +127,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void greetingUserHeader() {
+        SharedPreferences mPrefs = MainActivity.this.getSharedPreferences(getString(R.string.shared_prefs_filename),MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = mPrefs.getString(getString(R.string.shared_prefs_user),"");
+        User user = gson.fromJson(json,User.class);
 
-        FirebaseDatabase.getInstance().getReference()
-                .child("user")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        TextView userNameTextView = navigationView.getHeaderView(0).findViewById(R.id.userNameTextView);
-
-                        userNameTextView.setText(String.format("Hi!\n%s", snapshot.child("Username").getValue().toString()));
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+        TextView userNameTextView = navigationView.getHeaderView(0).findViewById(R.id.userNameTextView);
+        userNameTextView.setText(String.format("Hi!\n%s", user.name));
 
     }
 

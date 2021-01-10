@@ -9,8 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.dubstep.ViewHolder.ThankYouActivity;
+import com.example.dubstep.singleton.IdTokenInstance;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 
 public class Splash_Screen extends AppCompatActivity {
 
@@ -38,14 +41,36 @@ public class Splash_Screen extends AppCompatActivity {
 
                 if(currentUser != null) {
                     if (currentUser.isEmailVerified()){
-                        startActivity(new Intent(Splash_Screen.this, MainActivity.class));
+                        if(Splash_Screen.this
+                                .getSharedPreferences(
+                                        getString(R.string.shared_prefs_filename),MODE_PRIVATE
+                                )
+                                .contains(getString(R.string.shared_prefs_user))){
+                            mAuth.getAccessToken(true)
+                                    .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                                        @Override
+                                        public void onSuccess(GetTokenResult getTokenResult) {
+                                            IdTokenInstance.setToken(getTokenResult.getToken());
+                                            startActivity(new Intent(Splash_Screen.this, MainActivity.class));
+                                            finish();
+
+                                        }
+                                    });
+                        }else{
+                            startActivity(new Intent(Splash_Screen.this, LoginActivity.class));
+                            finish();
+
+                        }
                     } else {
                         startActivity(new Intent(Splash_Screen.this, LoginActivity.class));
+                        finish();
+
                     }
                 } else {
                     startActivity(new Intent(Splash_Screen.this, LoginActivity.class));
+                    finish();
+
                 }
-                finish();
             }
         },SPLASH_SCREEN);
     }

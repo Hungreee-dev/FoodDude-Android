@@ -13,15 +13,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.Result;
 import com.example.dubstep.Model.User;
+import com.example.dubstep.database.UserDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -29,8 +38,6 @@ public class SignUpActivity extends AppCompatActivity {
     Button SignUp;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog1;
-
-    DatabaseReference databaseReference;
 
 
     @Override
@@ -99,43 +106,52 @@ public class SignUpActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-
-                                     final User details = new User(
-                                            fullName,
-                                            Username,
-                                            MobileNumber,
-                                            email
-                                    );
-
                                     final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                                    UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder()
-                                            .setDisplayName(details.Username)
-                                            .build();
-
-                                    firebaseUser.updateProfile(profileUpdate).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            Log.d("user", "User Profile Name Changed");
-                                            FirebaseDatabase.getInstance().getReference("user")
-                                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                    .setValue(details).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    FirebaseAuth.getInstance().getAccessToken(true)
+                                            .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
                                                 @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                                                    firebaseUser.sendEmailVerification();
-                                                    Toast.makeText(SignUpActivity.this,"Verify email , then login again",Toast.LENGTH_LONG).show();
-                                                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                                                    progressDialog1.dismiss();
-                                                    finish();
+                                                public void onSuccess(GetTokenResult getTokenResult) {
+                                                    IdTokenInstance.setToken(getTokenResult.getToken());
+
+                                                    final User details = new User(
+                                                            fullName,
+                                                            MobileNumber,
+                                                            email,
+                                                            firebaseUser.getUid()
+                                                    );
+                                                    UserDatabase.getInstance().addUser(details, IdTokenInstance.getToken())
+                                                            .enqueue(new Callback<Result>() {
+                                                                @Override
+                                                                public void onResponse(Call<Result> call, Response<Result> response) {
+                                                                    if (!response.isSuccessful()){
+                                                                        Toast.makeText(SignUpActivity.this, response.body().getError() + "Try again", Toast.LENGTH_SHORT).show();
+                                                                        return;
+                                                                    }if (response.body().getMessage()!=null){
+//                                                                        User created successfully
+                                                                        Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                                                                        firebaseUser.sendEmailVerification();
+                                                                        Toast.makeText(SignUpActivity.this,"Verify email , then login again",Toast.LENGTH_LONG).show();
+                                                                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                                                                        progressDialog1.dismiss();
+                                                                        finish();
+                                                                    }
+                                                                }
+
+                                                                @Override
+                                                                public void onFailure(Call<Result> call, Throwable t) {
+                                                                    Toast.makeText(SignUpActivity.this, "Some error occured ! \n Please try again" +t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                                                }
+                                                            });
                                                 }
                                             });
-                                        }
-                                    });
+
+
 
 
                                 } else {
 
-                                    Toast.makeText(SignUpActivity.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SignUpActivity.this, "Authentication failed"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     progressDialog1.dismiss();
 
                                 }

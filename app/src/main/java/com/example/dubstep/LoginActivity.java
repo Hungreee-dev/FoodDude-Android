@@ -5,7 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,7 +16,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.Result;
+import com.example.dubstep.Model.User;
 import com.example.dubstep.ViewHolder.OtpActivity;
+import com.example.dubstep.database.UserDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -22,6 +28,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -29,11 +36,17 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -126,32 +139,23 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-
-
-                                    FirebaseDatabase.getInstance().getReference("user")
-                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            progressDialog.dismiss();
-                                                    boolean verified = firebaseAuth.getCurrentUser().isEmailVerified();
-                                                    if (verified){
-                                                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
-                                                        finish();
-                                                    } else{
-                                                        startActivity(new Intent(LoginActivity.this, UserVerifyActivity.class));
-                                                        finish();
+                                    progressDialog.dismiss();
+                                    boolean verified = firebaseAuth.getCurrentUser().isEmailVerified();
+                                    String uid = firebaseAuth.getUid();
+                                    if (verified){
+                                        firebaseAuth.getAccessToken(true)
+                                                .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                                                    @Override
+                                                    public void onSuccess(GetTokenResult getTokenResult) {
+                                                        IdTokenInstance.setToken(getTokenResult.getToken());
+                                                        checkUserData(uid);
                                                     }
+                                                });
 
-                                            }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(LoginActivity.this,  "Error fetching Rider or Customer from database",Toast.LENGTH_SHORT).show();
-                                        }
-
-                                    });
-
+                                    } else{
+                                        startActivity(new Intent(LoginActivity.this, UserVerifyActivity.class));
+                                        finish();
+                                    }
 
                                 } else {
 
@@ -167,6 +171,36 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void checkUserData(String uid) {
+        UserDatabase.getInstance().getUser(uid,IdTokenInstance.getToken())
+                .enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        if(!response.isSuccessful()){
+                            Toast.makeText(LoginActivity.this, new Gson().toJson(response.body()), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        User user = response.body();
+                        Context context = LoginActivity.this;
+                        SharedPreferences mPrefs = context.getSharedPreferences(
+                                getString(R.string.shared_prefs_filename) ,MODE_PRIVATE);
+                        SharedPreferences.Editor prefEditor = mPrefs.edit();
+                        Gson gson = new Gson();
+                        String json = gson.toJson(user);
+                        Log.d("user", json);
+                        prefEditor.putString(getString(R.string.shared_prefs_user),json);
+                        prefEditor.apply();
+                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

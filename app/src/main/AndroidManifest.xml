@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application xmlns:tools="http://schemas.android.com/tools"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@drawable/ic_food_dude_icon"
         android:label="FoodDude"

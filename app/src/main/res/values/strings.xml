@@ -6,4 +6,6 @@
     <string name="rs_symbol">\u20B9</string>
     <string name="cart_total">Cart Total : ₹ ---</string>
     <string name="delivery_charge">Delivery Charge : ₹ --</string>
+    <string name="shared_prefs_filename">com.example.dubstep.UserDataFile</string>
+    <string name="shared_prefs_user">com.example.dubstep.UserData</string>
 </resources>
