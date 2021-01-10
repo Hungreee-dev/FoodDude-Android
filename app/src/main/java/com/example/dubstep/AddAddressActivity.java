@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddAddressActivity extends AppCompatActivity {
@@ -38,9 +39,9 @@ public class AddAddressActivity extends AppCompatActivity {
     TextView pincodeNotFound;
     FirebaseUser mUser;
     FirebaseDatabase mDatabase;
-    DatabaseReference mPincode;
     String pincode;
     private ProgressDialog progressDialog;
+    List<String> mPincode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,8 @@ public class AddAddressActivity extends AppCompatActivity {
         pincodeNotFound = findViewById(R.id.pincode_not_found_textview);
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
-        mPincode = mDatabase.getReference().child("pincode");
+        mPincode = new ArrayList<String>();
+
         progressDialog = new ProgressDialog(AddAddressActivity.this);
         progressDialog.show();
         progressDialog.setContentView(R.layout.progress_dialog);
@@ -108,44 +110,53 @@ public class AddAddressActivity extends AppCompatActivity {
             Toast.makeText(this,"Pincode can't be blank",Toast.LENGTH_SHORT).show();
         } else {
 //         1. Check pincode present or not
-            PinCodeDatabase.getInstance().getPinCodeList().enqueue(new Callback<List<String>>() {
-                @Override
-                public void onResponse(Call<List<String>> call, Response<List<String>> response) {
-                    if (!response.isSuccessful()) {
-                        Log.d("OnFailure", "onFailure: Unable to fetch " + response.message());
-                        return;
-                    } else {
-                        List<String> mPinCodes = response.body();
-                        if (mPinCodes.contains(pincode)) {
-                            String address1 = (address1EditText.getText().toString() != null) ? address1EditText.getText().toString() : "";
-                            String address2 = (address2EditText.getText().toString() != null) ? address2EditText.getText().toString() : "";
-                            String address3 = (address3EditText.getText().toString() != null) ? address3EditText.getText().toString() : "";
-//              2. Add that address to user_address database under user uid
-                            UserAddress address = new UserAddress(pincode, address1, address2, address3);
-                            FirebaseDatabase.getInstance().getReference()
-                                    .child("user_address")
-                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .setValue(address).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    onComplete();
-                                }
-                            });
+            if(mPincode.isEmpty()){
+                PinCodeDatabase.getInstance().getPinCodeList().enqueue(new Callback<List<String>>() {
+                    @Override
+                    public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+                        if (!response.isSuccessful()) {
+                            Log.d("OnFailure", "onFailure: Unable to fetch " + response.message());
+                            return;
                         } else {
-                            pincodeNotFound.setVisibility(View.VISIBLE);
+                            mPincode = response.body();
+                            checkPincode();
+                            progressDialog.dismiss();
                         }
-                        progressDialog.dismiss();
-                    }
                     }
 
-                @Override
-                public void onFailure(Call<List<String>> call, Throwable t) {
-                    Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
-                }
+                    @Override
+                    public void onFailure(Call<List<String>> call, Throwable t) {
+                        Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
+                    }
 
-            });
+                });
+            } else {
+                checkPincode();
+            }
+
         }
 
+    }
+
+    private void checkPincode() {
+        if (mPincode.contains(pincode)) {
+            String address1 = (address1EditText.getText().toString() != null) ? address1EditText.getText().toString() : "";
+            String address2 = (address2EditText.getText().toString() != null) ? address2EditText.getText().toString() : "";
+            String address3 = (address3EditText.getText().toString() != null) ? address3EditText.getText().toString() : "";
+//              2. Add that address to user_address database under user uid
+            UserAddress address = new UserAddress(pincode, address1, address2, address3);
+            FirebaseDatabase.getInstance().getReference()
+                    .child("user_address")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .setValue(address).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    onComplete();
+                }
+            });
+        } else {
+            pincodeNotFound.setVisibility(View.VISIBLE);
+        }
     }
 
 
