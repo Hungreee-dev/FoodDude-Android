@@ -1,15 +1,25 @@
 package com.example.dubstep;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.dubstep.Model.Address;
 import com.example.dubstep.Model.UserAddress;
+import com.example.dubstep.adapter.AddressItemAdapter;
+import com.example.dubstep.adapter.FoodItemAdapter;
+import com.example.dubstep.database.AddressDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,32 +29,42 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SelectAddressActivity extends AppCompatActivity {
 
+    public static final int EDIT_ADDRESS_CODE=1;
+
     TextView emptyAddressTextView;
-    public TextView pincode ;
-    public TextView address1;
-    public TextView address2;
-    public TextView address3;
-    public MaterialCardView addressCard;
-    public ExtendedFloatingActionButton setAddress;
+    public ExtendedFloatingActionButton addAddress;
     public ExtendedFloatingActionButton continueOrderBtn;
     private ProgressDialog progressDialog;
+    private RecyclerView addressRecycler;
+    private FirebaseUser mUser;
+    AddressItemAdapter adapter;
+    List<Address>  addressList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_address);
         emptyAddressTextView = findViewById(R.id.address_empty_textView);
-        FirebaseUser mAuth = FirebaseAuth.getInstance().getCurrentUser();
-        pincode = findViewById(R.id.pincode_textview);
-        address1 = findViewById(R.id.address1_textView);
-        address2 = findViewById(R.id.address2_textView);
-        address3 = findViewById(R.id.address3_textView);
-        addressCard = findViewById(R.id.show_address_card);
-        setAddress = findViewById(R.id.set_address_btn);
+        addressRecycler = findViewById(R.id.address_recycler_view);
+        addressList = new ArrayList<Address>();
+
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        addAddress = findViewById(R.id.set_address_btn);
+
         continueOrderBtn = findViewById(R.id.continueOrder);
+
         progressDialog = new ProgressDialog(SelectAddressActivity.this);
         progressDialog.show();
         progressDialog.setContentView(R.layout.progress_dialog);
@@ -52,43 +72,118 @@ public class SelectAddressActivity extends AppCompatActivity {
                 android.R.color.transparent
         );
 
-
-
-
-        final Query query = FirebaseDatabase.getInstance()
-                .getReference()
-                .child("user_address")
-                .child(mAuth.getUid());
-
-        query.addValueEventListener(new ValueEventListener() {
+//  1. check if exist in sharedPrefs
+//  2. then fetch from backend
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        addressRecycler.setLayoutManager(layoutManager);
+        adapter = new AddressItemAdapter();
+        adapter.setOnItemClickListener(new AddressItemAdapter.OnItemClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()){
-                    setAddress.setVisibility(View.VISIBLE);
-                    addressCard.setVisibility(View.GONE);
-                    emptyAddressTextView.setVisibility(View.VISIBLE);
-                    continueOrderBtn.setVisibility(View.GONE);
-                } else {
-                    continueOrderBtn.setVisibility(View.VISIBLE);
-                    setAddress.setVisibility(View.GONE);
-                    addressCard.setVisibility(View.VISIBLE);
-                    emptyAddressTextView.setVisibility(View.GONE);
-                    UserAddress address = snapshot.getValue(UserAddress.class);
-                    pincode.setText(address.getPincode());
-                    address1.setText(address.getAddress1());
-                    address2.setText(address.getAddress2());
-                    address3.setText(address.getAddress3());
-                }
-                progressDialog.dismiss();
+            public void onEditButtonClick(Address address) {
+//                edit address
+                editAddress(address);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onDeleteButtonClick(Address address) {
+                deleteAddress(address);
+            }
 
+            @Override
+            public void onItemClick(Address address) {
+//                go to promocode activity
+//                add continue order functionality to each address
+                Intent intent = new Intent(SelectAddressActivity.this,ReferralActivity.class);
+                String json = new Gson().toJson(address);
+                intent.putExtra("com.example.dubstep.deliveryAddress",json);
+                startActivity(intent);
             }
         });
+        showAddress();
 
+    }
 
+    private void editAddress(Address address) {
+        String json = new Gson().toJson(address);
+        Intent intent = new Intent(SelectAddressActivity.this, AddAddressActivity.class);
+        intent.putExtra(AddAddressActivity.EXTRA_ADDRESS,json);
+        startActivityForResult(intent,EDIT_ADDRESS_CODE);
+
+    }
+
+    private void deleteAddress(Address address) {
+        AddressDatabase.getInstance().removeAddress(mUser.getUid(),address.getId(),IdTokenInstance.getToken())
+                .enqueue(new Callback<Address>() {
+                    @Override
+                    public void onResponse(Call<Address> call, Response<Address> response) {
+                        if (!response.isSuccessful()){
+                            Toast.makeText(SelectAddressActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                            return;
+                        }
+                        if (response.body().getMessage()!=null){
+                            addressList.removeIf(address1 -> address1.getId().equals(address.getId()));
+                            if(addressList.isEmpty()){
+                                adapter.submitList(null);
+                            } else {
+                                adapter.submitList(addressList);
+                            }
+                        }
+                        if (addressList.isEmpty()){
+                            emptyAddressTextView.setVisibility(View.VISIBLE);
+                            addressRecycler.setVisibility(View.INVISIBLE);
+                        }
+                        progressDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Address> call, Throwable t) {
+                        Toast.makeText(SelectAddressActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("address", "onResume: called");
+        showAddress();
+    }
+
+    private void showAddress() {
+        AddressDatabase.getInstance().getAllAddress(mUser.getUid(), IdTokenInstance.getToken())
+            .enqueue(new Callback<List<Address>>() {
+                @Override
+                public void onResponse(Call<List<Address>> call, Response<List<Address>> response) {
+                    if(!response.isSuccessful()){
+                        Toast.makeText(SelectAddressActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        return;
+                    }
+                    addressList = new ArrayList<>();
+                    adapter.submitList(addressList);
+                    addressList.addAll(response.body()) ;
+                    if (addressList.isEmpty()){
+//                        show no address found
+                        emptyAddressTextView.setVisibility(View.VISIBLE);
+                        addressRecycler.setVisibility(View.INVISIBLE);
+                    } else {
+                        emptyAddressTextView.setVisibility(View.INVISIBLE);
+                        addressRecycler.setVisibility(View.VISIBLE);
+                        adapter.submitList(addressList);
+                    }
+                    progressDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Call<List<Address>> call, Throwable t) {
+                    Toast.makeText(SelectAddressActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                }
+            });
+
+        addressRecycler.setAdapter(adapter);
 
     }
 
@@ -102,18 +197,28 @@ public class SelectAddressActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void ContinueOrder(View view) {
-//        get all addresses and put in intent
-        Intent intent = new Intent(this,ReferralActivity.class);
-        intent.putExtra("pincode",pincode.getText());
-        intent.putExtra("address1",address1.getText());
-        intent.putExtra("address2",address2.getText());
-        intent.putExtra("address3",address3.getText());
-        intent.putExtra("message",getIntent().getStringExtra("message"));
-        intent.putExtra("wanumber",getIntent().getStringExtra("wanumber"));
-        intent.putExtra("cartTotal",getIntent().getStringExtra("cartTotal"));
-        startActivity(intent);
-        finish();
+//    public void ContinueOrder(View view) {
+////        get all addresses and put in intent
+//        Intent intent = new Intent(this,ReferralActivity.class);
+//        intent.putExtra("pincode",pincode.getText());
+//        intent.putExtra("address1",address1.getText());
+//        intent.putExtra("address2",address2.getText());
+//        intent.putExtra("address3",address3.getText());
+//        intent.putExtra("message",getIntent().getStringExtra("message"));
+//        intent.putExtra("wanumber",getIntent().getStringExtra("wanumber"));
+//        intent.putExtra("cartTotal",getIntent().getStringExtra("cartTotal"));
+//        startActivity(intent);
+//        finish();
+//
+//    }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==EDIT_ADDRESS_CODE&&resultCode==RESULT_OK){
+//            we could use this technique to decrease the call to server &
+//            to fetch all record on each edit request on showAddress() on onResume() method
+        }
     }
 }

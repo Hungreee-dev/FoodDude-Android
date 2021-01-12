@@ -35,6 +35,21 @@
         app:layout_constraintTop_toBottomOf="@id/add_address_textView" />
 
     <EditText
+        android:hint="House No."
+        android:id="@+id/houseNo_editText"
+        android:inputType="text"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pincode_editText" />
+
+
+    <EditText
         android:hint="Address Line 1"
         android:id="@+id/address1_editText"
         android:inputType="text"
@@ -46,7 +61,7 @@
         android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pincode_editText" />
+        app:layout_constraintTop_toBottomOf="@id/houseNo_editText" />
 
     <EditText
         android:hint="Address Line 2"
@@ -63,8 +78,8 @@
         app:layout_constraintTop_toBottomOf="@id/address1_editText" />
 
     <EditText
-        android:hint="Address Line 3"
-        android:id="@+id/address3_editText"
+        android:hint="City"
+        android:id="@+id/city_editText"
         android:inputType="text"
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
@@ -75,6 +90,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/address2_editText" />
+
+    <EditText
+        android:hint="State"
+        android:id="@+id/state_editText"
+        android:inputType="text"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/city_editText" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:layout_width="wrap_content"
@@ -103,8 +132,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/address3_editText"
+        app:layout_constraintTop_toBottomOf="@+id/state_editText"
         android:onClick="addAddress"
+        app:layout_constraintVertical_bias="0.2"
         android:visibility="invisible"
         />
 

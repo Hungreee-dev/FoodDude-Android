@@ -1,10 +1,39 @@
 package com.example.dubstep.Model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class UserAddress {
     String pincode;
     String address1;
     String address2;
     String address3;
+    @SerializedName("uid")
+    String uid;
+
+    @SerializedName("addressId")
+    String addressId;
+
+    @SerializedName("address")
+    Address address;
+
+    @SerializedName("message")
+    String message;
+
+    @SerializedName("error")
+    String error;
+
+    public UserAddress(String uid, Address address) {
+        this.uid = uid;
+        this.address = address;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getError() {
+        return error;
+    }
 
     public UserAddress(){}
 
@@ -45,5 +74,13 @@ public class UserAddress {
 
     public void setAddress3(String address3) {
         this.address3 = address3;
+    }
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(String addressId) {
+        this.addressId = addressId;
     }
 }

@@ -16,8 +16,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.Address;
+import com.example.dubstep.Model.User;
 import com.example.dubstep.Model.UserAddress;
+import com.example.dubstep.backendInterface.AddressApi;
+import com.example.dubstep.database.AddressDatabase;
 import com.example.dubstep.database.PinCodeDatabase;
+import com.example.dubstep.database.UserDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,31 +32,40 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddAddressActivity extends AppCompatActivity {
 
+    public final static String EXTRA_ADDRESS=
+            "com.example.dubstep.extra_address";
+
     EditText pincodeEditText;
+    EditText houseNoEditText;
     EditText address1EditText;
     EditText address2EditText;
-    EditText address3EditText;
+    EditText cityEditText;
+    EditText stateEditText;
     TextView pincodeNotFound;
     FirebaseUser mUser;
     FirebaseDatabase mDatabase;
     String pincode;
     private ProgressDialog progressDialog;
     List<String> mPincode;
+    Address oldAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_address);
         pincodeEditText = findViewById(R.id.pincode_editText);
+        houseNoEditText = findViewById(R.id.houseNo_editText);
         address1EditText = findViewById(R.id.address1_editText);
         address2EditText = findViewById(R.id.address2_editText);
-        address3EditText = findViewById(R.id.address3_editText);
+        cityEditText = findViewById(R.id.city_editText);
+        stateEditText = findViewById(R.id.state_editText);
         pincodeNotFound = findViewById(R.id.pincode_not_found_textview);
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
@@ -77,29 +92,29 @@ public class AddAddressActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
-        setAddress();
+        if(getIntent().hasExtra(EXTRA_ADDRESS)) {
+            setAddress();
+        } else {
+            progressDialog.dismiss();
+        }
     }
 
     private void setAddress(){
-        mDatabase.getReference().child("user_address").child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    UserAddress address = snapshot.getValue(UserAddress.class);
-                    pincodeEditText.setText(address.getPincode());
-                    address1EditText.setText(address.getAddress1());
-                    address2EditText.setText(address.getAddress2());
-                    address3EditText.setText(address.getAddress3());
-                }
-                progressDialog.dismiss();
+//        get address from intent
+
+            String json = getIntent().getStringExtra(EXTRA_ADDRESS);
+            if(json==null){
+                setResult(RESULT_CANCELED);
+                finish();
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+            oldAddress = new Gson().fromJson(json,Address.class);
+            pincodeEditText.setText(oldAddress.getPincode());
+            houseNoEditText.setText(oldAddress.getHouseNumber());
+            address1EditText.setText(oldAddress.getLine1());
+            address2EditText.setText(oldAddress.getLine2());
+            cityEditText.setText(oldAddress.getCity());
+            stateEditText.setText(oldAddress.getState());
+            progressDialog.dismiss();
     }
 
     public void addAddress(View view) {
@@ -120,7 +135,6 @@ public class AddAddressActivity extends AppCompatActivity {
                         } else {
                             mPincode = response.body();
                             checkPincode();
-                            progressDialog.dismiss();
                         }
                     }
 
@@ -140,27 +154,100 @@ public class AddAddressActivity extends AppCompatActivity {
 
     private void checkPincode() {
         if (mPincode.contains(pincode)) {
-            String address1 = (address1EditText.getText().toString() != null) ? address1EditText.getText().toString() : "";
-            String address2 = (address2EditText.getText().toString() != null) ? address2EditText.getText().toString() : "";
-            String address3 = (address3EditText.getText().toString() != null) ? address3EditText.getText().toString() : "";
+            if(houseNoEditText.getText().toString() == null || houseNoEditText.getText().toString().trim().equals("")){
+                Log.d("address", "checkPincode: "+houseNoEditText.getText().toString().trim());
+                Toast.makeText(this, "House No can't be empty", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                return;
+            }
+            if(address1EditText.getText().toString() == null || address1EditText.getText().toString().trim().equals("")){
+                Toast.makeText(this, "Address Line 1 can't be empty", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                return;
+            }
+            if(address2EditText.getText().toString() == null || address2EditText.getText().toString().trim().equals("")){
+                Toast.makeText(this, "Address Line 2 can't be empty", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                return;
+            }
+            if(cityEditText.getText().toString() == null || cityEditText.getText().toString().trim().equals("")){
+                Toast.makeText(this, "City's name can't be empty", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                return;
+            }
+            if(stateEditText.getText().toString() == null || stateEditText.getText().toString().trim().equals("")){
+                Toast.makeText(this, "State's name can't be empty", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                return;
+            }
+            String houseNo = houseNoEditText.getText().toString().trim();
+            String address1 = address1EditText.getText().toString().trim();
+            String address2 = address2EditText.getText().toString().trim();
+            String city = cityEditText.getText().toString().trim();
+            String state = stateEditText.getText().toString().trim();
 //              2. Add that address to user_address database under user uid
-            UserAddress address = new UserAddress(pincode, address1, address2, address3);
-            FirebaseDatabase.getInstance().getReference()
-                    .child("user_address")
-                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .setValue(address).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    onComplete();
-                }
-            });
+            Address address = new Address(pincode,houseNo,address1,address2,city,state);
+
+            if(getIntent().hasExtra(EXTRA_ADDRESS)){
+                editAddress(address);
+            } else {
+                AddressDatabase.getInstance().addAddress(new UserAddress(mUser.getUid(),address), IdTokenInstance.getToken())
+                        .enqueue(new Callback<UserAddress>() {
+                            @Override
+                            public void onResponse(Call<UserAddress> call, Response<UserAddress> response) {
+                                if(!response.isSuccessful()){
+                                    Toast.makeText(AddAddressActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                UserAddress addressResponse = response.body();
+                                if(addressResponse.getError()!=null){
+                                    Toast.makeText(AddAddressActivity.this, addressResponse.getError(), Toast.LENGTH_SHORT).show();
+                                } else if(addressResponse.getMessage()!=null){
+//                            message added to database successfully
+                                    Toast.makeText(AddAddressActivity.this, "Address Added Successfully", Toast.LENGTH_SHORT).show();
+                                    onComplete();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<UserAddress> call, Throwable t) {
+                                Toast.makeText(AddAddressActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+
+
         } else {
             pincodeNotFound.setVisibility(View.VISIBLE);
         }
+        progressDialog.dismiss();
+    }
+
+    private void editAddress(Address address) {
+        UserAddress userAddress = new UserAddress(mUser.getUid(),address);
+        userAddress.setAddressId(oldAddress.getId());
+        AddressDatabase.getInstance().editAddress(userAddress,IdTokenInstance.getToken())
+                .enqueue(new Callback<Address>() {
+                    @Override
+                    public void onResponse(Call<Address> call, Response<Address> response) {
+                        if (!response.isSuccessful()){
+                            Toast.makeText(AddAddressActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(AddAddressActivity.this, "Address Added Successfully", Toast.LENGTH_SHORT).show();
+                        onComplete();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Address> call, Throwable t) {
+                        Toast.makeText(AddAddressActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 
     public void onComplete(){
+        progressDialog.dismiss();
         finish();
     }
 }

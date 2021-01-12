@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageButton
+        android:id="@+id/remove_address_btn"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="start|top"
+        android:elevation="16dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:background="@drawable/circle"
+        android:src="@drawable/ic_baseline_delete_24"
+        tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/show_address_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+
+                <TextView
+                    android:id="@+id/houseNo_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="House No"
+                    android:textSize="14sp"
+                    android:layout_marginTop="5dp"/>
+
+                <TextView
+                    android:id="@+id/address1_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="Address1"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/address2_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="Address2"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/pincode_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="Pincode"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/change_address_btn"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:onClick="changeAddress"
+                    android:text="Edit Address"
+                    app:cornerRadius="32dp"
+                    app:iconGravity="textEnd"
+                    app:strokeColor="@color/colorAccent"
+                    app:iconSize="32dp"
+                    app:rippleColor="@color/white"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

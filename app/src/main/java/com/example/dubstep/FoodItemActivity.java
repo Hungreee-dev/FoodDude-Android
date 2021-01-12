@@ -84,6 +84,9 @@ public class FoodItemActivity extends AppCompatActivity {
             @Override
             public void onItemClick(Menu menu) {
                 Log.d("cart add", "onItemClick: add menu item to cart" + menu.getName());
+//                just so cart would work
+                FoodItem foodItem = new FoodItem(120,"kasjd","name","veg");
+                addToCart(foodItem,0);
             }
         });
         recyclerView.setAdapter(adapter);
