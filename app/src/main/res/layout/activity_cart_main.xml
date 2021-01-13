@@ -17,6 +17,16 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="16dp" />
 
+    <TextView
+        android:id="@+id/empty_cart_text_view"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Cart empty!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/total_price_text_view"

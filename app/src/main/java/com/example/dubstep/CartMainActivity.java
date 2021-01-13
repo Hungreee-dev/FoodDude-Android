@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -16,10 +19,15 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.Address;
 import com.example.dubstep.Model.CartInfo;
 import com.example.dubstep.Model.CartItem;
 import com.example.dubstep.Model.User;
+import com.example.dubstep.Model.UserCart;
 import com.example.dubstep.ViewHolder.CartItemsAdapter;
+import com.example.dubstep.database.AddressDatabase;
+import com.example.dubstep.database.CartDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,7 +39,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 //       1. change place order button to Continue button that takes to new activity
 //       2. Create a new activity where we have a editext and submit button
@@ -49,12 +59,13 @@ public class CartMainActivity extends AppCompatActivity {
     private TextView mPriceTotal;
     private TextView mCartTotal;
     private String myOrderMessage;
-    private TextView mDelivery;
+    private TextView mDelivery, emptyCartMesage;
     private DatabaseReference userref;
     private DatabaseReference mCartRef;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private double TotalPrice;
+    private List<UserCart> mCartItemList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +77,7 @@ public class CartMainActivity extends AppCompatActivity {
         mCartRef = FirebaseDatabase.getInstance().getReference("Cart").child(firebaseAuth.getCurrentUser().getUid().toString());
 
         mplaceOrder = findViewById(R.id.btn_place_order);
+        emptyCartMesage = findViewById(R.id.empty_cart_text_view);
 
         setUpTotals();
         setUpRecycler();
@@ -117,7 +129,7 @@ public class CartMainActivity extends AppCompatActivity {
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         index++;
                         CartItem item = snap.getValue(CartItem.class);
-                        cartTotal += (Integer.parseInt(item.getPrice()) * Integer.parseInt(item.getQuantity()));
+                        cartTotal += (item.getPrice() * item.getQuantity());
                         myOrderMessage = myOrderMessage +
                                 String.format(
                                         "Item %s : %s , Qty : %s \n",
@@ -180,7 +192,6 @@ public class CartMainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        adapter.startListening();
     }
 
     private void setUpRecycler() {
@@ -190,16 +201,97 @@ public class CartMainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+        mCartItemList = new ArrayList<>();
+        adapter = new CartItemsAdapter(CartMainActivity.this,mCartItemList);
 
+        CartDatabase.getInstance().getAllCartItems(firebaseAuth.getUid(), IdTokenInstance.getToken())
+                .enqueue(new Callback<List<UserCart>>() {
+                    @Override
+                    public void onResponse(Call<List<UserCart>> call, Response<List<UserCart>> response) {
+                        if(!response.isSuccessful()){
+                            Toast.makeText(CartMainActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        mCartItemList.addAll(response.body()) ;
+                        adapter.submitList(mCartItemList);
+                        if (mCartItemList.isEmpty()){
+                            //show no address found
+                            emptyCartMesage.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.INVISIBLE);
+                        } else {
+                            emptyCartMesage.setVisibility(View.INVISIBLE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                            adapter.submitList(mCartItemList);
+                        }
 
-        FirebaseRecyclerOptions<CartItem> options = new FirebaseRecyclerOptions.Builder<CartItem>()
-                .setQuery(mCartRef.child("Products"),CartItem.class)
-                .build();
+                        //progressDialog.dismiss();
+                    }
 
-        adapter = new CartItemsAdapter(options);
-        recyclerView.setAdapter(adapter);
+                    @Override
+                    public void onFailure(Call<List<UserCart>> call, Throwable t) {
+                        Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        adapter.setOnValueChangeListener(new CartItemsAdapter.OnValueChangeListener() {
+            @Override
+            public void onQuantityChange(UserCart userCart, int quantity) {
+                userCart.getCartItem().setQuantity(quantity);
+                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
+                        .enqueue(new Callback<UserCart>() {
+                            @Override
+                            public void onResponse(Call<UserCart> call,
+                                    Response<UserCart> response) {
+                                if (!response.isSuccessful()){
+                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailure(Call<UserCart> call, Throwable t) {
+                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
 
         adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemDelete(UserCart userCart) {
+                userCart.getCartItem().setQuantity(0);
+                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
+                        .enqueue(new Callback<UserCart>() {
+                            @Override
+                            public void onResponse(Call<UserCart> call,
+                                    Response<UserCart> response) {
+                                if (!response.isSuccessful()){
+                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailure(Call<UserCart> call, Throwable t) {
+                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
+
+        recyclerView.setAdapter(adapter);
+
+
+        /*FirebaseRecyclerOptions<CartItem> options = new FirebaseRecyclerOptions.Builder<CartItem>()
+                .setQuery(mCartRef.child("Products"),CartItem.class)
+                .build();
+        adapter = new CartItemsAdapter(options);*/
+
+
+
+        /*adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
             @Override
             public void onItemDelete(String PID, int position) {
                 mCartRef.child("Products").child(PID).removeValue()
@@ -229,7 +321,7 @@ public class CartMainActivity extends AppCompatActivity {
                             }
                         });
             }
-        });
+        });*/
 
     }
 }

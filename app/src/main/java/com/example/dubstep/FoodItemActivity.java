@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,12 +17,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.CartItem;
 import com.example.dubstep.Model.FoodItem;
 import com.example.dubstep.Model.GlideApp;
 import com.example.dubstep.Model.Menu;
+import com.example.dubstep.Model.UserCart;
 import com.example.dubstep.ViewHolder.FoodClassViewHolder;
 import com.example.dubstep.ViewHolder.FoodItemViewHolder;
 import com.example.dubstep.adapter.FoodItemAdapter;
+import com.example.dubstep.database.CartDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,6 +49,7 @@ public class FoodItemActivity extends AppCompatActivity {
     String base_name;
     DatabaseReference cartref;
     StorageReference storageRef;
+    FirebaseAuth firebaseAuth;
 
     private FloatingActionButton mCartButton;
 
@@ -60,6 +68,8 @@ public class FoodItemActivity extends AppCompatActivity {
 
 //        storage ref for images
         storageRef = FirebaseStorage.getInstance().getReference();
+
+        firebaseAuth = FirebaseAuth.getInstance();
 
         cartref = FirebaseDatabase.getInstance().getReference("Cart");
         TextView foodItemBaseName = findViewById(R.id.food_item_base_name);
@@ -93,7 +103,26 @@ public class FoodItemActivity extends AppCompatActivity {
     }
 
     private void addToCart(FoodItem addedItem,int position) {
-        final HashMap<String, Object> cartMap = new HashMap<>();
+        String productId = base_name +"_"+position;
+        CartItem cartItem = new CartItem(addedItem.getName(), addedItem.getBase_price(), 1, productId, addedItem.getCategory());
+        UserCart userCart = new UserCart(firebaseAuth.getUid(), cartItem);
+        CartDatabase.getInstance().addCartItem(userCart, IdTokenInstance.getToken())
+                .enqueue(new Callback<UserCart>() {
+                    @Override
+                    public void onResponse(Call<UserCart> call, Response<UserCart> response) {
+                        if (!response.isSuccessful()){
+                            Toast.makeText(FoodItemActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(FoodItemActivity.this, "Added to Cart", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserCart> call, Throwable t) {
+                        Toast.makeText(FoodItemActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+        /*final HashMap<String, Object> cartMap = new HashMap<>();
         cartMap.put("Name", addedItem.getName());
         cartMap.put("Price", String.valueOf(addedItem.getBase_price()));
         cartMap.put("Quantity", "1");
@@ -109,7 +138,7 @@ public class FoodItemActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(FoodItemActivity.this, "Added to Cart", Toast.LENGTH_SHORT).show();
                     }
-                });
+                });*/
     }
 
     private void setFloatingButtonAction() {
