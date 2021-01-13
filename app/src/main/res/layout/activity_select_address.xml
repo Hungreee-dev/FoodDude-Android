@@ -45,11 +45,12 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/continueOrder"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorAccent"
         android:onClick="ContinueOrder"
-        android:text="Continue Order"
+        android:textAllCaps="false"
+        android:text="Checkout"
         android:textColor="@color/white"
         app:icon="@drawable/cart_icon"
         app:iconTint="@color/white"
@@ -61,21 +62,21 @@
         app:layout_constraintVertical_bias="0.973" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/set_address_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:backgroundTint="@color/colorAccent"
+        android:id="@+id/set_address_btn"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:onClick="changeAddress"
         android:text="Add Address"
+        android:textAllCaps="false"
         android:textColor="@color/white"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.075"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.973"
-        android:onClick="changeAddress"
-        android:visibility="visible"
-        />
+        app:layout_constraintVertical_bias="0.973" />
 
     <TextView
         android:id="@+id/address_empty_textView"
@@ -83,7 +84,7 @@
         android:layout_height="wrap_content"
         android:text="No address found..\n Please add to continue"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

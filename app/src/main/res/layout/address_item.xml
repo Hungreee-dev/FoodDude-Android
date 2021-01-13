@@ -79,7 +79,6 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/change_address_btn"
-                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
@@ -87,9 +86,8 @@
                     android:text="Edit Address"
                     app:cornerRadius="32dp"
                     app:iconGravity="textEnd"
-                    app:strokeColor="@color/colorAccent"
+                    android:backgroundTint="@color/orangeBg"
                     app:iconSize="32dp"
-                    app:rippleColor="@color/white"
                     />
 
             </LinearLayout>
