@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.CartInfo;
 import com.example.dubstep.Model.CartItem;
 import com.example.dubstep.Model.FoodItem;
 import com.example.dubstep.Model.GlideApp;
@@ -95,17 +96,15 @@ public class FoodItemActivity extends AppCompatActivity {
             public void onItemClick(Menu menu) {
                 Log.d("cart add", "onItemClick: add menu item to cart" + menu.getName());
 //                just so cart would work
-                FoodItem foodItem = new FoodItem(120,"kasjd","name","veg");
-                addToCart(foodItem,0);
+                CartItem cartItem = new CartItem(menu.getName(),menu.getPrice(),1);
+                addToCart(cartItem);
             }
         });
         recyclerView.setAdapter(adapter);
     }
 
-    private void addToCart(FoodItem addedItem,int position) {
-        String productId = base_name +"_"+position;
-        CartItem cartItem = new CartItem(addedItem.getName(), addedItem.getBase_price(), 1, productId, addedItem.getCategory());
-        UserCart userCart = new UserCart(firebaseAuth.getUid(), cartItem);
+    private void addToCart(CartItem addedItem) {
+        UserCart userCart = new UserCart(firebaseAuth.getUid(), addedItem);
         CartDatabase.getInstance().addCartItem(userCart, IdTokenInstance.getToken())
                 .enqueue(new Callback<UserCart>() {
                     @Override
@@ -122,23 +121,6 @@ public class FoodItemActivity extends AppCompatActivity {
                         Toast.makeText(FoodItemActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-        /*final HashMap<String, Object> cartMap = new HashMap<>();
-        cartMap.put("Name", addedItem.getName());
-        cartMap.put("Price", String.valueOf(addedItem.getBase_price()));
-        cartMap.put("Quantity", "1");
-        cartMap.put("Product_ID", base_name+"_"+position);
-        cartMap.put("Category" , addedItem.getCategory());
-
-        cartref.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child("Products")
-                .child(String.valueOf(cartMap.get("Product_ID")))
-                .updateChildren(cartMap)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(FoodItemActivity.this, "Added to Cart", Toast.LENGTH_SHORT).show();
-                    }
-                });*/
     }
 
     private void setFloatingButtonAction() {

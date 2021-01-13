@@ -8,34 +8,18 @@ public class CartItem implements Serializable {
     @SerializedName("name")
     String Name;
     @SerializedName("price")
-    int Price;
+    String Price;
     @SerializedName("quantity")
     int Quantity;
-
-    String Product_ID;
-
-    @SerializedName("category")
-    String category;
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
 
 
     public CartItem() {
     }
 
-
-    public CartItem(String name, int price, int quantity, String product_ID, String category) {
+    public CartItem(String name, String price, int quantity) {
         Name = name;
         Price = price;
         Quantity = quantity;
-        Product_ID = product_ID;
-        this.category = category;
     }
 
     public String getName() {
@@ -46,11 +30,11 @@ public class CartItem implements Serializable {
         Name = name;
     }
 
-    public int getPrice() {
+    public String getPrice() {
         return Price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(String price) {
         Price = price;
     }
 
@@ -62,11 +46,4 @@ public class CartItem implements Serializable {
         Quantity = quantity;
     }
 
-    public String getProduct_ID() {
-        return Product_ID;
-    }
-
-    public void setProduct_ID(String product_ID) {
-        Product_ID = product_ID;
-    }
 }

@@ -20,7 +20,7 @@ public interface CartApi {
 
     @FormUrlEncoded
     @POST("api/users/cart/get")
-    Call<List<UserCart>> getAllCartItems(@Field("uid") String uid, @Header("authorization") String authorizationHeader);
+    Call<List<CartItem>> getAllCartItems(@Field("uid") String uid, @Header("authorization") String authorizationHeader);
 
     @POST("api/users/cart/edit-item")
     Call<UserCart> editCartItem(@Body UserCart cartItem, @Header("authorization") String authorizationHeader);

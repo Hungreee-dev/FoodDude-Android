@@ -1,4 +1,4 @@
-package com.example.dubstep.ViewHolder;
+package com.example.dubstep.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.example.dubstep.Model.CartItem;
-import com.example.dubstep.Model.User;
 import com.example.dubstep.Model.UserCart;
 import com.example.dubstep.R;
 
@@ -114,11 +113,11 @@ public class CartItemsAdapter extends RecyclerView.Adapter<CartItemsAdapter.Hold
             mFoodPrice.setText(price);
             mNumberButton.setNumber(String.valueOf(cartItem.getQuantity()));
             //String category = model.getCategory();
-            String productID = cartItem.getProduct_ID();
+            String productID = cartItem.getName();
             String category = productID.substring(0, productID.indexOf("_"));
             mItemIcon.setImageResource(getIcon(category));
             int q = cartItem.getQuantity();
-            int bp = cartItem.getPrice();
+            int bp = Integer.parseInt(cartItem.getPrice());
             int tp = q * bp;
             String totalPrice = "₹" + (q * bp);
             mTotalPrice.setText(totalPrice);

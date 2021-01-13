@@ -10,27 +10,16 @@ import retrofit2.Response;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dubstep.Model.Address;
-import com.example.dubstep.Model.CartInfo;
 import com.example.dubstep.Model.CartItem;
-import com.example.dubstep.Model.User;
 import com.example.dubstep.Model.UserCart;
-import com.example.dubstep.ViewHolder.CartItemsAdapter;
-import com.example.dubstep.database.AddressDatabase;
+import com.example.dubstep.adapter.CartItemsAdapter;
 import com.example.dubstep.database.CartDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -65,7 +54,8 @@ public class CartMainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private double TotalPrice;
-    private List<UserCart> mCartItemList;
+    private List<CartItem> mCartItemList;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +69,6 @@ public class CartMainActivity extends AppCompatActivity {
         mplaceOrder = findViewById(R.id.btn_place_order);
         emptyCartMesage = findViewById(R.id.empty_cart_text_view);
 
-        setUpTotals();
         setUpRecycler();
         mplaceOrder.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +82,14 @@ public class CartMainActivity extends AppCompatActivity {
 //
             }
         });
+
+        progressDialog = new ProgressDialog(CartMainActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+
     }
 
     private String createMessage() {
@@ -100,91 +97,20 @@ public class CartMainActivity extends AppCompatActivity {
     }
 
     private void setUpTotals() {
-        final ProgressDialog progressDialog = new ProgressDialog(CartMainActivity.this);
-        progressDialog.show();
-        progressDialog.setContentView(R.layout.progress_dialog);
-        progressDialog.getWindow().setBackgroundDrawableResource(
-                android.R.color.transparent
-        );
 
         mPriceTotal = findViewById(R.id.total_price_text_view);
         mCartTotal = findViewById(R.id.cart_total_textView);
         mDelivery = findViewById(R.id.DdeliveryTextView);
 
-        //int cartTotal = 0;
-        //double discount = 0;
+        int cartTotal = 0;
+//        double discount = 0;
 
-
-        mCartRef.child("Products").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int cartTotal = 0;
-                myOrderMessage = "";
-                int index = 0;
-//              Delivery Charge addition
-
-                final double deliveryCharge = 50;
-                if(dataSnapshot.exists()){
-                    mplaceOrder.setClickable(true);
-                    for(DataSnapshot snap: dataSnapshot.getChildren()){
-                        index++;
-                        CartItem item = snap.getValue(CartItem.class);
-                        cartTotal += (item.getPrice() * item.getQuantity());
-                        myOrderMessage = myOrderMessage +
-                                String.format(
-                                        "Item %s : %s , Qty : %s \n",
-                                        index,
-                                        item.getName(),
-                                        item.getQuantity()
-                                );
-                        final int finalCartTotal = cartTotal;
-                        mCartTotal.setText("Cart Total : \u20B9 "+cartTotal);
-                        userref.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                mDelivery.setText("Delivery Charge : \u20B9 "+deliveryCharge);
-
-                                TotalPrice = finalCartTotal + deliveryCharge;
-
-                                mPriceTotal.setText("Total Price : \u20B9 "+TotalPrice);
-
-                                HashMap<String,Object> cartInfo = new HashMap<>();
-                                cartInfo.put("CartItemsTotal",finalCartTotal);
-                                cartInfo.put("Delivery",deliveryCharge);
-                                cartInfo.put("CartTotal",TotalPrice);
-
-                                mCartRef.child("Info").setValue(cartInfo);
-
-
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                    }
-                }
-                else{
-                    mplaceOrder.setClickable(false);
-                    mCartTotal.setText("Cart Total : ₹ ---");
-                    mPriceTotal.setText("Total Price : ₹ --");
-                    mDelivery.setText("Delivery Charge : ₹ --");
-                }
-
-                progressDialog.dismiss();
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
+        for (CartItem cartItem : mCartItemList){
+          cartTotal += cartItem.getQuantity() * Integer.parseInt(cartItem.getPrice());
+        }
+        mCartTotal.setText(cartTotal);
+        mDelivery.setText("50");
+        mPriceTotal.setText(cartTotal+50);
 
 
     }
@@ -205,14 +131,16 @@ public class CartMainActivity extends AppCompatActivity {
         adapter = new CartItemsAdapter(CartMainActivity.this,mCartItemList);
 
         CartDatabase.getInstance().getAllCartItems(firebaseAuth.getUid(), IdTokenInstance.getToken())
-                .enqueue(new Callback<List<UserCart>>() {
+                .enqueue(new Callback<List<CartItem>>() {
                     @Override
-                    public void onResponse(Call<List<UserCart>> call, Response<List<UserCart>> response) {
+                    public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
                         if(!response.isSuccessful()){
                             Toast.makeText(CartMainActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         mCartItemList.addAll(response.body()) ;
+
+//                        change inside of adapter to take CartItem class
                         adapter.submitList(mCartItemList);
                         if (mCartItemList.isEmpty()){
                             //show no address found
@@ -222,13 +150,14 @@ public class CartMainActivity extends AppCompatActivity {
                             emptyCartMesage.setVisibility(View.INVISIBLE);
                             recyclerView.setVisibility(View.VISIBLE);
                             adapter.submitList(mCartItemList);
+                            setUpTotals();
                         }
 
-                        //progressDialog.dismiss();
+                        progressDialog.dismiss();
                     }
 
                     @Override
-                    public void onFailure(Call<List<UserCart>> call, Throwable t) {
+                    public void onFailure(Call<List<CartItem>> call, Throwable t) {
                         Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -282,46 +211,6 @@ public class CartMainActivity extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
-
-
-        /*FirebaseRecyclerOptions<CartItem> options = new FirebaseRecyclerOptions.Builder<CartItem>()
-                .setQuery(mCartRef.child("Products"),CartItem.class)
-                .build();
-        adapter = new CartItemsAdapter(options);*/
-
-
-
-        /*adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemDelete(String PID, int position) {
-                mCartRef.child("Products").child(PID).removeValue()
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful())
-                                    Toast.makeText(CartMainActivity.this,"ITEM REMOVED", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });
-
-        adapter.setOnValueChangeListener(new CartItemsAdapter.OnValueChangeListener() {
-            @Override
-            public void onQuantityChange(String PID, int quantity) {
-
-                String Qty = Integer.toString(quantity);
-                mCartRef.child("Products").child(PID).child("Quantity").setValue(Qty)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful())
-                                    Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
-                                else
-                                    Toast.makeText(CartMainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });*/
 
     }
 }
