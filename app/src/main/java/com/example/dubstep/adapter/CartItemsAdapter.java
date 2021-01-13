@@ -21,13 +21,13 @@ import androidx.recyclerview.widget.RecyclerView;
 public class CartItemsAdapter extends RecyclerView.Adapter<CartItemsAdapter.Holders> {
 
     private Context mContext;
-    private List<UserCart> mCartItemList;
+    private List<CartItem> mCartItemList;
     private LayoutInflater mLayoutInflater;
 
     private OnItemClickListener listener;
     private OnValueChangeListener valueListener;
 
-    public CartItemsAdapter(Context context, List<UserCart> cartItems) {
+    public CartItemsAdapter(Context context, List<CartItem> cartItems) {
         mContext = context;
         mCartItemList = cartItems;
         mLayoutInflater = LayoutInflater.from(context);
@@ -42,13 +42,13 @@ public class CartItemsAdapter extends RecyclerView.Adapter<CartItemsAdapter.Hold
 
     @Override
     public void onBindViewHolder(@NonNull Holders holder, int position) {
-        UserCart cartItem = mCartItemList.get(position);
-        holder.setCartList(cartItem.getCartItem(), position);
+        CartItem cartItem = mCartItemList.get(position);
+        holder.setCartList(cartItem, position);
 
         holder.mRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onItemDelete(cartItem);
+                listener.onItemDelete(position);
             }
         });
 
@@ -57,17 +57,17 @@ public class CartItemsAdapter extends RecyclerView.Adapter<CartItemsAdapter.Hold
                     @Override
                     public void onValueChange(ElegantNumberButton view, int oldValue,
                             int newValue) {
-                        valueListener.onQuantityChange(cartItem, newValue);
+                        valueListener.onQuantityChange(position, newValue);
                     }
                 });
     }
 
     public interface OnItemClickListener {
-        void onItemDelete(UserCart userCart);
+        void onItemDelete(int position);
     }
 
     public interface OnValueChangeListener {
-        void onQuantityChange(UserCart userCart, int quantity);
+        void onQuantityChange(int position, int quantity);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -79,7 +79,7 @@ public class CartItemsAdapter extends RecyclerView.Adapter<CartItemsAdapter.Hold
     }
 
 
-    public void submitList(List<UserCart> cartItemList) {
+    public void submitList(List<CartItem> cartItemList) {
         this.mCartItemList = cartItemList;
     }
 
@@ -112,10 +112,10 @@ public class CartItemsAdapter extends RecyclerView.Adapter<CartItemsAdapter.Hold
             String price = "₹" + cartItem.getPrice() + " per item";
             mFoodPrice.setText(price);
             mNumberButton.setNumber(String.valueOf(cartItem.getQuantity()));
-            //String category = model.getCategory();
+            //String category = cartItem.getCategory();
             String productID = cartItem.getName();
-            String category = productID.substring(0, productID.indexOf("_"));
-            mItemIcon.setImageResource(getIcon(category));
+            //String category = productID.substring(0, productID.indexOf("_"));
+            //mItemIcon.setImageResource(getIcon(category));
             int q = cartItem.getQuantity();
             int bp = Integer.parseInt(cartItem.getPrice());
             int tp = q * bp;

@@ -11,6 +11,7 @@ import retrofit2.Response;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -106,11 +107,13 @@ public class CartMainActivity extends AppCompatActivity {
 //        double discount = 0;
 
         for (CartItem cartItem : mCartItemList){
-          cartTotal += cartItem.getQuantity() * Integer.parseInt(cartItem.getPrice());
+            String price = cartItem.getPrice().trim();
+            Log.v("Item price", price);
+            cartTotal += cartItem.getQuantity() * Integer.parseInt(price);
         }
-        mCartTotal.setText(cartTotal);
+        mCartTotal.setText(String.valueOf(cartTotal));
         mDelivery.setText("50");
-        mPriceTotal.setText(cartTotal+50);
+        mPriceTotal.setText(String.valueOf(cartTotal+50));
 
 
     }
@@ -140,6 +143,8 @@ public class CartMainActivity extends AppCompatActivity {
                         }
                         mCartItemList.addAll(response.body()) ;
 
+                        Log.v("FIRST ITEM NAME", mCartItemList.get(0).getName());
+                        
 //                        change inside of adapter to take CartItem class
                         adapter.submitList(mCartItemList);
                         if (mCartItemList.isEmpty()){
@@ -154,61 +159,67 @@ public class CartMainActivity extends AppCompatActivity {
                         }
 
                         progressDialog.dismiss();
+
+                        adapter.setOnValueChangeListener(new CartItemsAdapter.OnValueChangeListener() {
+                            @Override
+                            public void onQuantityChange(int position, int quantity) {
+                                UserCart userCart = new UserCart(firebaseAuth.getUid(), mCartItemList.get(position));
+                                userCart.getCartItem().setQuantity(quantity);
+                                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
+                                        .enqueue(new Callback<UserCart>() {
+                                            @Override
+                                            public void onResponse(Call<UserCart> call,
+                                                    Response<UserCart> response) {
+                                                if (!response.isSuccessful()){
+                                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<UserCart> call, Throwable t) {
+                                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        });
+
+                        adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemDelete(int position) {
+                                UserCart userCart = new UserCart(firebaseAuth.getUid(), mCartItemList.get(position));
+                                userCart.getCartItem().setQuantity(0);
+                                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
+                                        .enqueue(new Callback<UserCart>() {
+                                            @Override
+                                            public void onResponse(Call<UserCart> call,
+                                                    Response<UserCart> response) {
+                                                if (!response.isSuccessful()){
+                                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<UserCart> call, Throwable t) {
+                                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        });
+
                     }
 
                     @Override
                     public void onFailure(Call<List<CartItem>> call, Throwable t) {
                         Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
                     }
                 });
 
-        adapter.setOnValueChangeListener(new CartItemsAdapter.OnValueChangeListener() {
-            @Override
-            public void onQuantityChange(UserCart userCart, int quantity) {
-                userCart.getCartItem().setQuantity(quantity);
-                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
-                        .enqueue(new Callback<UserCart>() {
-                            @Override
-                            public void onResponse(Call<UserCart> call,
-                                    Response<UserCart> response) {
-                                if (!response.isSuccessful()){
-                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
-                            }
 
-                            @Override
-                            public void onFailure(Call<UserCart> call, Throwable t) {
-                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });
-
-        adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemDelete(UserCart userCart) {
-                userCart.getCartItem().setQuantity(0);
-                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
-                        .enqueue(new Callback<UserCart>() {
-                            @Override
-                            public void onResponse(Call<UserCart> call,
-                                    Response<UserCart> response) {
-                                if (!response.isSuccessful()){
-                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onFailure(Call<UserCart> call, Throwable t) {
-                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });
 
         recyclerView.setAdapter(adapter);
 
