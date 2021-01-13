@@ -103,9 +103,12 @@ public class CartMainActivity extends AppCompatActivity {
             Log.v("Item price", price);
             cartTotal += cartItem.getQuantity() * Integer.parseInt(price);
         }
-        mCartTotal.setText("\u20B9 "+ cartTotal);
-        mDelivery.setText("\u20B9 50");
-        mPriceTotal.setText("\u20B9 "+ (cartTotal + 50));
+        String cartTotalS = "Cart total: " + "\u20B9 "+ (cartTotal);
+        mCartTotal.setText(cartTotalS);
+        String deliveryS = "Delivery: " + "\u20B9 "+ (50);
+        mDelivery.setText(deliveryS);
+        String priceTotal = "Total: " + "\u20B9 "+ (cartTotal + 50);
+        mPriceTotal.setText(priceTotal);
 
 
     }

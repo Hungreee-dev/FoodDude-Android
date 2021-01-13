@@ -10,7 +10,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cart_recycler_view"
-        android:layout_height="470dp"
+        android:layout_height="400dp"
         android:layout_marginTop="50dp"
         android:layout_marginHorizontal="4dp"
         android:layout_width="match_parent"
@@ -42,19 +42,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/DdeliveryTextView" />
 
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_place_order"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:layout_width="wrap_content"
         android:text="Continue"
         android:textAllCaps="false"
         app:backgroundTint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/total_price_text_view" />
 
     <TextView
         android:id="@+id/cart_total_textView"
