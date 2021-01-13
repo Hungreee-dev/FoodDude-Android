@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,13 +49,8 @@ public class CartMainActivity extends AppCompatActivity {
     private MaterialButton mplaceOrder;
     private TextView mPriceTotal;
     private TextView mCartTotal;
-    private String myOrderMessage;
     private TextView mDelivery, emptyCartMesage;
-    private DatabaseReference userref;
-    private DatabaseReference mCartRef;
     private FirebaseAuth firebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private double TotalPrice;
     private List<CartItem> mCartItemList;
     ProgressDialog progressDialog;
 
@@ -64,21 +60,20 @@ public class CartMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cart_main);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        userref = FirebaseDatabase.getInstance().getReference("user").child(firebaseAuth.getCurrentUser().getUid().toString());
-        mCartRef = FirebaseDatabase.getInstance().getReference("Cart").child(firebaseAuth.getCurrentUser().getUid().toString());
 
-        mplaceOrder = findViewById(R.id.btn_place_order);
+      mplaceOrder = findViewById(R.id.btn_place_order);
         emptyCartMesage = findViewById(R.id.empty_cart_text_view);
 
         setUpRecycler();
         mplaceOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CartMainActivity.this, SelectAddressActivity.class);
-                intent.putExtra("message",createMessage());
-                intent.putExtra("wanumber","+916371830551");
-                intent.putExtra("cartTotal", String.valueOf(TotalPrice));
-                startActivity(intent);
+                if(mCartItemList==null||mCartItemList.isEmpty()){
+                    Toast.makeText(CartMainActivity.this, "Can't order an empty cart", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(CartMainActivity.this, SelectAddressActivity.class);
+                    startActivity(intent);
+                }
 //
 //
             }
@@ -93,12 +88,9 @@ public class CartMainActivity extends AppCompatActivity {
 
     }
 
-    private String createMessage() {
-        return myOrderMessage;
-    }
-
     private void setUpTotals() {
 
+        emptyCartMesage.setVisibility(View.GONE);
         mPriceTotal = findViewById(R.id.total_price_text_view);
         mCartTotal = findViewById(R.id.cart_total_textView);
         mDelivery = findViewById(R.id.DdeliveryTextView);
@@ -111,11 +103,19 @@ public class CartMainActivity extends AppCompatActivity {
             Log.v("Item price", price);
             cartTotal += cartItem.getQuantity() * Integer.parseInt(price);
         }
-        mCartTotal.setText(String.valueOf(cartTotal));
-        mDelivery.setText("50");
-        mPriceTotal.setText(String.valueOf(cartTotal+50));
+        mCartTotal.setText("\u20B9 "+ cartTotal);
+        mDelivery.setText("\u20B9 50");
+        mPriceTotal.setText("\u20B9 "+ (cartTotal + 50));
 
 
+    }
+
+    private void setUpEmptyCart(){
+        mDelivery.setVisibility(View.INVISIBLE);
+        mCartTotal.setVisibility(View.INVISIBLE);
+        mPriceTotal.setVisibility(View.INVISIBLE);
+        emptyCartMesage.setVisibility(View.VISIBLE);
+        emptyCartMesage.setText("Cart empty right now");
     }
 
     @Override
@@ -143,8 +143,6 @@ public class CartMainActivity extends AppCompatActivity {
                         }
                         mCartItemList.addAll(response.body()) ;
 
-                        Log.v("FIRST ITEM NAME", mCartItemList.get(0).getName());
-                        
 //                        change inside of adapter to take CartItem class
                         adapter.submitList(mCartItemList);
                         if (mCartItemList.isEmpty()){
@@ -174,6 +172,16 @@ public class CartMainActivity extends AppCompatActivity {
                                                     Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                                                     return;
                                                 }
+                                                if(quantity==0){
+                                                    mCartItemList.remove(position);
+                                                    adapter.notifyItemChanged(position);
+                                                }
+
+                                                if (mCartItemList.isEmpty()){
+                                                    setUpEmptyCart();
+                                                } else {
+                                                    setUpTotals();
+                                                }
                                                 Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
                                             }
 
@@ -196,8 +204,15 @@ public class CartMainActivity extends AppCompatActivity {
                                             public void onResponse(Call<UserCart> call,
                                                     Response<UserCart> response) {
                                                 if (!response.isSuccessful()){
-                                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(CartMainActivity.this, response.body().getError(), Toast.LENGTH_SHORT).show();
                                                     return;
+                                                }
+                                                mCartItemList.remove(position);
+                                                adapter.notifyItemChanged(position);
+                                                if(mCartItemList.isEmpty()){
+                                                    setUpEmptyCart();
+                                                } else {
+                                                    setUpTotals();
                                                 }
                                                 Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
                                             }
