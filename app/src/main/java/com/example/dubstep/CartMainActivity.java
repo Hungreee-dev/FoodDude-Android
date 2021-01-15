@@ -21,6 +21,7 @@ import com.example.dubstep.Model.UserCart;
 import com.example.dubstep.adapter.CartItemsAdapter;
 import com.example.dubstep.database.CartDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
+import com.example.dubstep.singleton.OrderDetails;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -53,6 +54,8 @@ public class CartMainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private List<CartItem> mCartItemList;
     ProgressDialog progressDialog;
+    int cartTotal;
+    int deliveryCharge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +74,14 @@ public class CartMainActivity extends AppCompatActivity {
                 if(mCartItemList==null||mCartItemList.isEmpty()){
                     Toast.makeText(CartMainActivity.this, "Can't order an empty cart", Toast.LENGTH_SHORT).show();
                 } else {
+                    OrderDetails orderDetails = OrderDetails.getInstance();
+                    orderDetails.setCartItems(mCartItemList);
+                    orderDetails.getBillingDetails().setBasePrice(cartTotal);
+                    orderDetails.getBillingDetails().setDeliveryCharge(deliveryCharge);
+                    orderDetails.getBillingDetails().setFinalAmount(cartTotal+deliveryCharge);
                     Intent intent = new Intent(CartMainActivity.this, SelectAddressActivity.class);
                     startActivity(intent);
+                    finish();
                 }
 //
 //
@@ -95,7 +104,8 @@ public class CartMainActivity extends AppCompatActivity {
         mCartTotal = findViewById(R.id.cart_total_textView);
         mDelivery = findViewById(R.id.DdeliveryTextView);
 
-        int cartTotal = 0;
+        cartTotal = 0;
+        deliveryCharge = 49;
 //        double discount = 0;
 
         for (CartItem cartItem : mCartItemList){
@@ -105,9 +115,9 @@ public class CartMainActivity extends AppCompatActivity {
         }
         String cartTotalS = "Cart total: " + "\u20B9 "+ (cartTotal);
         mCartTotal.setText(cartTotalS);
-        String deliveryS = "Delivery: " + "\u20B9 "+ (50);
+        String deliveryS = "Delivery: " + "\u20B9 "+ (deliveryCharge);
         mDelivery.setText(deliveryS);
-        String priceTotal = "Total: " + "\u20B9 "+ (cartTotal + 50);
+        String priceTotal = "Total: " + "\u20B9 "+ (cartTotal + deliveryCharge);
         mPriceTotal.setText(priceTotal);
 
 

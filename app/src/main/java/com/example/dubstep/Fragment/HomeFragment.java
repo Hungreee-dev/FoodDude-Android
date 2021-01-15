@@ -190,6 +190,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onFailure(Call<List<Menu>> call, Throwable t) {
                 Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
+                getActivity().recreate();
             }
         });
         recyclerView.setAdapter(adapter);

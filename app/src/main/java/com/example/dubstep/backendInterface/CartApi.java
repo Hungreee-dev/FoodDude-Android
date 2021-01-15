@@ -24,4 +24,8 @@ public interface CartApi {
 
     @POST("api/users/cart/edit-item")
     Call<UserCart> editCartItem(@Body UserCart cartItem, @Header("authorization") String authorizationHeader);
+
+    @FormUrlEncoded
+    @POST("api/users/cart/delete")
+    Call<UserCart> deleteCart(@Field("uid") String uid,@Header("authorization") String authorizationHeader);
 }

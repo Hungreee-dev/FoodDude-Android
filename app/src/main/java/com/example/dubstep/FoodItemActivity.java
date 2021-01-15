@@ -110,7 +110,7 @@ public class FoodItemActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<UserCart> call, Response<UserCart> response) {
                         if (!response.isSuccessful()){
-                            Toast.makeText(FoodItemActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FoodItemActivity.this, response.body().getError(), Toast.LENGTH_SHORT).show();
                             return;
                         }
                         Toast.makeText(FoodItemActivity.this, "Added to Cart", Toast.LENGTH_SHORT).show();

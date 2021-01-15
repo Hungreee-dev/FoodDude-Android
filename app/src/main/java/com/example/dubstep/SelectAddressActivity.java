@@ -20,6 +20,7 @@ import com.example.dubstep.adapter.AddressItemAdapter;
 import com.example.dubstep.adapter.FoodItemAdapter;
 import com.example.dubstep.database.AddressDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
+import com.example.dubstep.singleton.OrderDetails;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -93,10 +94,11 @@ public class SelectAddressActivity extends AppCompatActivity {
             public void onItemClick(Address address) {
 //                go to promocode activity
 //                add continue order functionality to each address
+                OrderDetails orderDetails = OrderDetails.getInstance();
+                orderDetails.setDeliveryAddress(address);
                 Intent intent = new Intent(SelectAddressActivity.this,ReferralActivity.class);
-                String json = new Gson().toJson(address);
-                intent.putExtra("com.example.dubstep.deliveryAddress",json);
                 startActivity(intent);
+                finish();
             }
         });
         showAddress();
