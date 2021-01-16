@@ -39,4 +39,28 @@ public class Order {
     public String getSuccess() {
         return success;
     }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public Billing getBilling() {
+        return billing;
+    }
+
+    public int getOrderStatus() {
+        return orderStatus;
+    }
+
+    public Address getDeliveryAddress() {
+        return deliveryAddress;
+    }
 }

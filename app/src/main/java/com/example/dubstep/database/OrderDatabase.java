@@ -8,7 +8,7 @@ public class OrderDatabase {
 
     private static OrderApi instance;
 
-    public static OrderApi getInstance(){
+    public static synchronized OrderApi getInstance(){
         if (instance == null){
             instance = RetrofitInstanceFlask.getRetrofitInstance()
                     .create(OrderApi.class);

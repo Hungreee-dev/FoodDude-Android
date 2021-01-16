@@ -3,9 +3,11 @@
     <color name="colorPrimary">#2D383F</color>
     <color name="colorPrimaryDark">#2D383F</color>
     <color name="colorAccent">#EC663B</color>
-    <color name="orangeBg">#FF7E4A</color>
+        <color name="orangeBg">#FF7E4A</color>
     <color name="background">#EEEDEF</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="deleteColor">#D62F01</color>
+    <color name="colorDelivered">#12D50B</color>
+    <color name="colorPending">#C60505</color>
 </resources>

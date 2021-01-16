@@ -18,4 +18,8 @@ public interface UserApi {
     @FormUrlEncoded
     @POST("/api/users/get-user")
     Call<User> getUser(@Field("uid") String uid, @Header("authorization") String authorizationToken);
+
+    @FormUrlEncoded
+    @POST("/api/users/add-order-id")
+    Call<User> addOrderId(@Field("uid") String uid,@Field("orderId") String orderId, @Header("authorization") String authorizationToken);
 }

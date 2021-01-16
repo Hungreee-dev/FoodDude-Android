@@ -24,11 +24,13 @@ import android.widget.Toast;
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.Model.PromoDate;
 import com.example.dubstep.Model.Promocode;
+import com.example.dubstep.Model.User;
 import com.example.dubstep.Model.UserCart;
 import com.example.dubstep.Model.UserFrequency;
 import com.example.dubstep.database.CartDatabase;
 import com.example.dubstep.database.OrderDatabase;
 import com.example.dubstep.database.PromocodeDatabase;
+import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.example.dubstep.singleton.OrderDetails;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -172,10 +174,23 @@ public class ReferralActivity extends AppCompatActivity {
 
                     if (response.body().getSuccess()!=null){
 //                    Order was successful
-                        Intent intent = new Intent(ReferralActivity.this,OrdersActivity.class);
-                        progressDialog.dismiss();
-                        startActivity(intent);
-                        finish();
+//                        add the order id to user database
+                        UserDatabase.getInstance().addOrderId(mUid,order.getOrderId(),IdTokenInstance.getToken())
+                                .enqueue(new Callback<User>() {
+                                    @Override
+                                    public void onResponse(Call<User> call, Response<User> response) {
+                                        Intent intent = new Intent(ReferralActivity.this,OrdersActivity.class);
+                                        progressDialog.dismiss();
+                                        startActivity(intent);
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<User> call, Throwable t) {
+                                        Toast.makeText(ReferralActivity.this, "Error occured \n "+t.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
                     }
                 }
 

@@ -18,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:label,android:icon">
-        <activity android:name=".OrdersActivity"></activity>
+        <activity android:name=".OrderDetailsActivity" />
+        <activity android:name=".OrdersActivity" />
         <activity android:name=".UserVerifyActivity" />
         <activity android:name=".PasswordResetActivity" />
         <activity android:name=".FoodItemActivity" />
