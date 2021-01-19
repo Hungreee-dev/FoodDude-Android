@@ -46,7 +46,7 @@ public class OrdersActivity extends AppCompatActivity {
         mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        orderAdapter = new OrderAdapter();
+        orderAdapter = new OrderAdapter(getApplicationContext());
         orderAdapter.setOnItemClickListener(new OrderAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Order order) {
