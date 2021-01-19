@@ -1,11 +1,16 @@
 package com.example.dubstep.adapter;
 
+import static com.example.dubstep.R.*;
+
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -20,6 +25,13 @@ import java.util.Locale;
 
 public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolder> {
     private OnItemClickListener listener;
+
+    Context mContext;
+
+    public OrderAdapter(Context context) {
+        super(DIFF_CALLBACK);
+        mContext = context;
+    }
 
     public OrderAdapter() {
         super(DIFF_CALLBACK);
@@ -46,14 +58,14 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
     @NonNull
     @Override
     public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.order_item_1,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(layout.order_item_1,parent,false);
         return new OrderViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = getOrderItem(position);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.US);
         Calendar cal  = Calendar.getInstance();
         cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());
         holder.orderTimeTextview.setText(sdf.format(cal.getTime()));
@@ -61,23 +73,34 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
         holder.orderIdTextview.setText(order.getOrderId());
         holder.orderAmountTextview.setText("\u20B9 "+order.getBilling().getFinalAmount());
         String status;
+        int colorInt;
+        int statusIcon = drawable.ic_cooking_time;
         switch (order.getOrderStatus()){
             case 0:
                 status = "Processing";
+                colorInt = mContext.getColor(color.processing);
+                statusIcon = drawable.ic_cooking_time;
                 break;
             case 1:
                 status = "Delivering";
+                colorInt = mContext.getColor(color.delivering);
+                statusIcon = drawable.ic_delivery_bike;
                 break;
             case 2:
                 status = "Delivered";
+                colorInt = mContext.getColor(color.delivered);
+                statusIcon = drawable.tick;
                 break;
             default:
                 status = "";
+                colorInt = mContext.getColor(color.grey);
                 break;
 
         }
 
         holder.orderStatusTextview.setText(status);
+        holder.statusImage.setImageResource(statusIcon);
+        holder.orderStatusTextview.setTextColor(colorInt);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,13 +121,15 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
         public TextView orderTimeTextview;
         public TextView orderStatusTextview;
         public TextView orderAmountTextview;
+        public ImageView statusImage;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            orderAmountTextview = itemView.findViewById(R.id.order_amount_textview);
-            orderIdTextview = itemView.findViewById(R.id.order_id_textview);
-            orderStatusTextview = itemView.findViewById(R.id.order_status_textview);
-            orderTimeTextview = itemView.findViewById(R.id.order_time_textview);
+            orderAmountTextview = itemView.findViewById(id.order_amount_textview);
+            orderIdTextview = itemView.findViewById(id.order_id_textview);
+            orderStatusTextview = itemView.findViewById(id.order_status_textview);
+            orderTimeTextview = itemView.findViewById(id.order_time_textview);
+            statusImage = itemView.findViewById(id.status_image);
         }
     }
 
