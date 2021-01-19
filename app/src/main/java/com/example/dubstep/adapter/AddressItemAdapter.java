@@ -123,8 +123,7 @@ public class AddressItemAdapter extends ListAdapter<Address, AddressItemAdapter.
         public TextView pincode ;
         public TextView address1;
         public TextView address2;
-        public ImageButton removeAddressButton;
-        public MaterialButton changeButton;
+        public ImageButton removeAddressButton, changeButton;
 
         public AddressItemViewHolder(@NonNull View itemView) {
             super(itemView);

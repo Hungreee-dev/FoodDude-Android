@@ -6,81 +6,89 @@
     android:background="@drawable/doodle_background"
     >
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="14dp"
         >
-    <TextView
-        android:id="@+id/textview_order"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="Order Id"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        />
-    <TextView
-        android:id="@+id/textview_order_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="8764876123692846124"
-        android:textSize="18sp"
-        android:textStyle="normal"
-        android:textAlignment="textStart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_order"
-        app:layout_constraintHorizontal_bias="0"
-        />
+
+        <TextView
+            android:id="@+id/textview_order"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_width="wrap_content"
+            android:text="Order Id"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textview_order_id"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:text="8764876123692846124"
+            android:textAlignment="textStart"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_order" />
 
 
-    <TextView
-        android:id="@+id/textview_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="Time of Order"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_order_id"
-        app:layout_constraintHorizontal_bias="0"
-        />
-    <TextView
-        android:id="@+id/textview_time_of_order"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="12:12:12"
-        android:textSize="18sp"
-        android:textStyle="normal"
-        android:textAlignment="textStart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_time"
-        app:layout_constraintHorizontal_bias="0"
-        />
+        <TextView
+            android:id="@+id/textview_time"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Time of Order"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_order_id" />
 
-    <TextView
-        android:id="@+id/textview_person"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="Details of Person"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textview_time_of_order"
-        app:layout_constraintHorizontal_bias="0"
-        />
+        <TextView
+            android:id="@+id/textview_time_of_order"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:text="12:12:12"
+            android:textAlignment="textStart"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_time" />
+
+        <TextView
+            android:id="@+id/textview_person"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:layout_width="wrap_content"
+            android:text="Details of Person"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_time_of_order" />
 
     <TextView
         android:id="@+id/textview_person_details_address1"
@@ -92,6 +100,7 @@
         android:textStyle="normal"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_person"
         app:layout_constraintHorizontal_bias="0"
@@ -106,6 +115,7 @@
         android:textStyle="normal"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_person_details_address1"
         app:layout_constraintHorizontal_bias="0"
@@ -120,6 +130,7 @@
         android:textStyle="normal"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_person_details_address2"
         app:layout_constraintHorizontal_bias="0"
@@ -134,6 +145,7 @@
         android:textStyle="normal"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_person_details_address3"
         app:layout_constraintHorizontal_bias="0"
