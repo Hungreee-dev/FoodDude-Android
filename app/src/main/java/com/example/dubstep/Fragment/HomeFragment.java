@@ -84,6 +84,7 @@ public class HomeFragment extends Fragment {
 
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
+    FoodClassAdapter adapter;
 
     private ImageButton mCartButton;
     private ProgressDialog progressDialog;
@@ -102,40 +103,13 @@ public class HomeFragment extends Fragment {
         setRetainInstance(true);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseRef = FirebaseStorage.getInstance().getReference();
-
-        userref = FirebaseDatabase.getInstance().getReference("user").child(firebaseAuth.getCurrentUser().getUid());
-
-
-        cartref = FirebaseDatabase.getInstance().getReference("Cart");
-
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
         progressDialog = new ProgressDialog(getContext());
         progressDialog.show();
         progressDialog.setContentView(R.layout.progress_dialog);
         progressDialog.getWindow().setBackgroundDrawableResource(
                 android.R.color.transparent
         );
-        mCartButton = view.findViewById(R.id.cart_btn);
-        recyclerView = view.findViewById(R.id.main_recyclerview);
-        recyclerView.setHasFixedSize(true);
-
-        layoutManager = new LinearLayoutManager(getContext());
-        //layoutManager = new GridLayoutManager(getContext(), 2);
-        recyclerView.setLayoutManager(layoutManager);
-
-        mCartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), CartMainActivity.class);
-                startActivity(intent);
-            }
-        });
-        final FoodClassAdapter adapter = new FoodClassAdapter();
+        adapter = new FoodClassAdapter();
 
         MenuDatabase.getInstance().getMenuList().enqueue(new Callback<List<Menu>>() {
             @Override
@@ -153,6 +127,7 @@ public class HomeFragment extends Fragment {
                         FoodClass foodClass = new FoodClass();
                         foodClass.setCategory(menu.getCategory());
                         foodClass.addMenuItem(menu);
+                        foodClass.setImageLink(menu.getImgLink());
                         foodClasses.add(foodClass);
                     } else {
 //                        checked for category in each member of foodClass list
@@ -168,6 +143,7 @@ public class HomeFragment extends Fragment {
                             FoodClass foodClass = new FoodClass();
                             foodClass.setCategory(menu.getCategory());
                             foodClass.addMenuItem(menu);
+                            foodClass.setImageLink(menu.getImgLink());
                             foodClasses.add(foodClass);
                         }
                     }
@@ -191,6 +167,29 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<List<Menu>> call, Throwable t) {
                 Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
                 getActivity().recreate();
+            }
+        });
+
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        mCartButton = view.findViewById(R.id.cart_btn);
+        recyclerView = view.findViewById(R.id.main_recyclerview);
+        recyclerView.setHasFixedSize(true);
+
+        layoutManager = new LinearLayoutManager(getContext());
+        //layoutManager = new GridLayoutManager(getContext(), 2);
+        recyclerView.setLayoutManager(layoutManager);
+
+        mCartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), CartMainActivity.class);
+                startActivity(intent);
             }
         });
         recyclerView.setAdapter(adapter);

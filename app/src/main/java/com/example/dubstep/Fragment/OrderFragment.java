@@ -1,17 +1,24 @@
-package com.example.dubstep;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+package com.example.dubstep.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.Model.User;
+import com.example.dubstep.OrderDetailsActivity;
+import com.example.dubstep.R;
 import com.example.dubstep.adapter.OrderAdapter;
 import com.example.dubstep.database.OrderDatabase;
 import com.example.dubstep.database.UserDatabase;
@@ -28,44 +35,67 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class OrdersActivity extends AppCompatActivity {
+public class OrderFragment extends Fragment {
 
     private FirebaseUser mUser;
     private List<String> orderIdList;
     private OrderAdapter orderAdapter;
     private RecyclerView orderRecycler;
     private List<Order> orderList;
+    private SwipeRefreshLayout swipeRefreshLayout;
     public static String orderDetailsIntent= "com.example.dubstep.orderDetailsActivity";
+
+    public OrderFragment(){
+
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_orders);
-//        1. get user's data
-//        2, from that get list of orderId data
-//        3. Pass that orderId list to make api call on each id
         mUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        orderAdapter = new OrderAdapter(getApplicationContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        orderAdapter = new OrderAdapter(getActivity().getApplicationContext());
+
         orderAdapter.setOnItemClickListener(new OrderAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Order order) {
-                Intent intent = new Intent(OrdersActivity.this,OrderDetailsActivity.class);
+                Intent intent = new Intent(getActivity(), OrderDetailsActivity.class);
                 String json = new Gson().toJson(order);
                 intent.putExtra(orderDetailsIntent,json);
                 startActivity(intent);
             }
         });
 
-        orderRecycler = findViewById(R.id.order_recyclerview);
+        orderIdList = new ArrayList<String>();
+        orderList = new ArrayList<>();
+
+        fetchUserData(mUser.getUid());
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.activity_orders, container, false);
+//        show Terms and Services of Application
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        orderRecycler = view.findViewById(R.id.order_recyclerview);
         orderRecycler.setHasFixedSize(true);
         orderRecycler.setLayoutManager(layoutManager);
         orderRecycler.setAdapter(orderAdapter);
-
-
-        orderIdList = new ArrayList<String>();
-        orderList = new ArrayList<>();
-        fetchUserData(mUser.getUid());
+        swipeRefreshLayout = view.findViewById(R.id.swipeToRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchUserData(mUser.getUid());
+            }
+        });
     }
 
     private void fetchUserData(String uid) {
@@ -73,8 +103,9 @@ public class OrdersActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (!response.isSuccessful()){
-                    Toast.makeText(OrdersActivity.this, "Network Error Reloading!!", Toast.LENGTH_SHORT).show();
-                    recreate();
+                    Toast.makeText(getActivity(), "Network Error Reloading!!", Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+//                    recreate fragment
                     return;
                 }
 
@@ -94,7 +125,7 @@ public class OrdersActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(OrdersActivity.this, "Some orders were not fetched successfully \n" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Some orders were not fetched successfully \n" + t.getMessage(), Toast.LENGTH_SHORT).show();
                 noOrderPresent(true);
             }
         });
@@ -102,7 +133,7 @@ public class OrdersActivity extends AppCompatActivity {
 
     private void fetchOrderData() {
         if (orderIdList==null){
-            Toast.makeText(this, "No order placed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "No order placed", Toast.LENGTH_SHORT).show();
             noOrderPresent(true);
             return;
         } else {
@@ -112,7 +143,7 @@ public class OrdersActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<Order> call, Response<Order> response) {
                         if (!response.isSuccessful()){
-                            Toast.makeText(OrdersActivity.this, "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         Log.d("order", "onResponse: "+response.body());
@@ -124,11 +155,13 @@ public class OrdersActivity extends AppCompatActivity {
                             }
                         });
                         orderAdapter.submitList(new ArrayList<>(orderList));
+                        swipeRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
                     public void onFailure(Call<Order> call, Throwable t) {
-                        Toast.makeText(OrdersActivity.this, "Some orders were not fetched successfully \n " +t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "Some orders were not fetched successfully \n " +t.getMessage(), Toast.LENGTH_SHORT).show();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
@@ -137,11 +170,12 @@ public class OrdersActivity extends AppCompatActivity {
     }
 
     private void noOrderPresent(boolean state) {
+        swipeRefreshLayout.setRefreshing(false);
         if (state){
-            findViewById(R.id.order_empty_view).setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.order_empty_view).setVisibility(View.VISIBLE);
             orderRecycler.setVisibility(View.GONE);
         } else {
-            findViewById(R.id.order_empty_view).setVisibility(View.GONE);
+            getView().findViewById(R.id.order_empty_view).setVisibility(View.GONE);
             orderRecycler.setVisibility(View.VISIBLE);
         }
 

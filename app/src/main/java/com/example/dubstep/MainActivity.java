@@ -27,7 +27,9 @@ import android.widget.Toast;
 
 
 import com.example.dubstep.Fragment.HomeFragment;
+import com.example.dubstep.Fragment.OrderFragment;
 import com.example.dubstep.Fragment.ProfileFragment;
+import com.example.dubstep.Fragment.TermsAndConditionFragment;
 import com.example.dubstep.Interface.ItemClickListener;
 import com.example.dubstep.Model.FoodItem;
 import com.example.dubstep.Model.User;
@@ -157,22 +159,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if(navigationView.getMenu().findItem(R.id.nav_home).isChecked()){
                     break;
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container,new HomeFragment())
+                        .commit();
                 break;
 
             case R.id.profile_nav:
                 if(navigationView.getMenu().findItem(R.id.profile_nav).isChecked()){
                     break;
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ProfileFragment()).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.fragment_container,new ProfileFragment())
+                        .commit();
                 break;
             case R.id.nav_cart:
                 Intent intent = new Intent(this, CartMainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.nav_order:
-                Intent orderIntent = new Intent(this, OrdersActivity.class);
-                startActivity(orderIntent);
+//                Intent orderIntent = new Intent(this, OrdersActivity.class);
+//                startActivity(orderIntent);
+                if(navigationView.getMenu().findItem(R.id.nav_order).isChecked()){
+                    break;
+                }
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.fragment_container,new OrderFragment())
+                        .commit();
                 break;
             case R.id.log_out:
                 FirebaseAuth.getInstance().signOut();
@@ -184,6 +201,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         finish();
                     }
                 });
+            case R.id.terms_condition:
+                if (navigationView.getMenu().findItem(R.id.terms_condition).isChecked()){
+                    break;
+                }
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.fragment_container,new TermsAndConditionFragment())
+                        .commit();
+                break;
 
         }
         navigationView.setCheckedItem(item);
@@ -194,11 +221,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void onBackPressed() {
-
+        int item = navigationView.getCheckedItem().getItemId();
         if(drawerLayout.isDrawerOpen(GravityCompat.START)){
             drawerLayout.closeDrawer(GravityCompat.START);
-        } if(navigationView.getCheckedItem().getItemId() == R.id.profile_nav){
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
+        } if(item == R.id.profile_nav||item == R.id.nav_order || item == R.id.terms_condition){
+//            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
+            getSupportFragmentManager().popBackStack();
             navigationView.setCheckedItem(R.id.nav_home);
         } else {
             super.onBackPressed();

@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.dubstep.Fragment.OrderFragment;
 import com.example.dubstep.Model.CartItem;
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.adapter.OrderAdapter;
@@ -41,7 +42,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.order_item_details);
-        Log.d("details", getIntent().getStringExtra(OrdersActivity.orderDetailsIntent));
+        Log.d("details", getIntent().getStringExtra(OrderFragment.orderDetailsIntent));
 //        orderid
         orderId = findViewById(R.id.textview_order_id);
 //        time of order
@@ -62,7 +63,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 //        chip   (0,1,2)
           orderStatus = findViewById(R.id.chip_status);
 
-          order = new Gson().fromJson(getIntent().getStringExtra(OrdersActivity.orderDetailsIntent),Order.class);
+          order = new Gson().fromJson(getIntent().getStringExtra(OrderFragment.orderDetailsIntent),Order.class);
 
           setData();
     }

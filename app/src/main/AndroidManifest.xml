@@ -19,7 +19,6 @@
         android:theme="@style/AppTheme"
         tools:replace="android:label,android:icon">
         <activity android:name=".OrderDetailsActivity" />
-        <activity android:name=".OrdersActivity" />
         <activity android:name=".UserVerifyActivity" />
         <activity android:name=".PasswordResetActivity" />
         <activity android:name=".FoodItemActivity" />
@@ -27,7 +26,7 @@
         <activity android:name=".ReferralActivity" />
         <activity android:name=".AddAddressActivity" />
         <activity android:name=".SelectAddressActivity" />
-        <activity android:name=".ViewHolder.ThankYouActivity" />
+        <activity android:name=".ThankYouActivity" />
         <activity android:name=".Order_placed" />
         <activity
             android:name=".RiderMapsActivity"
@@ -38,7 +37,9 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity"
+            android:launchMode="singleTop"
+            />
         <activity android:name=".RiderMainActivity" />
         <activity android:name=".Splash_Screen">
             <intent-filter>

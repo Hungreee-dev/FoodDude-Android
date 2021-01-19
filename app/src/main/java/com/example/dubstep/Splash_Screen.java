@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.dubstep.ViewHolder.ThankYouActivity;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;

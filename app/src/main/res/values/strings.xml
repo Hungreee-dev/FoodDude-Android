@@ -8,4 +8,6 @@
     <string name="delivery_charge">Delivery Charge : ₹ --</string>
     <string name="shared_prefs_filename">com.example.dubstep.UserDataFile</string>
     <string name="shared_prefs_user">com.example.dubstep.UserData</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

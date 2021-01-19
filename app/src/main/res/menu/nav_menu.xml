@@ -26,6 +26,7 @@
             android:id="@+id/nav_order"
             android:title="My Orders"
             android:icon="@drawable/ic_baseline_shopping_bag_24"
+            android:checkable="true"
             />
     </group>
 
@@ -35,6 +36,12 @@
                 android:id="@+id/log_out"
                 android:title="Log Out"
                 android:icon="@drawable/ic_baseline_login_24"
+                />
+            <item
+                android:id="@+id/terms_condition"
+                android:title="Terms &amp; Condition"
+                android:icon="@drawable/terms_and_condition"
+                android:checkable="true"
                 />
         </menu>
     </item>

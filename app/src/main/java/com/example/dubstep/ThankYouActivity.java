@@ -1,16 +1,11 @@
-package com.example.dubstep.ViewHolder;
+package com.example.dubstep;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-
-import com.example.dubstep.LoginActivity;
-import com.example.dubstep.MainActivity;
-import com.example.dubstep.R;
 
 public class ThankYouActivity extends AppCompatActivity {
 
@@ -26,7 +21,10 @@ public class ThankYouActivity extends AppCompatActivity {
         ContinueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ThankYouActivity.this, MainActivity.class));
+                startActivity(
+                        new Intent(ThankYouActivity.this, MainActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                );
             }
         });
     }

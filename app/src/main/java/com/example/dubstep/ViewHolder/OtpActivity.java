@@ -11,9 +11,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.dubstep.MapsActivity;
-import com.example.dubstep.ProfileActivity;
 import com.example.dubstep.R;
+import com.example.dubstep.ThankYouActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
@@ -28,7 +27,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
-import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import java.util.concurrent.TimeUnit;

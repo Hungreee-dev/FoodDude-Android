@@ -179,7 +179,7 @@ public class ReferralActivity extends AppCompatActivity {
                                 .enqueue(new Callback<User>() {
                                     @Override
                                     public void onResponse(Call<User> call, Response<User> response) {
-                                        Intent intent = new Intent(ReferralActivity.this,OrdersActivity.class);
+                                        Intent intent = new Intent(ReferralActivity.this,ThankYouActivity.class);
                                         progressDialog.dismiss();
                                         startActivity(intent);
                                         finish();
