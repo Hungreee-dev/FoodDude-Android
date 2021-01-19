@@ -77,19 +77,14 @@
                     android:text="Pincode"
                     android:textSize="14sp" />
 
-                <com.google.android.material.button.MaterialButton
+                <ImageButton
                     android:id="@+id/change_address_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:onClick="changeAddress"
-                    android:text="Edit Address"
-                    app:cornerRadius="32dp"
-                    app:iconGravity="textEnd"
-                    android:backgroundTint="@color/orangeBg"
-                    app:iconSize="32dp"
-                    />
-
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="end"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/ic_baseline_edit_24"
+                    android:background="@drawable/circle"/>
             </LinearLayout>
 
         </LinearLayout>
