@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dubstep.Entity.OrderItem;
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.R;
 
@@ -23,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolder> {
+public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewHolder> {
     private OnItemClickListener listener;
 
     Context mContext;
@@ -37,20 +38,20 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
         super(DIFF_CALLBACK);
     }
 
-    private static final DiffUtil.ItemCallback<Order> DIFF_CALLBACK = new DiffUtil.ItemCallback<Order>() {
+    private static final DiffUtil.ItemCallback<OrderItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<OrderItem>() {
         @Override
-        public boolean areItemsTheSame(@NonNull Order oldItem, @NonNull Order newItem) {
+        public boolean areItemsTheSame(@NonNull OrderItem oldItem, @NonNull OrderItem newItem) {
             return oldItem.getOrderId().equals(newItem.getOrderId());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Order oldItem, @NonNull Order newItem) {
-            if (oldItem.getOrderStatus() != newItem.getOrderStatus()){
+        public boolean areContentsTheSame(@NonNull OrderItem oldItem, @NonNull OrderItem newItem) {
+            if (oldItem.getStatus() != newItem.getStatus()){
                 return false;
-            } else if (oldItem.getBilling().getOrderTime().getTimestamp() != newItem.getBilling().getOrderTime().getTimestamp()){
+            } else if (!oldItem.getTimestamp().equals(newItem.getTimestamp())){
                 return false;
             } else {
-                return oldItem.getBilling().getFinalAmount() == newItem.getBilling().getFinalAmount();
+                return oldItem.getTotalAmount() == newItem.getTotalAmount();
             }
         }
     };
@@ -64,18 +65,18 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        Order order = getOrderItem(position);
+        OrderItem orderItem = getOrderItem(position);
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.US);
         Calendar cal  = Calendar.getInstance();
-        cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());
+        cal.setTimeInMillis(orderItem.getTimestamp());
         holder.orderTimeTextview.setText(sdf.format(cal.getTime()));
 
-        holder.orderIdTextview.setText(order.getOrderId());
-        holder.orderAmountTextview.setText("\u20B9 "+order.getBilling().getFinalAmount());
+        holder.orderIdTextview.setText(orderItem.getOrderId());
+        holder.orderAmountTextview.setText("\u20B9 "+orderItem.getTotalAmount());
         String status;
         int colorInt;
         int statusIcon = drawable.ic_cooking_time;
-        switch (order.getOrderStatus()){
+        switch (orderItem.getStatus()){
             case 0:
                 status = "Processing";
                 colorInt = mContext.getColor(color.processing);
@@ -105,14 +106,14 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
             @Override
             public void onClick(View v) {
                 if (listener!=null && position!=RecyclerView.NO_POSITION){
-                    listener.onItemClick(order);
+                    listener.onItemClick(orderItem);
                 }
             }
         });
 
     }
 
-    public Order getOrderItem(int position){
+    public OrderItem getOrderItem(int position){
         return getItem(position);
     }
 
@@ -134,7 +135,7 @@ public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolde
     }
 
     public interface OnItemClickListener{
-        void onItemClick(Order order);
+        void onItemClick(OrderItem orderItem);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){

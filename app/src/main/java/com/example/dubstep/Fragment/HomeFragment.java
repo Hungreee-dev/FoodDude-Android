@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.dubstep.CartMainActivity;
@@ -33,7 +34,6 @@ import com.example.dubstep.LoginActivity;
 import com.example.dubstep.MainActivity;
 import com.example.dubstep.Model.FoodClass;
 import com.example.dubstep.Model.FoodItem;
-import com.example.dubstep.Model.GlideApp;
 import com.example.dubstep.Model.Menu;
 import com.example.dubstep.R;
 import com.example.dubstep.ViewHolder.FoodClassViewHolder;
@@ -77,13 +77,11 @@ public class HomeFragment extends Fragment {
 //          showing loading dialog on each call rather than just once when initialised
 //       2. Insert ImageView in each element in recycler view for item image
     FirebaseAuth firebaseAuth;
-    private DatabaseReference userref;
-    private DatabaseReference foodref;
-    private DatabaseReference cartref;
-    private StorageReference firebaseRef;
+
 
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
+    SwipeRefreshLayout swipeRefreshLayout;
     FoodClassAdapter adapter;
 
     private ImageButton mCartButton;
@@ -102,20 +100,17 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         firebaseAuth = FirebaseAuth.getInstance();
-        firebaseRef = FirebaseStorage.getInstance().getReference();
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.show();
-        progressDialog.setContentView(R.layout.progress_dialog);
-        progressDialog.getWindow().setBackgroundDrawableResource(
-                android.R.color.transparent
-        );
-        adapter = new FoodClassAdapter();
 
+        adapter = new FoodClassAdapter();
+    }
+
+    private void fetchFoodItems(){
         MenuDatabase.getInstance().getMenuList().enqueue(new Callback<List<Menu>>() {
             @Override
             public void onResponse(Call<List<Menu>> call, Response<List<Menu>> response) {
                 if(!response.isSuccessful()){
                     Log.d("OnFailure", "onFailure: Unable to fetch "+response.message());
+                    swipeRefreshLayout.setRefreshing(false);
                     return;
                 }
                 List<Menu> menuList = response.body();
@@ -161,15 +156,16 @@ public class HomeFragment extends Fragment {
                         startActivity(intent);
                     }
                 });
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<List<Menu>> call, Throwable t) {
                 Log.d("OnFailure", "onFailure: Unable to fetch "+t.getMessage());
+                swipeRefreshLayout.setRefreshing(false);
                 getActivity().recreate();
             }
         });
-
     }
 
     @Override
@@ -179,7 +175,20 @@ public class HomeFragment extends Fragment {
 
         mCartButton = view.findViewById(R.id.cart_btn);
         recyclerView = view.findViewById(R.id.main_recyclerview);
+        swipeRefreshLayout = view.findViewById(R.id.food_class_swipe);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchFoodItems();
+            }
+        });
         recyclerView.setHasFixedSize(true);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
 
         layoutManager = new LinearLayoutManager(getContext());
         //layoutManager = new GridLayoutManager(getContext(), 2);
@@ -193,6 +202,7 @@ public class HomeFragment extends Fragment {
             }
         });
         recyclerView.setAdapter(adapter);
+        fetchFoodItems();
 
     }
 

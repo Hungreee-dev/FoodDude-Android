@@ -180,6 +180,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call<User> call, Response<User> response) {
                         if(!response.isSuccessful()){
                             Toast.makeText(LoginActivity.this, new Gson().toJson(response.body()), Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
                             return;
                         }
                         User user = response.body();
@@ -192,6 +193,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         prefEditor.putString(getString(R.string.shared_prefs_user),json);
                         prefEditor.apply();
+                        progressDialog.dismiss();
                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
                         finish();
                     }
@@ -199,6 +201,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
                     }
                 });
     }
