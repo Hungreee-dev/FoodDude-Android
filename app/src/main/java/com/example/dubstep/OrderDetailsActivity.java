@@ -1,30 +1,40 @@
 package com.example.dubstep;
 
+import android.app.ProgressDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.dubstep.Fragment.OrderFragment;
 import com.example.dubstep.Model.CartItem;
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.adapter.OrderAdapter;
+import com.example.dubstep.database.OrderDatabase;
 import com.example.dubstep.singleton.OrderDetails;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OrderDetailsActivity extends AppCompatActivity {
 
@@ -37,12 +47,29 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TableLayout orderItems;
     private Chip orderStatus;
     private Order order;
+    private String orderIdString;
+    private ImageView orderStatusImageView;
+    private TextView orderStatusThankyouText;
+    private ProgressDialog progressDialog;
+    private String mUser;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.order_item_details);
+        setContentView(R.layout.activity_order_placed);
         Log.d("details", getIntent().getStringExtra(OrderFragment.orderDetailsIntent));
+        mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (getIntent().hasExtra(OrderFragment.orderDetailsIntent)){
+            orderIdString = getIntent().getStringExtra(OrderFragment.orderDetailsIntent);
+        } else {
+            finish();
+        }
+        setLoadingScreen(true);
+        fetchOrderDetails(orderIdString);
+
+        orderStatusImageView = findViewById(R.id.order_status_imageview);
+        orderStatusThankyouText = findViewById(R.id.order_status_thankyoutext);
+
 //        orderid
         orderId = findViewById(R.id.textview_order_id);
 //        time of order
@@ -62,10 +89,48 @@ public class OrderDetailsActivity extends AppCompatActivity {
 //        Order Status
 //        chip   (0,1,2)
           orderStatus = findViewById(R.id.chip_status);
+    }
 
-          order = new Gson().fromJson(getIntent().getStringExtra(OrderFragment.orderDetailsIntent),Order.class);
+    private void setLoadingScreen(boolean state) {
+        if (state){
+            findViewById(R.id.linearLayout3).setVisibility(View.INVISIBLE);
+            findViewById(R.id.order_details_layout).setVisibility(View.INVISIBLE);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.show();
+            progressDialog.setContentView(R.layout.progress_dialog);
+            progressDialog.getWindow().setBackgroundDrawableResource(
+                    android.R.color.transparent
+            );
+            progressDialog.setCancelable(false);
+        } else {
+            findViewById(R.id.linearLayout3).setVisibility(View.VISIBLE);
+            findViewById(R.id.order_details_layout).setVisibility(View.VISIBLE);
+            progressDialog.dismiss();
+        }
+    }
 
-          setData();
+    private void fetchOrderDetails(String orderIdString) {
+        OrderDatabase.getInstance().getOrderFromId(orderIdString).enqueue(new Callback<Order>() {
+            @Override
+            public void onResponse(Call<Order> call, Response<Order> response) {
+                if (!response.isSuccessful()){
+                    Toast.makeText(OrderDetailsActivity.this, "Unable to fetch order details", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+                if (response.body() != null){
+                    order = response.body();
+                    setLoadingScreen(false);
+                    setData();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Order> call, Throwable t) {
+                Toast.makeText(OrderDetailsActivity.this, "Unable to fetch order details", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     private void setData() {
@@ -84,7 +149,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         };
 
         ColorStateList myList = new ColorStateList(states, colors);
-        orderId.setText(order.getOrderId());
+        orderId.setText(order.getOrderId().split(mUser)[1]);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss", Locale.US);
         Calendar cal  = Calendar.getInstance();
         cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());
@@ -123,15 +188,20 @@ public class OrderDetailsActivity extends AppCompatActivity {
         }
         switch (order.getOrderStatus()){
             case 0:
+                orderStatusImageView.setImageDrawable(getDrawable(R.drawable.ic_cooking_time));
+                orderStatusThankyouText.setText("Your order in processing");
                 orderStatus.setText("Processing");
                 orderStatus.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),R.color.colorPending)));
                 break;
             case 1:
+                orderStatusImageView.setImageDrawable(getDrawable(R.drawable.ic_delivery_bike));
+                orderStatusThankyouText.setText("Your order in delivery");
                 orderStatus.setText("Delivering");
                 orderStatus.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),R.color.colorAccent)));
                 break;
             case 2:
                 orderStatus.setText("Delivered");
+                orderStatusThankyouText.setText("Your order has been delivered");
                 orderStatus.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),R.color.colorDelivered)));
                 break;
         }

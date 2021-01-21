@@ -56,7 +56,7 @@ public class OrderFragment extends Fragment {
     private RecyclerView orderRecycler;
     private List<Order> orderList;
     private SwipeRefreshLayout swipeRefreshLayout;
-    public static String orderDetailsIntent= "com.example.dubstep.orderDetailsActivity";
+    public static String orderDetailsIntent= "com.example.dubstep.orderDetailsActivity.orderId";
     private OrderItemViewModel orderItemViewModel;
     private List<OrderItem> orderItems ;
     private List<OrderItem> undeliveredOrderItems;
@@ -80,8 +80,7 @@ public class OrderFragment extends Fragment {
             @Override
             public void onItemClick(OrderItem orderItem) {
                 Intent intent = new Intent(getActivity(), OrderDetailsActivity.class);
-                String json = new Gson().toJson(orderItem);
-                intent.putExtra(orderDetailsIntent,json);
+                intent.putExtra(orderDetailsIntent,orderItem.getOrderId());
                 startActivity(intent);
             }
         });
@@ -120,10 +119,9 @@ public class OrderFragment extends Fragment {
             }
         });
 
-        orderItemViewModel.getAllOrders().observe(getActivity(), new Observer<List<OrderItem>>() {
+            orderItemViewModel.getAllOrders().observe(getActivity(), new Observer<List<OrderItem>>() {
             @Override
             public void onChanged(List<OrderItem> orderItemsLocal) {
-                Log.d("order", "onChanged: refreshed "+orderItemsLocal.size());
                 if (orderItemsLocal!=null && orderItemsLocal.size()>0){
 //                    orderItems = new ArrayList<>(orderItemsLocal);
                     if (firstTime){
@@ -148,7 +146,6 @@ public class OrderFragment extends Fragment {
 
     private void fetchNewOrderList(String uid) {
         synchronized (lock){
-            Log.d("order", "fetchNewOrderList: lock on fetch new order list acquired");
             UserDatabase.getInstance().getUser(uid, IdTokenInstance.getToken()).enqueue(new Callback<User>() {
                 @Override
                 public void onResponse(Call<User> call, Response<User> response) {
@@ -165,7 +162,7 @@ public class OrderFragment extends Fragment {
 //                    fetch order data for new item only
                         for (String orderId :
                                 user.getOrders()) {
-                            orderItemViewModel.getItem(orderId).observe(getActivity(), new Observer<OrderItem>() {
+                            orderItemViewModel.getItem(orderId).observe(OrderFragment.this, new Observer<OrderItem>() {
                                 @Override
                                 public void onChanged(OrderItem orderItem) {
                                     if (orderItem==null){
@@ -193,11 +190,9 @@ public class OrderFragment extends Fragment {
     private void checkUndelivered(){
         final boolean[] checkUndeliveredOnce = {true};
         synchronized (lock){
-            Log.d("order", "checkUndelivered: lock on check delivery acquired ");
-            orderItemViewModel.getAllUndeliveredOrders().observe(getActivity(), new Observer<List<OrderItem>>() {
+            orderItemViewModel.getAllUndeliveredOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
                 @Override
                 public void onChanged(List<OrderItem> orderItems) {
-                    Log.d("order", "onChanged: "+orderItems.size());
                     if (checkUndeliveredOnce[0] && (orderItems!=null && !orderItems.isEmpty())){
                         checkUndeliveredOnce[0] = false;
                         for (OrderItem orderItem :
@@ -251,10 +246,6 @@ public class OrderFragment extends Fragment {
             return;
         } else {
             for (String orderId:orderIdList){
-//                all orderIdList and orderItem from sqlite  Step 3
-
-                boolean found = false;
-                Log.d("order", "onfetchUserData "+ orderId);
 
                 addOrderDetails(orderId);
 
@@ -303,7 +294,6 @@ public class OrderFragment extends Fragment {
                         Toast.makeText(getActivity(), "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    Log.d("order", "onUpdate: "+response.body());
                     Order order = response.body();
                     OrderItem orderItem = new OrderItem(
                             order.getOrderId(),
@@ -312,17 +302,15 @@ public class OrderFragment extends Fragment {
                             order.getBilling().getFinalAmount()
                     );
 
-                    Log.d("order", "onChanged: item update"+orderItem.getStatus());
-                    orderItemViewModel.ifStatusChanged(orderId,orderItem.getStatus()).observe( getViewLifecycleOwner(), new Observer<OrderItem>() {
+                    orderItemViewModel.ifStatusChanged(orderId,orderItem.getStatus()).observe( OrderFragment.this, new Observer<OrderItem>() {
                         int statusNow = orderItem.getStatus();
                         boolean doneOnce = true;
                         @Override
                         public void onChanged(OrderItem oldOrderItem) {
                             if (doneOnce){
                                 doneOnce = false;
-                                Log.d("order", "onChanged: item update"+oldOrderItem);
                                 if (oldOrderItem != null){
-                                    Log.d("order", "onChanged: item update status"+statusNow);
+                                    Log.d("order", "onChanged: item update"+oldOrderItem);
                                     oldOrderItem.setStatus(statusNow);
                                     orderItemViewModel.update(oldOrderItem);
                                 }

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dubstep.Entity.OrderItem;
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -71,7 +72,7 @@ public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewH
         cal.setTimeInMillis(orderItem.getTimestamp());
         holder.orderTimeTextview.setText(sdf.format(cal.getTime()));
 
-        holder.orderIdTextview.setText(orderItem.getOrderId());
+        holder.orderIdTextview.setText(orderItem.getOrderId().split(FirebaseAuth.getInstance().getUid())[1]);
         holder.orderAmountTextview.setText("\u20B9 "+orderItem.getTotalAmount());
         String status;
         int colorInt;
