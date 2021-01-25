@@ -33,6 +33,13 @@ public class Promocode {
     @SerializedName("user_frequency")
     List<UserFrequency> userFrequencyList;
 
+    @SerializedName("error")
+    boolean error;
+
+    @SerializedName("message")
+    String message;
+
+
     public List<UserFrequency> getUserFrequencyList() {
         return userFrequencyList;
     }

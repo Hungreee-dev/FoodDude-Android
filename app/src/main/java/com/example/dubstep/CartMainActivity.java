@@ -81,7 +81,6 @@ public class CartMainActivity extends AppCompatActivity {
                     orderDetails.getBillingDetails().setFinalAmount(cartTotal+deliveryCharge);
                     Intent intent = new Intent(CartMainActivity.this, SelectAddressActivity.class);
                     startActivity(intent);
-                    finish();
                 }
 //
 //

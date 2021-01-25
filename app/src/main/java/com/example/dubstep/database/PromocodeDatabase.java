@@ -9,7 +9,7 @@ public class PromocodeDatabase {
 
     public static PromocodeApi getInstance(){
         if (instance == null){
-            Retrofit retrofit = RetrofitInstanceFlask.getRetrofitInstance();
+            Retrofit retrofit = RetrofitInstanceNode.getRetrofitInstance();
             instance = retrofit.create(PromocodeApi.class);
         }
         return instance;

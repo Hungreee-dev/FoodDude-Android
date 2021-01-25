@@ -98,7 +98,6 @@ public class SelectAddressActivity extends AppCompatActivity {
                 orderDetails.setDeliveryAddress(address);
                 Intent intent = new Intent(SelectAddressActivity.this,ReferralActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
         showAddress();

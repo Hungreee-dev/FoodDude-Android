@@ -21,9 +21,11 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dubstep.Fragment.PaymentOptionBottomSheetFragment;
 import com.example.dubstep.Model.Order;
 import com.example.dubstep.Model.PromoDate;
 import com.example.dubstep.Model.Promocode;
+import com.example.dubstep.Model.PromocodeResult;
 import com.example.dubstep.Model.User;
 import com.example.dubstep.Model.UserCart;
 import com.example.dubstep.Model.UserFrequency;
@@ -52,7 +54,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ReferralActivity extends AppCompatActivity {
+public class ReferralActivity extends AppCompatActivity implements PaymentOptionBottomSheetFragment.BottomSheetListener {
     EditText referral;
     Button placeOrder;
     TextView promoCodeText;
@@ -92,7 +94,12 @@ public class ReferralActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
     }
 
-    public void btnPlaceOrder(View view) {
+    public void btnPlaceOrder(View view){
+        PaymentOptionBottomSheetFragment paymentOptionSheet = new PaymentOptionBottomSheetFragment();
+        paymentOptionSheet.show(getSupportFragmentManager(),"PaymentOptionSheet");
+    }
+
+    public void btnPlaceOrder1(View view) {
         LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
         final View popUpView = inflater.inflate(R.layout.activity_confirm, null);
 
@@ -243,6 +250,7 @@ public class ReferralActivity extends AppCompatActivity {
         progressDialog.getWindow().setBackgroundDrawableResource(
                 android.R.color.transparent
         );
+        progressDialog.setCancelable(false);
         promoCodeText.setVisibility(View.INVISIBLE);
         discountOnPromo.setVisibility(View.GONE);
         checkPromoCode(referral.getText().toString());
@@ -250,151 +258,73 @@ public class ReferralActivity extends AppCompatActivity {
     }
 
     private void checkPromoCode(String promocode) {
+//        mode is used for knowing what kind of check
+//        normal check == 0 or check before ordering == 1
         Log.d("promocode", "checkPromoCode: "+promocode);
-        if (promocodeList.isEmpty()) {
-            PromocodeDatabase.getInstance().getAllPromo()
-                    .enqueue(new Callback<List<Promocode>>() {
+            PromocodeDatabase.getInstance().checkPromo(mUid,promocode,IdTokenInstance.getToken())
+                    .enqueue(new Callback<PromocodeResult>() {
                         @Override
-                        public void onResponse(Call<List<Promocode>> call, Response<List<Promocode>> response) {
-                            if (!response.isSuccessful()) {
-                                Toast.makeText(ReferralActivity.this, "Some error occured while fetching details", Toast.LENGTH_SHORT).show();
+                        public void onResponse(Call<PromocodeResult> call, Response<PromocodeResult> response) {
+                            if (!response.isSuccessful()){
                                 progressDialog.dismiss();
+                                Toast.makeText(ReferralActivity.this, "There was some error while fetching data", Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            promocodeList = response.body();
-                            Log.d("Promocode", new Gson().toJson(promocodeList.get(0)));
-                            for (Promocode currPromocode : promocodeList) {
-                                if (currPromocode.getCode().equals(promocode)) {
-                                    setPromocode(currPromocode);
-                                    progressDialog.dismiss();
-                                    return;
-                                }
-                            }
-                            currPromo = null;
-                            setPromocode(null);
                             progressDialog.dismiss();
+                            PromocodeResult result = response.body();
+                            if (result.isError()){
+//                                that means promocode not available
+//                                display the message in textview
+                                promoCodeText.setVisibility(View.VISIBLE);
+                                discountOnPromo.setVisibility(View.GONE);
+                                setPromocode(null);
+                                if (result.getMessage()!=null){
+                                    promoCodeText.setText(result.getMessage());
+                                } else {
+//                                    serious problem response is successful but message field is empty
+                                    promoCodeText.setText("There seems to be some error");
+                                }
 
+                            } else {
+//                                that means promocode available
+                                setPromocode(result.getPromocode());
+                            }
                         }
 
                         @Override
-                        public void onFailure(Call<List<Promocode>> call, Throwable t) {
-                            Toast.makeText(ReferralActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        public void onFailure(Call<PromocodeResult> call, Throwable t) {
                             progressDialog.dismiss();
+                            Toast.makeText(ReferralActivity.this, "There was some error while fetching data", Toast.LENGTH_SHORT).show();
                         }
                     });
-        } else {
-            for (Promocode currPromocode : promocodeList) {
-                if (currPromocode.getCode().equals(promocode)) {
-                    setPromocode(currPromocode);
-                    progressDialog.dismiss();
-                    return;
-                }
-            }
-
-            setPromocode(null);
-            progressDialog.dismiss();
-        }
 
     }
 
+
     private void setPromocode(Promocode currPromocode) {
-        int discountPercentage = 0;
         if(currPromocode == null){
 //            set Promocode not found
             promoCodeText.setVisibility(View.VISIBLE);
             discountOnPromo.setVisibility(View.GONE);
-            promoCodeText.setText("No Promocode Found");
-
+            currPromo = null;
+            updatePromocode(null);
         } else {
-//            1. check category
-//            2. on updatePromocode() apply discount
-            int category = currPromocode.getCategory();
-            switch (category){
-//            category 1 unlimited -> no need for further check
-                case 1:
-                    discountPercentage = currPromocode.getPercentage();
-                    updatePromocode(currPromocode);
-                    break;
-
-//            category 2 Max limit per users -> get the frequency of that user
-                case 2:
-                    if(rejectForDate(currPromocode.getStartTime(),currPromocode.getExpiry())){
-                        return;
-                    }
-                    if(currPromocode.getUserFrequencyList()!=null){
-                        for (UserFrequency freq:currPromocode.getUserFrequencyList()){
-                            if(freq.getUserId().equals(mUid)) {
-                                if(freq.getFrequency()>=currPromocode.getMaxUsagePerUser()){
-//                                    usage limit exhausted
-                                    promoCodeText.setVisibility(View.VISIBLE);
-                                    discountOnPromo.setVisibility(View.GONE);
-                                    promoCodeText.setText("You have exhausted this promocode usage limit");
-                                    return;
-                                } else {
-                                    discountPercentage = currPromocode.getPercentage();
-//                                    add 1 to  user frequency
-                                    freq.setFrequency(freq.getFrequency()+1);
-                                    updatePromocode(currPromocode);
-                                    return;
-                                }
-                            }
-                        }
-
-//                        that means user was not found create a new one then
-                        UserFrequency frequency = new UserFrequency(mUid);
-                        currPromocode.getUserFrequencyList().add(frequency);
-                    } else {
-//                        user frequency list was empty
-                        UserFrequency frequency = new UserFrequency(mUid);
-                        currPromocode.setUserFrequencyList(new ArrayList<>());
-                        currPromocode.getUserFrequencyList().add(frequency);
-                        updatePromocode(currPromocode);
-                        return;
-                    }
-
-                    break;
-                case 3:
-//            category 3 max limit -> check max limit is exhausted or not
-                    boolean found = false;
-                    if (currPromocode.getUserFrequencyList()!=null){
-
-                        if(currPromocode.getMaxUsage() > currPromocode.getUserFrequencyList().size()) {
-                            for (UserFrequency freq : currPromocode.getUserFrequencyList()) {
-                                if (freq.getUserId().equals(mUid)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (found) {
-                                UserFrequency frequency = new UserFrequency(mUid);
-                                currPromocode.getUserFrequencyList().add(frequency);
-                                updatePromocode(currPromocode);
-                                return;
-                            }
-                        } else {
-                            promoCodeText.setVisibility(View.VISIBLE);
-                            discountOnPromo.setVisibility(View.GONE);
-                            promoCodeText.setText("Promocode exhauted");
-                            return;
-                        }
-                    } else {
-                        UserFrequency frequency = new UserFrequency(mUid);
-                        currPromocode.setUserFrequencyList(new ArrayList<UserFrequency>());
-                        currPromocode.getUserFrequencyList().add(frequency);
-                        updatePromocode(currPromocode);
-                        return;
-                    }
-                    break;
-                default:
-                    break;
+            if (!rejectForDate(currPromocode.getStartTime(),currPromocode.getExpiry())){
+                updatePromocode(currPromocode);
             }
-
-
-
         }
     }
 
     private void updatePromocode(Promocode promocode){
+        if (promocode==null){
+            orderDetails.getBillingDetails().setFinalAmount(
+                    orderDetails.getBillingDetails().getBasePrice()
+            );
+            totalPrice.setText("Total Amount \u20B9 "+ (totalDiscountPrice) );
+            orderDetails.getBillingDetails().setDiscount(null);
+            orderDetails.getBillingDetails().setPromocode(null);
+            return;
+        }
         currPromo = promocode.getCode();
         promoCodeText.setVisibility(View.VISIBLE);
         promoCodeText.setText("Promocode applied \n Discount % :  "+String.valueOf(promocode.getPercentage())+"%");
@@ -403,7 +333,7 @@ public class ReferralActivity extends AppCompatActivity {
         Log.d("discount", "updatePromocode: "+totalDiscountPrice);
         discountedAmount = ((double) promocode.getPercentage() / 100.0) * totalDiscountPrice;
         Log.d("discount", discountedAmount+"");
-        orderDetails.getBillingDetails().setFinalAmount((int) discountedAmount);
+        orderDetails.getBillingDetails().setFinalAmount( totalDiscountPrice-discountedAmount);
         orderDetails.getBillingDetails().setDiscount(promocode.getPercentage());
         orderDetails.getBillingDetails().setPromocode(promocode.getCode());
         cartTotal.setText("Cart total : \u20B9 "+totalDiscountPrice);
@@ -441,4 +371,114 @@ public class ReferralActivity extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    public void optionSelected(int option) {
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+        progressDialog.setCancelable(false);
+//        option 0 for cod
+//        option 1 for online payment
+        switch (option){
+            case 0:
+                availPromoCode(currPromo,0);
+                Toast.makeText(this, "cod option selected", Toast.LENGTH_SHORT).show();
+                break;
+            case 1:
+                availPromoCode(currPromo,1);
+                Toast.makeText(this, "online option selected", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                progressDialog.dismiss();
+                Toast.makeText(this, "No option was selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void codOrder() {
+
+        try {
+//                    TODO:  1. Delete the cart
+//                           2. Add That deleted cart information to order class
+//                           2. Send that order class to backend route
+            deleteCart();
+            if(currPromo==null){
+                orderDetails.getBillingDetails().setDiscount(null);
+            }
+            orderDetails.getBillingDetails().setPaymentMethod("CASH");
+            orderDetails.getBillingDetails().setOrderTime(new PromoDate(Calendar.getInstance().getTimeInMillis()));
+            String id = mUid+orderDetails.getBillingDetails().getOrderTime().getTimestamp();
+            Order order = new Order(
+                    id,
+                    mUid,
+                    orderDetails.getCartItems(),
+                    orderDetails.getBillingDetails(),
+                    0,
+                    orderDetails.getDeliveryAddress()
+            );
+
+//                    function to create an order
+            createOrder(order);
+
+
+
+        } catch (Exception e){
+            Toast.makeText(getBaseContext(),"Due to some error order was not completed .\n Please order again",Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    private void availPromoCode(String promocode,int option) {
+//        mode is used for knowing what kind of check
+//        normal check == 0 or check before ordering == 1
+        Log.d("promocode", "checkPromoCode: "+promocode);
+        PromocodeDatabase.getInstance().availPromo(mUid,promocode,IdTokenInstance.getToken())
+                .enqueue(new Callback<PromocodeResult>() {
+                    @Override
+                    public void onResponse(Call<PromocodeResult> call, Response<PromocodeResult> response) {
+                        if (!response.isSuccessful()){
+                            progressDialog.dismiss();
+                            Toast.makeText(ReferralActivity.this, "There was some error while fetching data", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        PromocodeResult result = response.body();
+                        if (result.isError()){
+                            progressDialog.dismiss();
+
+//                                that means promocode not available
+//                                display the message in textview
+                            promoCodeText.setVisibility(View.VISIBLE);
+                            discountOnPromo.setVisibility(View.GONE);
+                            setPromocode(null);
+                            if (result.getMessage()!=null){
+                                promoCodeText.setText(result.getMessage());
+                            } else {
+//                                    serious problem response is successful but message field is empty
+                                promoCodeText.setText("There seems to be some error");
+                            }
+
+                        } else {
+//                                that means promocode available
+                            switch (option){
+                                case 0:
+                                    codOrder();
+                                    break;
+                                case 1:
+//                onlineOrder();
+                                    break;
+                                default:
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<PromocodeResult> call, Throwable t) {
+                        progressDialog.dismiss();
+                        Toast.makeText(ReferralActivity.this, "There was some error while fetching data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+    }
 }
