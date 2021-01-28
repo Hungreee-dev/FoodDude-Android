@@ -9,14 +9,17 @@
     android:background="@drawable/doodle_background">
 
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animation"
+        android:id="@+id/animation_order_completed"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         app:lottie_autoPlay="true"
         app:lottie_fileName="deliver.json"
-        app:lottie_loop="true" />
+        app:lottie_loop="true"
+        />
 
     <TextView
+        android:id="@+id/final_order_result_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Thank you for ordering with us!"

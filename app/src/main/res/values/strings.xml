@@ -10,4 +10,6 @@
     <string name="shared_prefs_user">com.example.dubstep.UserData</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="payu_merchant_key">Fq3cAXrg</string>
+    <string name="payu_merchant_id">7351553</string>
 </resources>
