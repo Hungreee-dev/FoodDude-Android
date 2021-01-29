@@ -100,7 +100,6 @@ public class SelectAddressActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        showAddress();
 
     }
 
@@ -113,6 +112,7 @@ public class SelectAddressActivity extends AppCompatActivity {
     }
 
     private void deleteAddress(Address address) {
+        Log.d("address", "deleteAddress: "+new Gson().toJson(address));
         AddressDatabase.getInstance().removeAddress(mUser.getUid(),address.getId(),IdTokenInstance.getToken())
                 .enqueue(new Callback<Address>() {
                     @Override
@@ -124,6 +124,7 @@ public class SelectAddressActivity extends AppCompatActivity {
                         }
                         if (response.body().getMessage()!=null){
                             addressList.removeIf(address1 -> address1.getId().equals(address.getId()));
+                            Log.d("address", "deleteAddress: "+new Gson().toJson(addressList));
                             if(addressList.isEmpty()){
                                 adapter.submitList(null);
                             } else {
@@ -153,6 +154,7 @@ public class SelectAddressActivity extends AppCompatActivity {
     }
 
     private void showAddress() {
+        Log.d("address", "showAddress: "+Log.getStackTraceString(new Throwable()));
         AddressDatabase.getInstance().getAllAddress(mUser.getUid(), IdTokenInstance.getToken())
             .enqueue(new Callback<List<Address>>() {
                 @Override
@@ -197,21 +199,6 @@ public class SelectAddressActivity extends AppCompatActivity {
         Intent intent = new Intent(SelectAddressActivity.this, AddAddressActivity.class);
         startActivity(intent);
     }
-
-//    public void ContinueOrder(View view) {
-////        get all addresses and put in intent
-//        Intent intent = new Intent(this,ReferralActivity.class);
-//        intent.putExtra("pincode",pincode.getText());
-//        intent.putExtra("address1",address1.getText());
-//        intent.putExtra("address2",address2.getText());
-//        intent.putExtra("address3",address3.getText());
-//        intent.putExtra("message",getIntent().getStringExtra("message"));
-//        intent.putExtra("wanumber",getIntent().getStringExtra("wanumber"));
-//        intent.putExtra("cartTotal",getIntent().getStringExtra("cartTotal"));
-//        startActivity(intent);
-//        finish();
-//
-//    }
 
 
     @Override

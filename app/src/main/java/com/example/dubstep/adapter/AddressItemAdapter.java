@@ -58,17 +58,32 @@ public class AddressItemAdapter extends ListAdapter<Address, AddressItemAdapter.
 
         @Override
         public boolean areContentsTheSame(@NonNull Address oldItem, @NonNull Address newItem) {
-            if(oldItem.getId().equals(newItem.getId())){
-                return true;
-            } else if (oldItem.getHouseNumber().equals(newItem.getHouseNumber())){
-                return true;
-            } else if(oldItem.getLine2().equals(newItem.getLine2())){
-                return true;
-            } else if(oldItem.getLine1().equals(newItem.getLine1())){
-                return true;
+//            if(oldItem.getId().equals(newItem.getId())){
+//                return true;
+//            } else if (oldItem.getHouseNumber().equals(newItem.getHouseNumber())){
+//                return true;
+//            } else if(oldItem.getLine2().equals(newItem.getLine2())){
+//                return true;
+//            } else if(oldItem.getLine1().equals(newItem.getLine1())){
+//                return true;
+//            } else {
+//                return oldItem.getPincode().equals(newItem.getPincode());
+//            }
+//
+            if(!oldItem.getPincode().equals(newItem.getPincode())){
+                return false;
+            } else if (!oldItem.getLine2().equals(newItem.getLine2())){
+                return false;
+            } else if(!oldItem.getLine1().equals(newItem.getLine1())){
+                return false;
+            } else if(!oldItem.getHouseNumber().equals(newItem.getHouseNumber())){
+                return false;
             } else {
-                return oldItem.getPincode().equals(newItem.getPincode());
+                return oldItem.getId().equals(newItem.getId());
             }
+
+
+
         }
     } ;
 

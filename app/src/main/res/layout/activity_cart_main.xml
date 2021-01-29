@@ -39,6 +39,7 @@
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/DdeliveryTextView" />
 
@@ -66,6 +67,7 @@
         android:layout_width="wrap_content"
         android:text="@string/cart_total"
         android:textAlignment="center"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="@+id/cart_recycler_view"
         app:layout_constraintTop_toBottomOf="@+id/cart_recycler_view" />
 
@@ -77,6 +79,7 @@
         android:layout_width="wrap_content"
         android:text="@string/delivery_charge"
         android:textAlignment="center"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cart_total_textView" />
 

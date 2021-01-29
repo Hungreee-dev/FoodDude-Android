@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +43,8 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
 
     private static final String TAG = "ThankYouActivity";
     Button continueButton;
-    LottieAnimationView animationView;
+    private ImageView thankYouImage;
+//    LottieAnimationView animationView;
     private TextView orderStatus;
     public static String ORDER_EXTRA = "com.example.dubstep.orderDetails";
     private Order order;
@@ -55,7 +57,8 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thank_you);
 
-        animationView = findViewById(R.id.animation_order_completed);
+        thankYouImage = findViewById(R.id.thankyou_imageview);
+//        animationView = findViewById(R.id.animation_order_completed);
         continueButton = findViewById(R.id.ContinueButton);
         orderStatus = findViewById(R.id.final_order_result_textview);
         progressDialog = new ProgressDialog(this);
@@ -67,10 +70,11 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
         );
         progressDialog.setCancelable(false);
 
-        animationView.setVisibility(View.INVISIBLE);
+//        animationView.setVisibility(View.INVISIBLE);
+        thankYouImage.setVisibility(View.INVISIBLE);
         continueButton.setVisibility(View.INVISIBLE);
         orderStatus.setVisibility(View.INVISIBLE);
-        animationView.setAnimation("failed.json");
+//        animationView.setAnimation("failed.json");
 
 
         mUid = FirebaseAuth.getInstance().getUid();
@@ -291,11 +295,13 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
 
     private void showAsFailed(String error) {
         progressDialog.dismiss();
-        animationView.setVisibility(View.VISIBLE);
+//        animationView.setVisibility(View.VISIBLE);
+        thankYouImage.setVisibility(View.VISIBLE);
         continueButton.setVisibility(View.VISIBLE);
         orderStatus.setVisibility(View.VISIBLE);
-        orderStatus.setText(String.format("Payment Failed \n %s", error));
-        animationView.setAnimation("failed.json");
+        orderStatus.setText(String.format("Order Failed \n %s", error));
+//        animationView.setAnimation("failed.json");
+        thankYouImage.setImageDrawable(getDrawable(R.drawable.no_orders));
         continueButton.setText("Retry Payment");
     }
 
@@ -325,12 +331,14 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
 
     private void showAsSuccess() {
         progressDialog.dismiss();
-        animationView.setVisibility(View.VISIBLE);
+//        animationView.setVisibility(View.VISIBLE);
+        thankYouImage.setVisibility(View.VISIBLE);
         continueButton.setVisibility(View.VISIBLE);
         orderStatus.setVisibility(View.VISIBLE);
-        orderStatus.setText("Payment Successful");
-        animationView.enableMergePathsForKitKatAndAbove(true);
-        animationView.setAnimation("success.json");
+        orderStatus.setText("Order Successful");
+//        animationView.enableMergePathsForKitKatAndAbove(true);
+//        animationView.setAnimation("success.json");
+        thankYouImage.setImageDrawable(getDrawable(R.drawable.tick));
         continueButton.setText("Continue Ordering");
     }
 }
