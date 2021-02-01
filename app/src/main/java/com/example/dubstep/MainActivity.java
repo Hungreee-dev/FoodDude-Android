@@ -26,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.dubstep.Fragment.AboutUsFragment;
+import com.example.dubstep.Fragment.ContactUsFragment;
 import com.example.dubstep.Fragment.HomeFragment;
 import com.example.dubstep.Fragment.OrderFragment;
 import com.example.dubstep.Fragment.ProfileFragment;
@@ -209,6 +211,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .beginTransaction()
                         .addToBackStack(null)
                         .replace(R.id.fragment_container,new TermsAndConditionFragment())
+                        .commit();
+                break;
+            case R.id.about_us:
+                if (navigationView.getMenu().findItem(R.id.about_us).isChecked()){
+                    break;
+                }
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.fragment_container,new AboutUsFragment())
+                        .commit();
+                break;
+            case R.id.contact_us:
+                if (navigationView.getMenu().findItem(R.id.contact_us).isChecked()){
+                    break;
+                }
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.fragment_container,new ContactUsFragment())
                         .commit();
                 break;
 

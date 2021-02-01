@@ -30,13 +30,8 @@
             />
     </group>
 
-    <item android:title="APP">
+    <item android:title="LEGAL">
         <menu>
-            <item
-                android:id="@+id/log_out"
-                android:title="Log Out"
-                android:icon="@drawable/ic_baseline_login_24"
-                />
             <item
                 android:id="@+id/terms_condition"
                 android:title="Terms &amp; Condition"
@@ -45,4 +40,28 @@
                 />
         </menu>
     </item>
+
+    <item android:title="SUPPORT">
+        <menu>
+            <item
+                android:id="@+id/contact_us"
+                android:title="Contact Us"
+                android:icon="@drawable/ic_baseline_contact_us_24"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/about_us"
+                android:title="About Us"
+                android:icon="@drawable/terms_and_condition"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/log_out"
+                android:title="Log Out"
+                android:icon="@drawable/ic_baseline_login_24"
+                />
+        </menu>
+    </item>
+
+
 </menu>

@@ -229,6 +229,7 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
     public void onPaymentSuccess(String s, PaymentData paymentData) {
         Log.d(TAG, "onPaymentSuccess: "+s);
         Log.d(TAG, new Gson().toJson(paymentData));
+        order.getBilling().setPaymentId(paymentData.getPaymentId());
         createOrder(order);
     }
 

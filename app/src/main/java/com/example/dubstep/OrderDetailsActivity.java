@@ -44,6 +44,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView addressLine2;
     private TextView pincode;
     private TextView totalPrice;
+    private TextView paymentMethod;
+    private TextView paymentId;
     private TableLayout orderItems;
     private Chip orderStatus;
     private Order order;
@@ -89,6 +91,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
 //        Order Status
 //        chip   (0,1,2)
           orderStatus = findViewById(R.id.chip_status);
+
+//          Payment details
+        paymentMethod = findViewById(R.id.textview_payment_method);
+        paymentId = findViewById(R.id.textview_payment_id);
     }
 
     private void setLoadingScreen(boolean state) {
@@ -154,6 +160,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
         Calendar cal  = Calendar.getInstance();
         cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());
         timeOfOrder.setText(sdf.format(cal.getTime()));
+        if (order.getBilling().getPaymentMethod().equals("CASH")){
+            paymentMethod.setText("Cash on Delivery");
+            paymentId.setVisibility(View.GONE);
+        } else {
+            paymentMethod.setText("Online Payment");
+            if (order.getBilling().getPaymentId()!=null)
+            paymentId.setText(order.getBilling().getPaymentId());
+        }
         addressLine1.setText(order.getDeliveryAddress().getLine1());
         addressLine2.setText(order.getDeliveryAddress().getLine2());
         pincode.setText(order.getDeliveryAddress().getPincode());

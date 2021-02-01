@@ -25,6 +25,7 @@ import com.example.dubstep.database.PinCodeDatabase;
 import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -60,6 +61,7 @@ public class AddAddressActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_address);
+        ExtendedFloatingActionButton btn = findViewById(R.id.add_address_button);
         pincodeEditText = findViewById(R.id.pincode_editText);
         houseNoEditText = findViewById(R.id.houseNo_editText);
         address1EditText = findViewById(R.id.address1_editText);
@@ -96,6 +98,7 @@ public class AddAddressActivity extends AppCompatActivity {
             setAddress();
         } else {
             progressDialog.dismiss();
+            btn.setText("ADD");
         }
     }
 
