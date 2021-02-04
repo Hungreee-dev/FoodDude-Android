@@ -43,6 +43,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import androidx.cardview.widget.CardView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,9 +51,8 @@ import retrofit2.Response;
 public class ReferralActivity extends AppCompatActivity implements PaymentOptionBottomSheetFragment.BottomSheetListener {
     EditText referral;
     Button placeOrder;
-    TextView promoCodeText;
-    TextView cartTotal;
-    TextView totalPrice;
+    TextView promoCodeText, cartTotal, totalPrice;
+    CardView totalCard;
     Double totalDiscountPrice;
     boolean promoUsed;
     String currPromo;
@@ -77,6 +77,7 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
         promoCodeText = findViewById(R.id.promocode_dicount_text);
         cartTotal = findViewById(R.id.cart_total_without_promo);
         totalPrice = findViewById(R.id.cart_total_with_promo);
+        totalCard = findViewById(R.id.prom_place_order_card);
         discountOnPromo = findViewById(R.id.dicount_on_promo_textview);
         promocodeList = new ArrayList<Promocode>();
         orderDetails = OrderDetails.getInstance();
@@ -109,6 +110,7 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
         );
         progressDialog.setCancelable(false);
         promoCodeText.setVisibility(View.INVISIBLE);
+        totalCard.setVisibility(View.VISIBLE);
         discountOnPromo.setVisibility(View.GONE);
         checkPromoCode(referral.getText().toString());
 
@@ -183,6 +185,7 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
             return;
         }
         currPromo = promocode.getCode();
+        totalCard.setVisibility(View.VISIBLE);
         promoCodeText.setVisibility(View.VISIBLE);
         promoCodeText.setText("Promocode applied \n Discount % :  "+String.valueOf(promocode.getPercentage())+"%");
         discountOnPromo.setVisibility(View.VISIBLE);

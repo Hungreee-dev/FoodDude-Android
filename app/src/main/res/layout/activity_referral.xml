@@ -4,98 +4,118 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/doodle_background"
     tools:context=".ReferralActivity">
 
+
     <EditText
+        android:hint="Enter Promocode"
         android:id="@+id/edit_text_referral"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:hint="Enter Promocode"
+        android:background="@color/orangeLight"
+        android:padding="12dp"
+        android:layout_width="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.975"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0" />
+        app:layout_constraintVertical_bias="0.089" />
 
-    <Button
-        android:id="@+id/button_place_order"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/prom_place_order_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="43dp"
-        android:text="Place Order"
-        android:onClick="btnPlaceOrder"
-        android:background="@drawable/button_rounded"
-        android:layout_marginBottom="24dp"
-        android:layout_marginHorizontal="12dp"
-        app:layout_constraintVertical_bias="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_referral"
-        android:textColor="@color/white"
-        />
+        android:layout_margin="30dp"
+        android:elevation="5dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/cart_total_without_promo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="460dp"
-        android:text="Cart Price : ₹ --"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/dicount_on_promo_textview"
-        app:layout_constraintStart_toStartOf="@+id/dicount_on_promo_textview"
-        app:layout_constraintBottom_toTopOf="@+id/dicount_on_promo_textview"
-        />
+            <TextView
+                android:id="@+id/cart_total_without_promo"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:text="Cart Price : ₹ --"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/cart_total_with_promo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Total Price : ₹ --"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/button_place_order"
-        app:layout_constraintVertical_bias="1"
-        android:layout_margin="12dp"
-        />
+            <TextView
+                android:id="@+id/cart_total_with_promo"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:text="Total Price : ₹ --"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/button_place_order"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cart_total_without_promo" />
+
+            <Button
+                android:background="@drawable/button_rounded"
+                android:id="@+id/button_place_order"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:onClick="btnPlaceOrder"
+                android:text="Place Order"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cart_total_with_promo" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:background="@drawable/button_rounded"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:layout_width="wrap_content"
+        android:onClick="applyPromo"
         android:paddingHorizontal="12dp"
         android:text="Apply Promo"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/cart_total_with_promo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.927"
+        app:layout_constraintHorizontal_bias="0.931"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_referral"
-        app:layout_constraintVertical_bias="0.083"
-        android:onClick="applyPromo"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/edit_text_referral" />
 
     <TextView
+        android:background="@drawable/ic_brush_stroke"
+        android:gravity="center"
         android:id="@+id/promocode_dicount_text"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:padding="4dp"
         android:text="No Promocode Found"
         android:textAlignment="center"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/cart_total_without_promo"
+        android:textStyle="bold"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.507"
-        android:visibility="visible"
-        />
+        app:layout_constraintVertical_bias="0.507" />
 
     <TextView
         android:id="@+id/dicount_on_promo_textview"

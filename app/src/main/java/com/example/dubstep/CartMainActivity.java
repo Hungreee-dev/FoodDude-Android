@@ -2,6 +2,7 @@ package com.example.dubstep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import retrofit2.Call;
@@ -48,14 +49,12 @@ public class CartMainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private MaterialButton mplaceOrder;
-    private TextView mPriceTotal;
-    private TextView mCartTotal;
-    private TextView mDelivery, emptyCartMesage;
+    private TextView mPriceTotal, mCartTotal, mDelivery, emptyCartMesage;
+    private CardView cartTotalCard;
     private FirebaseAuth firebaseAuth;
     private List<CartItem> mCartItemList;
     ProgressDialog progressDialog;
-    int cartTotal;
-    int deliveryCharge;
+    int cartTotal, deliveryCharge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +66,7 @@ public class CartMainActivity extends AppCompatActivity {
       mplaceOrder = findViewById(R.id.btn_place_order);
         emptyCartMesage = findViewById(R.id.empty_cart_text_view);
 
+        cartTotalCard = findViewById(R.id.total_cart);
         setUpRecycler();
         mplaceOrder.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,6 +98,7 @@ public class CartMainActivity extends AppCompatActivity {
 
     private void setUpTotals() {
 
+        cartTotalCard = findViewById(R.id.total_cart);
         emptyCartMesage.setVisibility(View.GONE);
         mPriceTotal = findViewById(R.id.total_price_text_view);
         mCartTotal = findViewById(R.id.cart_total_textView);
@@ -123,9 +124,7 @@ public class CartMainActivity extends AppCompatActivity {
     }
 
     private void setUpEmptyCart(){
-        mDelivery.setVisibility(View.INVISIBLE);
-        mCartTotal.setVisibility(View.INVISIBLE);
-        mPriceTotal.setVisibility(View.INVISIBLE);
+        cartTotalCard.setVisibility(View.INVISIBLE);
         emptyCartMesage.setVisibility(View.VISIBLE);
         emptyCartMesage.setText("Cart empty right now");
     }
@@ -160,10 +159,12 @@ public class CartMainActivity extends AppCompatActivity {
                         if (mCartItemList.isEmpty()){
                             //show no address found
                             emptyCartMesage.setVisibility(View.VISIBLE);
+                            cartTotalCard.setVisibility(View.INVISIBLE);
                             recyclerView.setVisibility(View.INVISIBLE);
                         } else {
                             emptyCartMesage.setVisibility(View.INVISIBLE);
                             recyclerView.setVisibility(View.VISIBLE);
+                            cartTotalCard.setVisibility(View.VISIBLE);
                             adapter.submitList(mCartItemList);
                             setUpTotals();
                         }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ThankYouActivity"
     android:orientation="vertical"
-    android:background="@drawable/doodle_background">
+    android:background="@color/white">
 
 <!--    <com.airbnb.lottie.LottieAnimationView-->
 <!--        android:id="@+id/animation_order_completed"-->
@@ -17,36 +17,95 @@
 <!--        app:lottie_fileName="deliver.json"-->
 <!--        app:lottie_loop="true"-->
 <!--        />-->
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:elevation="15dp"
+        android:id="@+id/success_animation"
+        android:layout_height="300dp"
+        android:layout_width="300dp"
+        app:layout_constraintBottom_toTopOf="@+id/thank_you"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/final_order_result_textview"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/tick_success" />
+
     <ImageView
         android:id="@+id/thankyou_imageview"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="32dp"
+        android:layout_width="100dp"
         android:padding="90dp"
+        android:visibility="gone"
         android:src="@drawable/tick"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/ContinueButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="480dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/delivered"/>
 
     <TextView
         android:id="@+id/final_order_result_textview"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Thank you for ordering with us!"
+        android:layout_marginTop="36dp"
+        android:layout_width="wrap_content"
+        android:text="Order Successful!"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:elevation="15dp"
+        android:id="@+id/icon_image_view"
+        android:layout_height="70dp"
+        android:layout_width="70dp"
+        android:src="@drawable/logo_circle"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/ContinueButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/thank_you"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_width="match_parent"
+        android:text="Thank you for ordering with"
         android:textAlignment="center"
-        android:textColor="#D6101E"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:textSize="35dp" />
+        android:textColor="@color/colorAccent"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/icon_image_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
     <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CONTINUE ORDERING"
-        android:textSize="20sp"
-        android:textColor="#ffffff"
-        android:layout_marginTop="70dp"
         android:background="@drawable/button_rounded"
         android:id="@+id/ContinueButton"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="42dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="4dp"
+        android:layout_width="match_parent"
+        android:text="CONTINUE ORDERING"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
