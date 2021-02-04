@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#2D383F</color>
     <color name="colorAccent">#EC663B</color>
         <color name="orangeBg">#FF7E4A</color>
+    <color name="orangeLight">#FFA986</color>
     <color name="background">#EEEDEF</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
@@ -11,6 +12,7 @@
     <color name="processing">#FF9800</color>
     <color name="delivering">#FF5722</color>
     <color name="delivered">#4CAF50</color>
+    <color name="green">#38C172</color>
     <color name="colorDelivered">#12D50B</color>
     <color name="colorPending">#C60505</color>
     <color name="grey">#535353</color>
