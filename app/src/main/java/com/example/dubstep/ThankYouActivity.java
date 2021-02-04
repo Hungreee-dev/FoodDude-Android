@@ -297,14 +297,15 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
     private void showAsFailed(String error) {
         progressDialog.dismiss();
 //        animationView.setVisibility(View.VISIBLE);
-        successAnimation.setVisibility(View.VISIBLE);
+        successAnimation.setVisibility(View.INVISIBLE);
         continueButton.setVisibility(View.VISIBLE);
         orderStatus.setVisibility(View.VISIBLE);
-        //failAnimation.setVisibility(View.VISIBLE);
+        failAnimation.setVisibility(View.VISIBLE);
+        findViewById(R.id.thank_you).setVisibility(View.INVISIBLE);
         bgView.setBackgroundColor(getApplicationContext().getResources().getColor(R.color.orangeLight));
         orderStatus.setText(String.format("Order Failed \n %s", error));
 //        animationView.setAnimation("failed.json");
-        successAnimation.setImageDrawable(getDrawable(R.drawable.no_orders));
+        failAnimation.setImageDrawable(getDrawable(R.drawable.no_orders));
         continueButton.setText("Retry Payment");
     }
 
@@ -341,7 +342,7 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
         orderStatus.setText("Order Successful");
 //        animationView.enableMergePathsForKitKatAndAbove(true);
 //        animationView.setAnimation("success.json");
-        successAnimation.setImageDrawable(getDrawable(R.drawable.tick));
+        ///successAnimation.setImageDrawable(getDrawable(R.drawable.tick));
         continueButton.setText("Continue Ordering");
     }
 }
