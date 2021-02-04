@@ -22,6 +22,33 @@
                 android:src="@drawable/login_icon_2"
                 android:padding="20dp"/>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/loginTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mobile No."
+                app:boxStrokeColor="@color/colorAccent"
+                android:outlineProvider="paddedBounds"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginTop="30dp"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:counterTextColor="@color/black"
+                app:hintTextColor="@color/black"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/loginTextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:textSize="20sp"
+                    android:textColorHighlight="#FF5722"
+                    android:textColorLink="#4CAF50"
+                    android:maxLength="10"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <EditText
                 android:id="@+id/EmailLoginEditText"
@@ -34,7 +61,9 @@
                 android:textAlignment="viewStart"
                 android:textColorHighlight="#FF5722"
                 android:textColorLink="#4CAF50"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:visibility="gone"
+                />
 
             <EditText
                 android:id="@+id/PasswordLoginEditText"
@@ -48,6 +77,7 @@
                 android:textColorHighlight="#FF5722"
                 android:textColorLink="#4CAF50"
                 android:textSize="20sp"
+                android:visibility="gone"
                 />
 
             <com.google.android.material.button.MaterialButton
@@ -63,12 +93,23 @@
                 app:rippleColor="@color/colorAccent"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="10dp"
+                android:visibility="gone"
                 />
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="LOGIN"
+                android:text="LOGIN THROUGH OTP"
+                android:textSize="20sp"
+                android:textColor="#ffffff"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/button_rounded"
+                android:id="@+id/LoginOtpButton"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="LOGIN THROUGH EMAIL"
                 android:textSize="20sp"
                 android:textColor="#ffffff"
                 android:layout_marginTop="30dp"

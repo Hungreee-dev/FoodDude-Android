@@ -50,6 +50,7 @@ import retrofit2.Response;
 
 public class OrderFragment extends Fragment {
 
+    private static final String TAG = "Order";
     private FirebaseUser mUser;
     private List<String> orderIdList;
     private OrderAdapter orderAdapter;
@@ -119,7 +120,7 @@ public class OrderFragment extends Fragment {
             }
         });
 
-            orderItemViewModel.getAllOrders().observe(getActivity(), new Observer<List<OrderItem>>() {
+            orderItemViewModel.getAllOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
             @Override
             public void onChanged(List<OrderItem> orderItemsLocal) {
                 if (orderItemsLocal!=null && orderItemsLocal.size()>0){
@@ -130,6 +131,7 @@ public class OrderFragment extends Fragment {
                         checkUndelivered();
                         fetchNewOrderList(mUser.getUid());
                     }
+                    Log.d(TAG, "onChanged: "+orderItemsLocal.size());
                     orderAdapter.submitList(orderItemsLocal);
                 } else {
 //                    sqlite database is not created yet so fetch all the data
@@ -142,6 +144,12 @@ public class OrderFragment extends Fragment {
             }
         });
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        orderItemViewModel.getAllOrders().removeObservers(OrderFragment.this);
     }
 
     private void fetchNewOrderList(String uid) {

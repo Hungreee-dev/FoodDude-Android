@@ -22,4 +22,18 @@ public interface UserApi {
     @FormUrlEncoded
     @POST("/api/users/add-order-id")
     Call<User> addOrderId(@Field("uid") String uid,@Field("orderId") String orderId, @Header("authorization") String authorizationToken);
+
+    @POST("/api/users/set-user-phone-name")
+    Call<User> setUserPhoneName(@Body User user,
+                                @Header("authorization") String authorizationToken);
+
+    @FormUrlEncoded
+    @POST("/api/users/check-user-by-phoneNumber")
+    Call<User> checkUserPhoneName(@Field("token") String token,
+                                @Field("phone") String phone);
+
+    @FormUrlEncoded
+    @POST("/api/users/check-user-by-email")
+    Call<User> checkUserEmail(@Field("token") String token,
+                                  @Field("email") String email);
 }

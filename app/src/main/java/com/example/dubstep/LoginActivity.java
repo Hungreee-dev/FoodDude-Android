@@ -9,7 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.PatternMatcher;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +35,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,6 +48,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,7 +62,12 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     EditText txtemail, txtpassword;
-    Button btn_login;
+    private TextInputLayout inputLayoutPhone;
+    private TextInputEditText inputEditTextPhone;
+    private Button btn_login;
+    private boolean email = false;
+    private Button btn_login_otp;
+    private boolean otp = true;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
 //    private SignInButton GoogleSignInButton;
@@ -68,6 +84,11 @@ public class LoginActivity extends AppCompatActivity {
         txtemail = (EditText) findViewById(R.id.EmailLoginEditText);
         txtpassword = (EditText) findViewById(R.id.PasswordLoginEditText);
         btn_login = (Button) findViewById(R.id.LoginButton);
+        btn_login_otp = findViewById(R.id.LoginOtpButton);
+        inputEditTextPhone = findViewById(R.id.loginTextInputEditText);
+        inputLayoutPhone = findViewById(R.id.loginTextInputLayout);
+
+        inputEditTextPhone.addTextChangedListener(myWatcher());
 //        GoogleSignInButton = (SignInButton) findViewById(R.id.GoogleSignInButton);
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -78,6 +99,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this,PasswordResetActivity.class));
             }
         });
+
+        progressDialog = new ProgressDialog(LoginActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+        progressDialog.dismiss();
 
 //        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 //                .requestIdToken(getString(R.string.default_web_client_id))
@@ -111,7 +140,16 @@ public class LoginActivity extends AppCompatActivity {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (!email){
+                    inputEditTextPhone.setText("");
+                    inputLayoutPhone.setVisibility(View.GONE);
+                    txtpassword.setVisibility(View.VISIBLE);
+                    txtemail.setVisibility(View.VISIBLE);
+                    email = true;
+                    otp = false;
+                    inputLayoutPhone.setClickable(true);
+                    return;
+                }
                 progressDialog = new ProgressDialog(LoginActivity.this);
                 progressDialog.show();
                 progressDialog.setContentView(R.layout.progress_dialog);
@@ -160,6 +198,10 @@ public class LoginActivity extends AppCompatActivity {
 
                                     progressDialog.dismiss();
                                     Toast.makeText(LoginActivity.this,  "Login Failed or User not Available",Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+                                    intent.putExtra(SignUpActivity.EMAIL_EXTRA,email);
+                                    startActivity(intent);
+
 
                                 }
 
@@ -169,7 +211,76 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        btn_login_otp.setOnClickListener(mylistner());
+    }
 
+    private TextWatcher myWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("regex", "onTextChanged: "+s.length());
+                if (s.length()!=10){
+//                    inputLayoutPhone.setError("Enter Complete Mobile No.");
+                } else {
+                    Pattern pattern = Pattern.compile("^\\d+");
+                    Matcher m = pattern.matcher(s.toString());
+                    Log.d("regex", "onTextChanged: "+m.matches());
+                    if (!m.matches()){
+                        inputLayoutPhone.setError("Mobile no needs to be only digits");
+                    } else {
+                        inputLayoutPhone.setError(null);
+                        btn_login_otp.setClickable(true);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+    }
+
+    private View.OnClickListener mylistner() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (otp){
+                    if (inputEditTextPhone.getText()==null){
+                        inputEditTextPhone.setError("Mobile No. can't be empty");
+                        return;
+                    }
+                    if (inputEditTextPhone.getText().length()!=10){
+                        inputLayoutPhone.setError("Enter Complete Mobile No.");
+                        return;
+                    }
+//                    start new activity
+
+                    try {
+                        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+                        Phonenumber.PhoneNumber numberProto = null;
+                        numberProto = phoneUtil.parse(inputEditTextPhone.getText().toString(), "IN");
+                        checkIfNumberExists(phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.E164));
+                    } catch (NumberParseException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } else {
+                    inputLayoutPhone.setVisibility(View.VISIBLE);
+                    txtemail.setText("");
+                    txtpassword.setText("");
+                    txtemail.setVisibility(View.GONE);
+                    txtpassword.setVisibility(View.GONE);
+                    otp = true;
+                    email = false;
+                }
+            }
+        };
     }
 
     private void checkUserData(String uid) {
@@ -269,5 +380,41 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    private void checkIfNumberExists(String phoneNo) {
+        progressDialog.show();
+        UserDatabase.getInstance().checkUserPhoneName("FoodDude",phoneNo)
+                .enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        if (!response.isSuccessful()){
+                            Log.d("OTP", "onResponse: "+new Gson().toJson(response.code()));
+                            if (response.code()==404){
+                                progressDialog.dismiss();
+                                Toast.makeText(LoginActivity.this, "Phone number not found,\n Please register first", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+                                intent.putExtra(SignUpActivity.NUMBER_EXTRA,phoneNo);
+                                startActivity(intent);
+                            } else if (response.code()==401){
+                                progressDialog.dismiss();
+                                Toast.makeText(LoginActivity.this, "Re - enter your number", Toast.LENGTH_SHORT).show();
+                            }
+                            return;
+                        }
+                        if (response.body().getError()==null){
+//                            Number exists
+                            progressDialog.dismiss();
+                            Intent intent = new Intent(LoginActivity.this, OtpActivity.class);
+                            intent.putExtra(OtpActivity.OTP_EXTRA,inputEditTextPhone.getText().toString());
+                            intent.putExtra(OtpActivity.TYPE_EXTRA,1);
+                            startActivity(intent);
+                        }
+                    }
 
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, new Gson().toJson(t.getMessage()), Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
+    }
 }

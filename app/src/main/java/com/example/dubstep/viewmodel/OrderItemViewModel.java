@@ -31,6 +31,10 @@ public class OrderItemViewModel extends AndroidViewModel {
         repository.update(orderItem);
     }
 
+    public void deleteAllItemsAndLogout(){
+        repository.deleteAllRecordAndLogout();
+    }
+
     public LiveData<List<OrderItem>> getAllOrders() {
         return allOrders;
     }

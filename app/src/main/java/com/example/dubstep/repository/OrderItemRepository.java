@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import com.example.dubstep.Entity.OrderItem;
 import com.example.dubstep.dao.OrderItemDao;
 import com.example.dubstep.database.OrderItemDatabase;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -47,6 +48,10 @@ public class OrderItemRepository {
         return undeliveredOrderItemList;
     }
 
+    public void deleteAllRecordAndLogout(){
+        new DeleteAllItemsAsync(orderItemDao).execute();
+    }
+
     private static class InsertOrderItemAsync extends AsyncTask<OrderItem,Void,Void>{
         private OrderItemDao orderItemDao;
 
@@ -72,6 +77,26 @@ public class OrderItemRepository {
         protected Void doInBackground(OrderItem... orderItems) {
             orderItemDao.update(orderItems[0]);
             return null;
+        }
+    }
+
+    private static class DeleteAllItemsAsync extends AsyncTask<Void,Void,Void>{
+        private OrderItemDao orderItemDao;
+
+        public DeleteAllItemsAsync(OrderItemDao orderItemDao) {
+            this.orderItemDao = orderItemDao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            orderItemDao.deleteAllRecordAndLogout();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            FirebaseAuth.getInstance().signOut();
         }
     }
 

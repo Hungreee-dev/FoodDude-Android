@@ -19,6 +19,9 @@ public interface OrderItemDao {
     @Update
     void update(OrderItem orderItem);
 
+    @Query("DELETE FROM order_list")
+    void deleteAllRecordAndLogout();
+
     @Query("SELECT * FROM order_list WHERE orderId=:orderId")
     LiveData<OrderItem> getItem(String orderId);
 

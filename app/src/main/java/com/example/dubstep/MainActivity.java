@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +37,7 @@ import com.example.dubstep.Interface.ItemClickListener;
 import com.example.dubstep.Model.FoodItem;
 import com.example.dubstep.Model.User;
 import com.example.dubstep.ViewHolder.FoodItemViewHolder;
+import com.example.dubstep.viewmodel.OrderItemViewModel;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -194,13 +196,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .commit();
                 break;
             case R.id.log_out:
-                FirebaseAuth.getInstance().signOut();
+                if (navigationView.getMenu().findItem(R.id.nav_order).isChecked()){
+                    getSupportFragmentManager()
+                            .popBackStack();
+
+                }
 //                mGoogleSignInClient.signOut();
                 mGoogleSignInClient.revokeAccess().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         finish();
+                        new ViewModelProvider(MainActivity.this,
+                                ViewModelProvider.AndroidViewModelFactory.getInstance(MainActivity.this.getApplication())
+                        ).get(OrderItemViewModel.class).deleteAllItemsAndLogout();
+
                     }
                 });
             case R.id.terms_condition:
