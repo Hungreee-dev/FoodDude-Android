@@ -156,7 +156,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         ColorStateList myList = new ColorStateList(states, colors);
         orderId.setText(order.getOrderId().split(mUser)[1]);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd MMM yyyy", Locale.US);
         Calendar cal  = Calendar.getInstance();
         cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());
         timeOfOrder.setText(sdf.format(cal.getTime()));
