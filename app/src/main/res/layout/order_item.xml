@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,56 +9,89 @@
     app:cardCornerRadius="5dp"
     app:cardElevation="5dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="15dp">
 
         <TextView
-            android:id="@+id/text_view_mob"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@id/text_view_cart"
             android:ellipsize="end"
+            android:id="@+id/text_view_mob"
+            android:layout_alignParentStart="true"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="6dp"
+            android:layout_toStartOf="@id/text_view_cart"
+            android:layout_width="wrap_content"
             android:maxLines="1"
             android:text="Mobile Number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/text_view_cart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="14dp"
+            android:layout_width="wrap_content"
             android:text="Cart Size"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_send" />
 
         <TextView
             android:id="@+id/text_view_Latitude"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/text_view_mob"
             android:layout_alignParentStart="true"
-            android:text="Latitude" />
+            android:layout_below="@id/text_view_mob"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:text="Latitude"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/text_view_Longitude"
+            app:layout_constraintTop_toBottomOf="@+id/text_view_mob" />
 
         <TextView
             android:id="@+id/text_view_Longitude"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_alignParentStart="false"
             android:layout_below="@id/text_view_mob"
-            android:layout_toRightOf="@id/text_view_Latitude"
-            android:text="Longitude" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_send"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/text_view_cart"
-            android:layout_alignParentEnd="true"
-            android:text="View Details" />
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_toRightOf="@id/text_view_Latitude"
+            android:layout_width="wrap_content"
+            android:text="Longitude"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_view_mob" />
 
-    </RelativeLayout>
+
+        <ImageButton
+            android:background="@android:color/transparent"
+            android:id="@+id/button_send"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="2dp"
+            android:layout_width="40dp"
+            android:src="@drawable/ic_baseline_info_24"
+            android:tint="@color/orangeBg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

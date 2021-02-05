@@ -4,18 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ViewHolder.ThankYouActivity"
-    android:orientation="vertical">
+    tools:context=".ThankYouActivity"
+    android:orientation="vertical"
+    android:background="@drawable/doodle_background">
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animation"
+<!--    <com.airbnb.lottie.LottieAnimationView-->
+<!--        android:id="@+id/animation_order_completed"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="400dp"-->
+<!--        app:lottie_autoPlay="true"-->
+<!--        app:lottie_fileName="deliver.json"-->
+<!--        app:lottie_loop="true"-->
+<!--        />-->
+    <ImageView
+        android:id="@+id/thankyou_imageview"
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        app:lottie_autoPlay="true"
-        app:lottie_fileName="deliver.json"
-        app:lottie_loop="true" />
+        android:padding="90dp"
+        android:src="@drawable/tick"
+        />
 
     <TextView
+        android:id="@+id/final_order_result_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Thank you for ordering with us!"

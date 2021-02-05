@@ -11,28 +11,33 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.Result;
+import com.example.dubstep.Model.User;
+import com.example.dubstep.database.UserDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignUpActivity extends AppCompatActivity {
 
     EditText txtFullName, txtusername, txtemail, txtpassword, txtMobileNumber;
-    RadioButton customerButton, riderButton, regularButton, irregularButton;
     Button SignUp;
-    RadioGroup CustomerTypeGroup;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog1;
-
-    DatabaseReference databaseReference;
 
 
     @Override
@@ -46,36 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
         txtMobileNumber = (EditText) findViewById(R.id.MobileNumberEditText);
         txtpassword = (EditText) findViewById(R.id.PasswordEditText);
         SignUp = (Button) findViewById(R.id.SignUpButton);
-        customerButton = (RadioButton) findViewById(R.id.CustomerButton);
-        riderButton = (RadioButton) findViewById(R.id.RiderButton);
-        regularButton = (RadioButton) findViewById(R.id.RegularButton);
-        irregularButton = (RadioButton) findViewById(R.id.IrregularButton);
-        CustomerTypeGroup = (RadioGroup) findViewById(R.id.CustomerTypeGroup);
-
-        databaseReference = FirebaseDatabase.getInstance().getReference("user");
-
         firebaseAuth = FirebaseAuth.getInstance();
-        CustomerTypeGroup.setVisibility(View.INVISIBLE);
-
-        customerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (customerButton.isChecked()){
-                    CustomerTypeGroup.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        riderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (riderButton.isChecked()){
-                    CustomerTypeGroup.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-
 
         SignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,8 +69,6 @@ public class SignUpActivity extends AppCompatActivity {
                 final String fullName = txtFullName.getText().toString();
                 final String Username = txtusername.getText().toString();
                 final String MobileNumber = txtMobileNumber.getText().toString();
-                String Role = "";
-                String CustomerType = "";
 
                 if (TextUtils.isEmpty(fullName)) {
                     Toast.makeText(SignUpActivity.this,  "Please Enter Full Name",Toast.LENGTH_SHORT).show();
@@ -127,63 +101,61 @@ public class SignUpActivity extends AppCompatActivity {
                 }
 
 
-                if (customerButton.isChecked() == false && riderButton.isChecked() == false) {
-                    Toast.makeText(SignUpActivity.this,  "Please select either Customer or Rider",Toast.LENGTH_SHORT).show();
-                    progressDialog1.dismiss();
-                    return;
-                }
-                if (customerButton.isChecked()) {
-
-                    if (regularButton.isChecked() == false && irregularButton.isChecked() == false) {
-                        Toast.makeText(SignUpActivity.this, "Please select either Regular or Irregular", Toast.LENGTH_SHORT).show();
-                        progressDialog1.dismiss();
-                        return;
-                    }
-                    Role = "Customer";
-                    if (regularButton.isChecked()){
-                        CustomerType = "Regular";
-                    } else if (irregularButton.isChecked()){
-                        CustomerType = "Irregular";
-                    }
-                } else if (riderButton.isChecked()) {
-                    Role = "Rider";
-                }
-
-                final String finalRole = Role;
-                final String finalCustomerType = CustomerType;
                 firebaseAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+                                    final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                    FirebaseAuth.getInstance().getAccessToken(true)
+                                            .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                                                @Override
+                                                public void onSuccess(GetTokenResult getTokenResult) {
+                                                    IdTokenInstance.setToken(getTokenResult.getToken());
 
-                                     user details = new user(
-                                            fullName,
-                                            Username,
-                                            MobileNumber,
-                                            email,
-                                             finalRole,
-                                             finalCustomerType
+                                                    final User details = new User(
+                                                            fullName,
+                                                            MobileNumber,
+                                                            email,
+                                                            firebaseUser.getUid()
+                                                    );
+                                                    UserDatabase.getInstance().addUser(details, IdTokenInstance.getToken())
+                                                            .enqueue(new Callback<Result>() {
+                                                                @Override
+                                                                public void onResponse(Call<Result> call, Response<Result> response) {
+                                                                    if (!response.isSuccessful()){
+                                                                        Toast.makeText(SignUpActivity.this, response.body().getError() + "Try again", Toast.LENGTH_SHORT).show();
+                                                                        return;
+                                                                    }if (response.body().getMessage()!=null){
+//                                                                        User created successfully
+                                                                        Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                                                                        firebaseUser.sendEmailVerification();
+                                                                        Toast.makeText(SignUpActivity.this,"Verify email , then login again",Toast.LENGTH_LONG).show();
+                                                                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                                                                        progressDialog1.dismiss();
+                                                                        finish();
+                                                                    }
+                                                                }
 
-                                    );
+                                                                @Override
+                                                                public void onFailure(Call<Result> call, Throwable t) {
+                                                                    Toast.makeText(SignUpActivity.this, "Some error occured ! \n Please try again" +t.getMessage(), Toast.LENGTH_SHORT).show();
 
-                                     FirebaseDatabase.getInstance().getReference("user")
-                                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                             .setValue(details).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                         @Override
-                                         public void onComplete(@NonNull Task<Void> task) {
-                                             Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                                             startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                             progressDialog1.dismiss();
-                                         }
-                                     });
+                                                                }
+                                                            });
+                                                }
+                                            });
+
+
 
 
                                 } else {
 
-                                    Toast.makeText(SignUpActivity.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SignUpActivity.this, "Authentication failed"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    progressDialog1.dismiss();
 
                                 }
+
 
                             }
                         });

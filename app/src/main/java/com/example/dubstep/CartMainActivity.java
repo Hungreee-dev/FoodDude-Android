@@ -4,19 +4,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dubstep.Model.CartInfo;
 import com.example.dubstep.Model.CartItem;
-import com.example.dubstep.ViewHolder.CartItemsAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.dubstep.Model.UserCart;
+import com.example.dubstep.adapter.CartItemsAdapter;
+import com.example.dubstep.database.CartDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
+import com.example.dubstep.singleton.OrderDetails;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -24,8 +29,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+//       1. change place order button to Continue button that takes to new activity
+//       2. Create a new activity where we have a editext and submit button
+//       3. Editext for promocode and submit button for placing order
+//       4. Submit Button should open a popup(Dialog) that askes for final confirmation
+//       5. On yes send the message to whatsapp.
 
 public class CartMainActivity extends AppCompatActivity {
 
@@ -36,12 +50,12 @@ public class CartMainActivity extends AppCompatActivity {
     private MaterialButton mplaceOrder;
     private TextView mPriceTotal;
     private TextView mCartTotal;
-    private TextView mDiscount;
-
-    private DatabaseReference userref;
-    private DatabaseReference mCartRef;
+    private TextView mDelivery, emptyCartMesage;
     private FirebaseAuth firebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private List<CartItem> mCartItemList;
+    ProgressDialog progressDialog;
+    int cartTotal;
+    int deliveryCharge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,132 +63,76 @@ public class CartMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cart_main);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        userref = FirebaseDatabase.getInstance().getReference("user").child(firebaseAuth.getCurrentUser().getUid().toString());
-        mCartRef = FirebaseDatabase.getInstance().getReference("Cart").child(firebaseAuth.getCurrentUser().getUid().toString());
 
-        mplaceOrder = findViewById(R.id.btn_place_order);
+      mplaceOrder = findViewById(R.id.btn_place_order);
+        emptyCartMesage = findViewById(R.id.empty_cart_text_view);
 
-        setUpTotals();
         setUpRecycler();
-
-
-
         mplaceOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(CartMainActivity.this,MapsActivity.class);
-                intent.putExtra("UID",firebaseAuth.getCurrentUser().getUid());
-
-                userref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        user u = dataSnapshot.getValue(user.class);
-                        intent.putExtra("PhoneNumber", u.PhoneNumber);
-
-                        mCartRef.child("Info").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                CartInfo cartInfo = dataSnapshot.getValue(CartInfo.class);
-                                intent.putExtra("cartTotal", Double.toString(cartInfo.getCartTotal()) );
-
-                                startActivity(intent);
-
-                                //Toast.makeText(CartMainActivity.this,"Cart Total : "+cartInfo.getCartTotal(),Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                        //startActivity(intent);
-                        //Toast.makeText(CartMainActivity.this,"Phone Number : "+u.PhoneNumber,Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
-
-
+                if(mCartItemList==null||mCartItemList.isEmpty()){
+                    Toast.makeText(CartMainActivity.this, "Can't order an empty cart", Toast.LENGTH_SHORT).show();
+                } else {
+                    OrderDetails orderDetails = OrderDetails.getInstance();
+                    orderDetails.setCartItems(mCartItemList);
+                    orderDetails.getBillingDetails().setBasePrice(cartTotal);
+                    orderDetails.getBillingDetails().setDeliveryCharge(deliveryCharge);
+                    orderDetails.getBillingDetails().setFinalAmount(cartTotal+deliveryCharge);
+                    Intent intent = new Intent(CartMainActivity.this, SelectAddressActivity.class);
+                    startActivity(intent);
+                }
+//
+//
             }
         });
+
+        progressDialog = new ProgressDialog(CartMainActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+
     }
 
     private void setUpTotals() {
 
+        emptyCartMesage.setVisibility(View.GONE);
         mPriceTotal = findViewById(R.id.total_price_text_view);
         mCartTotal = findViewById(R.id.cart_total_textView);
-        mDiscount = findViewById(R.id.DdiscountTextView);
+        mDelivery = findViewById(R.id.DdeliveryTextView);
 
-        //int cartTotal = 0;
-        //double discount = 0;
+        cartTotal = 0;
+        deliveryCharge = 49;
+//        double discount = 0;
 
-
-        mCartRef.child("Products").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int cartTotal = 0;
-                if(dataSnapshot.exists()){
-                    for(DataSnapshot snap: dataSnapshot.getChildren()){
-                        CartItem item = snap.getValue(CartItem.class);
-                        cartTotal += (Integer.parseInt(item.getPrice()) * Integer.parseInt(item.getQuantity()));
-
-                        final int finalCartTotal = cartTotal;
-                        userref.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                double discount = 0;
-                                user u = dataSnapshot.getValue(user.class);
-                                if(u.CustomerType.equals("Regular"))
-                                    discount = 25;
-
-                                mDiscount.setText("Regular Customer Discount : "+discount+"%");
-
-                                double TotalPrice = finalCartTotal *(100-discount)/100;
-
-                                mPriceTotal.setText("Total Price : "+TotalPrice);
-
-                                HashMap<String,Object> cartInfo = new HashMap<>();
-                                cartInfo.put("CartItemsTotal",finalCartTotal);
-                                cartInfo.put("Discount",discount);
-                                cartInfo.put("CartTotal",TotalPrice);
-
-                                mCartRef.child("Info").setValue(cartInfo);
+        for (CartItem cartItem : mCartItemList){
+            String price = cartItem.getPrice().trim();
+            Log.v("Item price", price);
+            cartTotal += cartItem.getQuantity() * Integer.parseInt(price);
+        }
+        String cartTotalS = "Cart total: " + "\u20B9 "+ (cartTotal);
+        mCartTotal.setText(cartTotalS);
+        String deliveryS = "Delivery: " + "\u20B9 "+ (deliveryCharge);
+        mDelivery.setText(deliveryS);
+        String priceTotal = "Total: " + "\u20B9 "+ (cartTotal + deliveryCharge);
+        mPriceTotal.setText(priceTotal);
 
 
-                            }
+    }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                    }
-                }
-
-                mCartTotal.setText("CART TOTAL : "+cartTotal);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
-
-
+    private void setUpEmptyCart(){
+        mDelivery.setVisibility(View.INVISIBLE);
+        mCartTotal.setVisibility(View.INVISIBLE);
+        mPriceTotal.setVisibility(View.INVISIBLE);
+        emptyCartMesage.setVisibility(View.VISIBLE);
+        emptyCartMesage.setText("Cart empty right now");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        adapter.startListening();
     }
 
     private void setUpRecycler() {
@@ -184,46 +142,113 @@ public class CartMainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+        mCartItemList = new ArrayList<>();
+        adapter = new CartItemsAdapter(CartMainActivity.this,mCartItemList);
+
+        CartDatabase.getInstance().getAllCartItems(firebaseAuth.getUid(), IdTokenInstance.getToken())
+                .enqueue(new Callback<List<CartItem>>() {
+                    @Override
+                    public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
+                        if(!response.isSuccessful()){
+                            Toast.makeText(CartMainActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        mCartItemList.addAll(response.body()) ;
+
+//                        change inside of adapter to take CartItem class
+                        adapter.submitList(mCartItemList);
+                        if (mCartItemList.isEmpty()){
+                            //show no address found
+                            emptyCartMesage.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.INVISIBLE);
+                        } else {
+                            emptyCartMesage.setVisibility(View.INVISIBLE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                            adapter.submitList(mCartItemList);
+                            setUpTotals();
+                        }
+
+                        progressDialog.dismiss();
+
+                        adapter.setOnValueChangeListener(new CartItemsAdapter.OnValueChangeListener() {
+                            @Override
+                            public void onQuantityChange(int position, int quantity) {
+                                UserCart userCart = new UserCart(firebaseAuth.getUid(), mCartItemList.get(position));
+                                userCart.getCartItem().setQuantity(quantity);
+                                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
+                                        .enqueue(new Callback<UserCart>() {
+                                            @Override
+                                            public void onResponse(Call<UserCart> call,
+                                                    Response<UserCart> response) {
+                                                if (!response.isSuccessful()){
+                                                    Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                if(quantity==0){
+                                                    mCartItemList.remove(position);
+                                                    adapter.notifyItemChanged(position);
+                                                }
+
+                                                if (mCartItemList.isEmpty()){
+                                                    setUpEmptyCart();
+                                                } else {
+                                                    setUpTotals();
+                                                }
+                                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<UserCart> call, Throwable t) {
+                                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        });
+
+                        adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemDelete(int position) {
+                                UserCart userCart = new UserCart(firebaseAuth.getUid(), mCartItemList.get(position));
+                                userCart.getCartItem().setQuantity(0);
+                                CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
+                                        .enqueue(new Callback<UserCart>() {
+                                            @Override
+                                            public void onResponse(Call<UserCart> call,
+                                                    Response<UserCart> response) {
+                                                if (!response.isSuccessful()){
+                                                    Toast.makeText(CartMainActivity.this, response.body().getError(), Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                mCartItemList.remove(position);
+                                                adapter.notifyItemChanged(position);
+                                                if(mCartItemList.isEmpty()){
+                                                    setUpEmptyCart();
+                                                } else {
+                                                    setUpTotals();
+                                                }
+                                                Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<UserCart> call, Throwable t) {
+                                                Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<CartItem>> call, Throwable t) {
+                        Toast.makeText(CartMainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                });
 
 
-        FirebaseRecyclerOptions<CartItem> options = new FirebaseRecyclerOptions.Builder<CartItem>()
-                .setQuery(mCartRef.child("Products"),CartItem.class)
-                .build();
 
-        adapter = new CartItemsAdapter(options);
         recyclerView.setAdapter(adapter);
-
-        adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemDelete(String PID, int position) {
-                mCartRef.child("Products").child(PID).removeValue()
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful())
-                                    Toast.makeText(CartMainActivity.this,"ITEM REMOVED", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });
-
-        adapter.setOnValueChangeListener(new CartItemsAdapter.OnValueChangeListener() {
-            @Override
-            public void onQuantityChange(String PID, int quantity) {
-
-                String Qty = Integer.toString(quantity);
-                mCartRef.child("Products").child(PID).child("Quantity").setValue(Qty)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful())
-                                    Toast.makeText(CartMainActivity.this, "Quantity Updated", Toast.LENGTH_SHORT).show();
-                                else
-                                    Toast.makeText(CartMainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        });
 
     }
 }

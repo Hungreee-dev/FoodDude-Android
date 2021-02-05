@@ -5,7 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,7 +16,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.dubstep.Model.Result;
+import com.example.dubstep.Model.User;
 import com.example.dubstep.ViewHolder.OtpActivity;
+import com.example.dubstep.database.UserDatabase;
+import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -22,17 +28,25 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,8 +54,8 @@ public class LoginActivity extends AppCompatActivity {
     Button btn_login;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
-    private SignInButton GoogleSignInButton;
-    private GoogleSignInClient mGoogleSignInClient;
+//    private SignInButton GoogleSignInButton;
+//    private GoogleSignInClient mGoogleSignInClient;
     private final static int RC_SIGN_IN = 1;
 
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -54,38 +68,45 @@ public class LoginActivity extends AppCompatActivity {
         txtemail = (EditText) findViewById(R.id.EmailLoginEditText);
         txtpassword = (EditText) findViewById(R.id.PasswordLoginEditText);
         btn_login = (Button) findViewById(R.id.LoginButton);
-        GoogleSignInButton = (SignInButton) findViewById(R.id.GoogleSignInButton);
+//        GoogleSignInButton = (SignInButton) findViewById(R.id.GoogleSignInButton);
 
         firebaseAuth = FirebaseAuth.getInstance();
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        GoogleSignInButton.setOnClickListener(new View.OnClickListener() {
+        MaterialButton forgotPasswordBtn = findViewById(R.id.forgot_password_btn);
+        forgotPasswordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                GSignIn();
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this,PasswordResetActivity.class));
             }
         });
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser mFireBaseUser = firebaseAuth.getCurrentUser();
-                if (mFireBaseUser != null){
-                    //FirebaseAuth.getInstance().signOut();
-                    //mGoogleSignInClient.signOut();
-                    //Toast.makeText(LoginActivity.this,  "You are logged in",Toast.LENGTH_LONG).show();
-                }
-                else {
-                    //Toast.makeText(LoginActivity.this,  "Please Log in",Toast.LENGTH_LONG).show();
-                }
-            }
-        };
+//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                .requestIdToken(getString(R.string.default_web_client_id))
+//                .requestEmail()
+//                .build();
+
+//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+//        GoogleSignInButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                GSignIn();
+//            }
+//        });
+
+//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser mFireBaseUser = firebaseAuth.getCurrentUser();
+//                if (mFireBaseUser != null){
+//                    //FirebaseAuth.getInstance().signOut();
+//                    //mGoogleSignInClient.signOut();
+//                    //Toast.makeText(LoginActivity.this,  "You are logged in",Toast.LENGTH_LONG).show();
+//                }
+//                else {
+//                    //Toast.makeText(LoginActivity.this,  "Please Log in",Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        };
 
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,33 +139,22 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+                                    boolean verified = firebaseAuth.getCurrentUser().isEmailVerified();
+                                    String uid = firebaseAuth.getUid();
+                                    if (verified){
+                                        firebaseAuth.getAccessToken(true)
+                                                .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                                                    @Override
+                                                    public void onSuccess(GetTokenResult getTokenResult) {
+                                                        IdTokenInstance.setToken(getTokenResult.getToken());
+                                                        checkUserData(uid);
+                                                    }
+                                                });
 
-
-                                    FirebaseDatabase.getInstance().getReference("user")
-                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            String Role = dataSnapshot.child("Role").getValue().toString();
-                                            if (Role.equals("Customer")){
-                                                progressDialog.dismiss();
-                                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                                finish();
-                                            }
-                                            else if (Role.equals("Rider")) {
-                                                progressDialog.dismiss();
-                                                startActivity(new Intent(LoginActivity.this, RiderMainActivity.class));
-                                                finish();
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(LoginActivity.this,  "Error fetching Rider or Customer from database",Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-
+                                    } else{
+                                        startActivity(new Intent(LoginActivity.this, UserVerifyActivity.class));
+                                        finish();
+                                    }
 
                                 } else {
 
@@ -162,12 +172,45 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    private void checkUserData(String uid) {
+        UserDatabase.getInstance().getUser(uid,IdTokenInstance.getToken())
+                .enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        if(!response.isSuccessful()){
+                            Toast.makeText(LoginActivity.this, new Gson().toJson(response.body()), Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                            return;
+                        }
+                        User user = response.body();
+                        Context context = LoginActivity.this;
+                        SharedPreferences mPrefs = context.getSharedPreferences(
+                                getString(R.string.shared_prefs_filename) ,MODE_PRIVATE);
+                        SharedPreferences.Editor prefEditor = mPrefs.edit();
+                        Gson gson = new Gson();
+                        String json = gson.toJson(user);
+
+                        prefEditor.putString(getString(R.string.shared_prefs_user),json);
+                        prefEditor.apply();
+                        progressDialog.dismiss();
+                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        firebaseAuth.addAuthStateListener(mAuthStateListener);
+//        firebaseAuth.addAuthStateListener(mAuthStateListener);
 
-        FirebaseUser user = firebaseAuth.getCurrentUser();
+//        FirebaseUser user = firebaseAuth.getCurrentUser();
 
     }
 
@@ -176,10 +219,10 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
     }
 
-    public void GSignIn(){
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
+//    public void GSignIn(){
+//        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//        startActivityForResult(signInIntent, RC_SIGN_IN);
+//    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

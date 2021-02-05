@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,7 +56,7 @@ public class OrderItemsAdapter extends FirebaseRecyclerAdapter<OrderItem, OrderI
         TextView cart_size;
         TextView latitude;
         TextView longitude;
-        Button accept;
+        ImageButton accept;
 
         public OrderHolder(@NonNull View itemView) {
             super(itemView);

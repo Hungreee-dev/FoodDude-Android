@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:text="EDIT PROFILE"
+            android:textColor="#650E08"
+            android:textSize="30sp" />
+
+        <EditText
+            android:id="@+id/mFullName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:ems="10"
+            android:hint="Full Name"
+            android:inputType="textPersonName"
+            android:textAlignment="viewStart"
+            android:textColorHighlight="#FF5722"
+            android:textColorLink="#4CAF50"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:ems="10"
+            android:hint="Username"
+            android:inputType="textPersonName"
+            android:textAlignment="viewStart"
+            android:textColorHighlight="#FF5722"
+            android:textColorLink="#4CAF50"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:ems="10"
+            android:hint="Email"
+            android:inputType="textPersonName"
+            android:textAlignment="viewStart"
+            android:textColorHighlight="#FF5722"
+            android:textColorLink="#4CAF50"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/mMobileNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:ems="10"
+            android:hint="Mobile Number"
+            android:inputType="number"
+            android:textAlignment="viewStart"
+            android:textColorHighlight="#FF5722"
+            android:textColorLink="#4CAF50"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/UpdateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/button_rounded"
+            android:text="UPDATE"
+            android:textColor="#ffffff"
+            android:textSize="25sp" />
+
+    </LinearLayout>

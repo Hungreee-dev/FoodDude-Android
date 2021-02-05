@@ -3,15 +3,15 @@ package com.example.dubstep.Model;
 public class CartInfo {
     double CartItemsTotal;
     double CartTotal;
-    double Discount;
+    double Delivery;
 
     public CartInfo() {
     }
 
-    public CartInfo(double cartItemsTotal, double cartTotal, double discount) {
+    public CartInfo(double cartItemsTotal, double cartTotal, double delivery) {
         CartItemsTotal = cartItemsTotal;
         CartTotal = cartTotal;
-        Discount = discount;
+        Delivery = delivery;
     }
 
     public double getCartItemsTotal() {
@@ -30,11 +30,11 @@ public class CartInfo {
         CartTotal = cartTotal;
     }
 
-    public double getDiscount() {
-        return Discount;
+    public double getDelivery() {
+        return Delivery;
     }
 
-    public void setDiscount(double discount) {
-        Discount = discount;
+    public void setDelivery(double delivery) {
+        Delivery = delivery;
     }
 }
