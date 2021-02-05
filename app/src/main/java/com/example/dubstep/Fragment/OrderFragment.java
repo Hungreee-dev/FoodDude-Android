@@ -1,5 +1,6 @@
 package com.example.dubstep.Fragment;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,22 +28,11 @@ import com.example.dubstep.database.OrderDatabase;
 import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.example.dubstep.viewmodel.OrderItemViewModel;
-import com.google.android.gms.common.util.CollectionUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -62,6 +52,9 @@ public class OrderFragment extends Fragment {
     private List<OrderItem> orderItems ;
     private List<OrderItem> undeliveredOrderItems;
     private final Object lock = new Object();
+    private Integer fetchedOrder = 0;
+    private Integer TotalOrders = -1;
+    private ProgressDialog progressDialog;
 
 //    use this boolean to search for orderId just once on fragment creation
     boolean firstTime;
@@ -112,6 +105,13 @@ public class OrderFragment extends Fragment {
         orderRecycler.setLayoutManager(layoutManager);
         orderRecycler.setAdapter(orderAdapter);
         swipeRefreshLayout = view.findViewById(R.id.swipeToRefreshLayout);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
 //        Step 2
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -123,22 +123,28 @@ public class OrderFragment extends Fragment {
             orderItemViewModel.getAllOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
             @Override
             public void onChanged(List<OrderItem> orderItemsLocal) {
+                fetchedOrder = orderItemsLocal.size();
                 if (orderItemsLocal!=null && orderItemsLocal.size()>0){
 //                    orderItems = new ArrayList<>(orderItemsLocal);
                     if (firstTime){
                         noOrderPresent(false);
                         firstTime = false;
                         checkUndelivered();
-                        fetchNewOrderList(mUser.getUid());
+                        fetchNewOrderList(mUser.getUid(),orderItemsLocal);
                     }
                     Log.d(TAG, "onChanged: "+orderItemsLocal.size());
-                    orderAdapter.submitList(orderItemsLocal);
                 } else {
 //                    sqlite database is not created yet so fetch all the data
                     firstTime = false;
                     noOrderPresent(true);
                     fetchUserData(mUser.getUid());
 //                    orderItems = new ArrayList<>();
+                }
+
+                if (fetchedOrder.equals(TotalOrders)){
+                    removeLoader(orderItemsLocal);
+                } else {
+
                 }
 
             }
@@ -152,7 +158,7 @@ public class OrderFragment extends Fragment {
         orderItemViewModel.getAllOrders().removeObservers(OrderFragment.this);
     }
 
-    private void fetchNewOrderList(String uid) {
+    private void fetchNewOrderList(String uid, List<OrderItem> orderItemsLocal) {
         synchronized (lock){
             UserDatabase.getInstance().getUser(uid, IdTokenInstance.getToken()).enqueue(new Callback<User>() {
                 @Override
@@ -167,19 +173,26 @@ public class OrderFragment extends Fragment {
 
                     User user = response.body();
                     if(user.getOrders()!=null){
+                        TotalOrders = user.getOrders().size();
+                        if (TotalOrders.equals(fetchedOrder)){
+                            removeLoader(orderItemsLocal);
+                        } else{
 //                    fetch order data for new item only
-                        for (String orderId :
-                                user.getOrders()) {
-                            orderItemViewModel.getItem(orderId).observe(OrderFragment.this, new Observer<OrderItem>() {
-                                @Override
-                                public void onChanged(OrderItem orderItem) {
-                                    if (orderItem==null){
-                                        addOrderDetails(orderId);
+                            for (String orderId :
+                                    user.getOrders()) {
+                                orderItemViewModel.getItem(orderId).observe(OrderFragment.this, new Observer<OrderItem>() {
+                                    @Override
+                                    public void onChanged(OrderItem orderItem) {
+                                        if (orderItem==null){
+                                            addOrderDetails(orderId);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
+
                     } else {
+                        removeLoader(null);
                         noOrderPresent(true);
                     }
 
@@ -228,10 +241,13 @@ public class OrderFragment extends Fragment {
 
                 User user = response.body();
                 if(user.getOrders()!=null){
+                    TotalOrders = user.getOrders().size();
                     orderIdList = new ArrayList<>(user.getOrders());
 //                    fetch order data of each order items
                     fetchOrderData();
                 } else {
+                    TotalOrders = 0;
+                    removeLoader(null);
                     noOrderPresent(true);
                 }
 
@@ -246,12 +262,22 @@ public class OrderFragment extends Fragment {
         });
     }
 
+    private void removeLoader(List<OrderItem> orderItemsLocal) {
+        if (orderItemsLocal!=null && orderItemsLocal.size()>0){
+            orderAdapter.submitList(orderItemsLocal);
+        } else {
+            noOrderPresent(true);
+        }
+        progressDialog.dismiss();
+    }
+
     private void fetchOrderData() {
         if (orderIdList==null || orderIdList.isEmpty()){
+            TotalOrders = 0;
+            removeLoader(null);
             Toast.makeText(getActivity(), "No order placed", Toast.LENGTH_SHORT).show();
             noOrderPresent(true);
             swipeRefreshLayout.setRefreshing(false);
-            return;
         } else {
             for (String orderId:orderIdList){
 
@@ -281,7 +307,7 @@ public class OrderFragment extends Fragment {
                         order.getOrderStatus(),
                         order.getBilling().getFinalAmount()
                         );
-
+                fetchedOrder++;
                 orderItemViewModel.insert(orderItem);
 
             }
