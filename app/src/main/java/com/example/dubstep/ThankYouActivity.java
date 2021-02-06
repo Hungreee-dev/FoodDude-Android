@@ -298,6 +298,7 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
         progressDialog.dismiss();
 //        animationView.setVisibility(View.VISIBLE);
         successAnimation.setVisibility(View.INVISIBLE);
+       // successAnimation.playAnimation();
         continueButton.setVisibility(View.VISIBLE);
         orderStatus.setVisibility(View.VISIBLE);
         failAnimation.setVisibility(View.VISIBLE);
@@ -305,7 +306,7 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
         bgView.setBackgroundColor(getApplicationContext().getResources().getColor(R.color.orangeLight));
         orderStatus.setText(String.format("Order Failed \n %s", error));
 //        animationView.setAnimation("failed.json");
-        failAnimation.setImageDrawable(getDrawable(R.drawable.no_orders));
+        //failAnimation.setImageDrawable(getDrawable(R.drawable.no_orders));
         continueButton.setText("Retry Payment");
     }
 
