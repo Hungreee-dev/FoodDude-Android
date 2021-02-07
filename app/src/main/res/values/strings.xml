@@ -18,9 +18,8 @@
     <string name="about_us4">We at Fooddude ensure that that our customers get the premium of quality food without compromising with the quantity.</string>
     <string name="about_us5">So what are you waiting for? Go satiate your hunger at the comfort of your home by placing your first order today.</string>
     <string name="about_us7">We are just a fingertip away!!!!</string>
-    <string name="contact_us1">We are just a call or text away <b>6371830551</b></string>
-    <string name="contact_us2">For details you can email us <a href='info@fooddude.in'>info@fooddude.in</a></string>
-    <string name="contact_us3">Follow us</string>
-    <string name="contact_us4">Visit our website <a href='fooddude.in'>fooddude.in</a></string>
-    <string name="contact_us5">Reach us at Lane-5A; Gouri Nagar; Old Town Samantarapur; Bhubaneswar; Khordha; Orissa; 751002</string>
-</resources>
+    <string name="contact_us1">We are just a call or text away</string>
+    <string name="contact_us2">For details you can email us at</string>
+    <string name="contact_us3">Follow us : </string>
+    <string name="contact_us4">Visit our website</string>
+    <string name="contact_us5">Gouri Nagar; \n Old Town Samantarapur; \n Bhubaneswar Khordha; \n Odisha 751002</string></resources>
