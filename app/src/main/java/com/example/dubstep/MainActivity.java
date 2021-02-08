@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if(navigationView.getMenu().findItem(R.id.nav_home).isChecked()){
                     break;
                 }
+                greetingUserHeader();
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container,new HomeFragment())
@@ -258,10 +260,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.closeDrawer(GravityCompat.START);
         } if(item == R.id.profile_nav||item == R.id.nav_order || item == R.id.terms_condition){
 //            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
+//            navigationView.setCheckedItem(R.id.nav_home);
             getSupportFragmentManager().popBackStack();
-            navigationView.setCheckedItem(R.id.nav_home);
+//            FragmentManager fm = getSupportFragmentManager();
+//            for (int i = 0 ; i<= fm.getBackStackEntryCount() ; i++){
+//                Log.d("fragment", "onBackPressed: " + fm.getBackStackEntryAt(i).getName() + "   "+fm.getBackStackEntryAt(i).getId());
+//            }
+//
+//            Log.d("fragment", "onBackPressed: " + R.id.profile_nav);
+//            String name = fm.getBackStackEntryAt(fm.getBackStackEntryCount()-1).getName();
+//            navigationView.setCheckedItem(Integer.parseInt(name));
         } else {
             super.onBackPressed();
+        }
+    }
+
+    private void setChecked(int item){
+        switch (item){
+            case R.id.nav_home:
+                navigationView.setCheckedItem(R.id.nav_home);
+                break;
+            case R.id.nav_cart:
+                navigationView.setCheckedItem(R.id.nav_cart);
+                break;
+            case R.id.nav_order:
+                navigationView.setCheckedItem(R.id.nav_order);
+                break;
+            case R.id.profile_nav:
+                navigationView.setCheckedItem(R.id.profile_nav);
+                break;
+            case R.id.about_us:
+                navigationView.setCheckedItem(R.id.about_us);
+                break;
+            case R.id.contact_us:
+                navigationView.setCheckedItem(R.id.contact_us);
+                break;
+            case R.id.terms_condition:
+                navigationView.setCheckedItem(R.id.terms_condition);
+                break;
         }
     }
 

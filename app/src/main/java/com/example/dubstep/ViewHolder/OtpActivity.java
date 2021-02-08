@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.dubstep.LoginActivity;
 import com.example.dubstep.MainActivity;
+import com.example.dubstep.Model.Result;
 import com.example.dubstep.Model.User;
 import com.example.dubstep.R;
 import com.example.dubstep.SignUpActivity;
@@ -26,6 +27,7 @@ import com.example.dubstep.UserVerifyActivity;
 import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
@@ -68,6 +70,7 @@ public class OtpActivity extends AppCompatActivity {
     private int type;
 //    TYPE_EXTRA -> 0 ->  from SignUpActivity
 //    TYPE_EXTRA -> 1 ->  from LoginActivity
+//    TYPE_EXTRA -> 2 ->  from ProfileActivity
 
     FirebaseAuth firebaseAuth;
 
@@ -158,7 +161,7 @@ public class OtpActivity extends AppCompatActivity {
         if (getIntent().hasExtra(TYPE_EXTRA)){
             type = getIntent().getIntExtra(TYPE_EXTRA,-1);
         }
-        if (type == 0){
+        if (type == 0 || type == 2){
             if (getIntent().hasExtra(USER_EXTRA)){
                 String userString = getIntent().getStringExtra(USER_EXTRA);
                 user = new Gson().fromJson(userString,User.class);
@@ -246,13 +249,91 @@ public class OtpActivity extends AppCompatActivity {
 
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCodeBySystem, codeByUser);
 
-        if (type == 0){
-            signInTheUserByCredentialsFirstTime(credential);
-        } else if (type == 1){
-            signInTheUserByCredentialsNormal(credential);
+        switch (type){
+            case 0:
+                signInTheUserByCredentialsFirstTime(credential);
+                break;
+            case 1:
+                signInTheUserByCredentialsNormal(credential);
+                break;
+            case 2:
+                updateNumberOfUser(credential);
+                break;
+            default:
+                Toast.makeText(this, "Cant figure out mode of otp activity", Toast.LENGTH_SHORT).show();
+                finish();
+                break;
         }
 
 
+    }
+
+    private void updateNumberOfUser(PhoneAuthCredential credential) {
+//        firebaseAuth.getCurrentUser().updatePhoneNumber(credential)
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//
+//                    }
+//                });
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.getCurrentUser().unlink("phone")
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        firebaseAuth.getCurrentUser().linkWithCredential(credential)
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()){
+                                            updateNumberInDatabase();
+                                        } else {
+                                            Toast.makeText(OtpActivity.this, "Unable to add this no.", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(OtpActivity.this, "Unable to remove previous no.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+        ;
+
+        firebaseAuth.getCurrentUser().linkWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+
+            }
+        });
+    }
+
+    private void updateNumberInDatabase() {
+        user.phoneNumber = phoneNo.substring(3,13);
+        user.uid = firebaseAuth.getUid();
+        UserDatabase.getInstance().updateUser(user,IdTokenInstance.getToken()).enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                if (response.isSuccessful()){
+                    Toast.makeText(OtpActivity.this, "User's data updated", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(OtpActivity.this, "User's data not updated", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+                Toast.makeText(OtpActivity.this, "User's data not updated due to some error", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     private void signInTheUserByCredentialsNormal(PhoneAuthCredential credential) {

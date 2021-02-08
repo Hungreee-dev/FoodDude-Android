@@ -36,4 +36,8 @@ public interface UserApi {
     @POST("/api/users/check-user-by-email")
     Call<User> checkUserEmail(@Field("token") String token,
                                   @Field("email") String email);
+
+    @POST("/api/users/update-user")
+    Call<Result> updateUser(@Body User user,
+                            @Header("authorization") String authorizationToken);
 }
