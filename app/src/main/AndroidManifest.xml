@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.dubstep" >
+    package="com.example.dubstep">
 
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -9,8 +9,7 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <application
-        xmlns:tools="http://schemas.android.com/tools"
+    <application xmlns:tools="http://schemas.android.com/tools"
         android:allowBackup="true"
         android:icon="@drawable/ic_food_dude_icon"
         android:label="FoodDude"
@@ -18,7 +17,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:replace="android:label,android:icon,android:usesCleartextTraffic,android:allowBackup" >
+        tools:replace="android:label,android:icon,android:usesCleartextTraffic,android:allowBackup">
+        <activity android:name=".PrivacyPolicyActivity"></activity>
+        <activity android:name=".TermsAndServices" />
+        <activity android:name=".RefundPolicyActivity" />
         <activity android:name=".OrderDetailsActivity" />
         <activity android:name=".UserVerifyActivity" />
         <activity android:name=".PasswordResetActivity" />
@@ -42,7 +44,7 @@
             android:name=".MainActivity"
             android:launchMode="singleTop" />
         <activity android:name=".RiderMainActivity" />
-        <activity android:name=".Splash_Screen" >
+        <activity android:name=".Splash_Screen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -59,7 +61,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
 
 </manifest>

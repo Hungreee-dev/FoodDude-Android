@@ -34,7 +34,7 @@
         <menu>
             <item
                 android:id="@+id/terms_condition"
-                android:title="Terms &amp; Condition"
+                android:title="Legal Section"
                 android:icon="@drawable/terms_and_condition"
                 android:checkable="true"
                 />
