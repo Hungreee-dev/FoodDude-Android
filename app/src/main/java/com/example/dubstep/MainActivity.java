@@ -246,7 +246,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int item = navigationView.getCheckedItem().getItemId();
         if(drawerLayout.isDrawerOpen(GravityCompat.START)){
             drawerLayout.closeDrawer(GravityCompat.START);
-        } if(item == R.id.profile_nav||item == R.id.nav_order || item == R.id.terms_condition){
+        } if(item == R.id.profile_nav||item == R.id.nav_order || item == R.id.terms_condition
+            || item == R.id.contact_us || item == R.id.about_us ){
 //            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
             getSupportFragmentManager().popBackStack();
             navigationView.setCheckedItem(R.id.nav_home);

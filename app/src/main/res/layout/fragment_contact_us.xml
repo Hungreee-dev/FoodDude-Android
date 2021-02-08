@@ -3,12 +3,314 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragment.ContactUsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:paddingTop="8dp">
 
+        <TextView
+            android:id="@+id/contact_us"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:padding="15dp"
+            android:text="Contact Us"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/ic_brush_stroke"
+            android:textAlignment="center"
+            />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contact_us"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0"
+            >
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/callUsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="15dp"
+                android:layout_marginHorizontal="24dp"
+                android:layout_margin="8dp"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/contact_us1"
+                        android:textSize="18dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="6dp"
+                        />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_baseline_call_24"
+                        android:contentDescription="call details"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="6dp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+91-6371830551"
+                        android:textSize="18dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="6dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorAccent"
+                        />
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/mailUsCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="15dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_margin="8dp"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/contact_us2"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textAlignment="center"
+                            />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_email_24"
+                            android:contentDescription="call details"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="info@fooddude.in"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/colorAccent"
+                            />
+                    </LinearLayout>
+
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="15dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_margin="8dp"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/contact_us3"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textAlignment="center"
+                            />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center_horizontal">
+
+                            <ImageView
+                                android:id="@+id/facebookImage"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_facebook"
+                                android:contentDescription="call details"
+                                android:layout_gravity="center_horizontal"
+                                android:padding="8dp"
+                                android:layout_marginHorizontal="4dp"
+                                />
+                            <ImageView
+                                android:id="@+id/instagramImage"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_instagram"
+                                android:contentDescription="call details"
+                                android:layout_gravity="center_horizontal"
+                                android:padding="8dp"
+                                android:layout_marginHorizontal="4dp"
+                                />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/websiteCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="15dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_margin="8dp"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/contact_us4"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textAlignment="center"
+                            />
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_baseline_web_24"
+                            android:contentDescription="call details"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="fooddude.in"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/colorAccent"
+                            />
+                    </LinearLayout>
+
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/addressCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="15dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_margin="8dp"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Reach us at:"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textAlignment="center"
+                            />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_location_on_24"
+                            android:contentDescription="call details"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/contact_us5"
+                            android:textSize="18dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="6dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/colorAccent"
+                            android:textAlignment="center"
+                            />
+                    </LinearLayout>
+
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
