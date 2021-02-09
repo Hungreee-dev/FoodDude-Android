@@ -43,7 +43,7 @@
         app:layout_constraintTop_toBottomOf="@+id/final_order_result_textview"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/sad_card" />
+        app:lottie_rawRes="@raw/failed" />
 
     <ImageView
         android:id="@+id/thankyou_imageview"

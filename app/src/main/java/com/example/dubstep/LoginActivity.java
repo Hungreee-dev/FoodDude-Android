@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dubstep.Model.Result;
@@ -32,6 +33,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,7 +52,7 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText txtemail, txtpassword;
+    TextInputEditText txtemail, txtpassword;
     Button btn_login;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
@@ -65,13 +67,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        txtemail = (EditText) findViewById(R.id.EmailLoginEditText);
-        txtpassword = (EditText) findViewById(R.id.PasswordLoginEditText);
+        txtemail =  findViewById(R.id.EmailLoginEditText);
+        txtpassword = findViewById(R.id.PasswordLoginEditText);
         btn_login = (Button) findViewById(R.id.LoginButton);
 //        GoogleSignInButton = (SignInButton) findViewById(R.id.GoogleSignInButton);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        MaterialButton forgotPasswordBtn = findViewById(R.id.forgot_password_btn);
+        TextView forgotPasswordBtn = findViewById(R.id.forgot_password_txt);
         forgotPasswordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
