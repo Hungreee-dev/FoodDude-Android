@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dubstep.Model.Result;
@@ -61,13 +62,15 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText txtemail, txtpassword;
-    private TextInputLayout inputLayoutPhone;
+
+    private TextInputLayout inputLayoutPhone,inputLayoutEmail,inputLayoutPassword;
     private TextInputEditText inputEditTextPhone;
     private Button btn_login;
     private boolean email = false;
     private Button btn_login_otp;
     private boolean otp = true;
+    TextInputEditText txtemail, txtpassword;
+    TextView forgotPassword;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
 //    private SignInButton GoogleSignInButton;
@@ -81,19 +84,21 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        txtemail = (EditText) findViewById(R.id.EmailLoginEditText);
-        txtpassword = (EditText) findViewById(R.id.PasswordLoginEditText);
+        txtemail =  findViewById(R.id.EmailLoginEditText);
+        txtpassword = findViewById(R.id.PasswordLoginEditText);
         btn_login = (Button) findViewById(R.id.LoginButton);
         btn_login_otp = findViewById(R.id.LoginOtpButton);
         inputEditTextPhone = findViewById(R.id.loginTextInputEditText);
+        inputLayoutEmail = findViewById(R.id.textInputLayout);
+        inputLayoutPassword = findViewById(R.id.textInputLayout2);
         inputLayoutPhone = findViewById(R.id.loginTextInputLayout);
 
         inputEditTextPhone.addTextChangedListener(myWatcher());
 //        GoogleSignInButton = (SignInButton) findViewById(R.id.GoogleSignInButton);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        MaterialButton forgotPasswordBtn = findViewById(R.id.forgot_password_btn);
-        forgotPasswordBtn.setOnClickListener(new View.OnClickListener() {
+        forgotPassword = findViewById(R.id.forgot_password_txt);
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(LoginActivity.this,PasswordResetActivity.class));
@@ -144,7 +149,10 @@ public class LoginActivity extends AppCompatActivity {
                     inputEditTextPhone.setText("");
                     inputLayoutPhone.setVisibility(View.GONE);
                     txtpassword.setVisibility(View.VISIBLE);
+                    inputLayoutPassword.setVisibility(View.VISIBLE);
                     txtemail.setVisibility(View.VISIBLE);
+                    inputLayoutEmail.setVisibility(View.VISIBLE);
+                    forgotPassword.setVisibility(View.VISIBLE);
                     email = true;
                     otp = false;
                     inputLayoutPhone.setClickable(true);
@@ -272,10 +280,13 @@ public class LoginActivity extends AppCompatActivity {
 
                 } else {
                     inputLayoutPhone.setVisibility(View.VISIBLE);
+                    inputLayoutEmail.setVisibility(View.INVISIBLE);
+                    inputLayoutPassword.setVisibility(View.INVISIBLE);
                     txtemail.setText("");
                     txtpassword.setText("");
                     txtemail.setVisibility(View.GONE);
                     txtpassword.setVisibility(View.GONE);
+                    forgotPassword.setVisibility(View.GONE);
                     otp = true;
                     email = false;
                 }

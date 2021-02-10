@@ -33,7 +33,19 @@
             android:layout_gravity="center"
             android:layout_marginTop="130dp"
             android:layout_marginBottom="30dp"
+            android:visibility="gone"
             android:src="@drawable/tick" />
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/order_status_animation"
+            android:elevation="15dp"
+            android:layout_margin="25dp"
+            android:layout_height="200dp"
+            android:layout_width="200dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/cooking_processing" />
 
         <TextView
             android:layout_width="match_parent"

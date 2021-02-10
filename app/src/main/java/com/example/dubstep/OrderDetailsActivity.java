@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -51,6 +52,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private Order order;
     private String orderIdString;
     private ImageView orderStatusImageView;
+    private LottieAnimationView orderStatusAnimation;
     private TextView orderStatusThankyouText;
     private ProgressDialog progressDialog;
     private String mUser;
@@ -70,6 +72,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         fetchOrderDetails(orderIdString);
 
         orderStatusImageView = findViewById(R.id.order_status_imageview);
+        orderStatusAnimation = findViewById(R.id.order_status_animation);
         orderStatusThankyouText = findViewById(R.id.order_status_thankyoutext);
 
 //        orderid
@@ -203,12 +206,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
         switch (order.getOrderStatus()){
             case 0:
                 orderStatusImageView.setImageDrawable(getDrawable(R.drawable.ic_cooking_time));
+                orderStatusAnimation.setAnimation(R.raw.cooking_processing);
                 orderStatusThankyouText.setText("Your order in processing");
                 orderStatus.setText("Processing");
                 orderStatus.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),R.color.colorPending)));
                 break;
             case 1:
                 orderStatusImageView.setImageDrawable(getDrawable(R.drawable.ic_delivery_bike));
+                orderStatusAnimation.setAnimation(R.raw.delivering);
                 orderStatusThankyouText.setText("Your order in delivery");
                 orderStatus.setText("Delivering");
                 orderStatus.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),R.color.colorAccent)));
@@ -216,8 +221,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
             case 2:
                 orderStatus.setText("Delivered");
                 orderStatusThankyouText.setText("Your order has been delivered");
+                orderStatusAnimation.setAnimation(R.raw.delivered);
                 orderStatus.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),R.color.colorDelivered)));
                 break;
         }
+        orderStatusAnimation.playAnimation();
     }
 }

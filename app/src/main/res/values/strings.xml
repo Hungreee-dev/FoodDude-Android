@@ -169,4 +169,6 @@ If you would like to: access, correct, amend or delete any personal information 
 
 
 </string>
+    <string name="u_forgot_password_u"><u>Forgot Password?</u></string>
+    <string name="new_user_register_here">New user? <b>Register <u>here</u></b>!</string>
 </resources>
