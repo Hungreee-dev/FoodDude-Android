@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/payment_option_background"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please select your mode of payment"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:layout_margin="12dp"
+        android:textStyle="bold"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:foreground="@color/grey"
+        android:layout_marginHorizontal="8dp"
+        />
+
+    <RadioGroup
+        android:id="@+id/radio_group_payment_option"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme"
+        >
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/cod_radio_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay after delivery"
+            />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/online_radio_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay online now"
+            />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/continue_order_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="43dp"
+        android:text="Continue Order"
+        android:background="@drawable/button_rounded"
+        android:layout_marginBottom="24dp"
+        android:layout_marginHorizontal="12dp"
+        android:textColor="@color/white"
+        />
+
+
+
+</LinearLayout>

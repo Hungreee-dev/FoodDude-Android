@@ -1,164 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="@drawable/doodle_background"
     android:orientation="vertical"
-    android:padding="40dp"
+    android:paddingHorizontal="15dp"
+    android:paddingVertical="40dp"
     tools:context=".SignUpActivity">
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:scaleX="1.3"
+        android:src="@drawable/ic_brush_stroke"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="REGISTER"
+        android:id="@+id/textView"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_width="match_parent"
+        android:text="Register"
         android:textAlignment="center"
-        android:textColor="#FF5722"
-        android:textSize="30sp" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.662"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/NameEditText"
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:elevation="2dp"
+        android:id="@+id/body"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:ems="10"
-        android:hint="Full Name"
-        android:inputType="textPersonName"
-        android:textAlignment="viewStart"
-        android:textColorHighlight="#FF5722"
-        android:textColorLink="#4CAF50"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/UsernameEditText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:ems="10"
-        android:hint="Username"
-        android:inputType="textPersonName"
-        android:textAlignment="viewStart"
-        android:textColorHighlight="#FF5722"
-        android:textColorLink="#4CAF50"
-        android:textSize="20sp" />
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/SignUpButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView">
 
-    <EditText
-        android:id="@+id/MobileNumberEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:ems="10"
-        android:hint="Mobile Number"
-        android:inputType="textPersonName"
-        android:textAlignment="viewStart"
-        android:textColorHighlight="#FF5722"
-        android:textColorLink="#4CAF50"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/EmailEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:ems="10"
-        android:hint="Email"
-        android:inputType="textPersonName"
-        android:textAlignment="viewStart"
-        android:textColorHighlight="#FF5722"
-        android:textColorLink="#4CAF50"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/PasswordEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:ems="10"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:textAlignment="viewStart"
-        android:textColorHighlight="#FF5722"
-        android:textColorLink="#4CAF50"
-        android:textSize="20sp" />
-
-    <RadioGroup
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_height="wrap_content"
-            android:text="Are you a"
-            android:textSize="18sp" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="Customer"
-            android:textSize="15sp"
-            android:id="@+id/CustomerButton"
-            />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="Rider"
-            android:textSize="15sp"
-            android:id="@+id/RiderButton"
-            />
-
-    </RadioGroup>
-
-    <RadioGroup
-        android:id="@+id/CustomerTypeGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        android:visibility="visible">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Type"
-            android:textSize="18sp" />
-
-        <RadioButton
-            android:id="@+id/RegularButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="45dp"
-            android:text="Regular"
-            android:textSize="15sp" />
-
-        <RadioButton
-            android:id="@+id/IrregularButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="26dp"
-            android:text="Irregular"
-            android:textSize="15sp" />
+            android:layout_width="match_parent"
+            android:padding="20dp">
 
 
+            <EditText
+                android:ems="10"
+                android:hint="Full Name"
+                android:id="@+id/NameEditText"
+                android:inputType="textPersonName"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textAlignment="viewStart"
+                android:textColorHighlight="#FF5722"
+                android:textColorLink="#4CAF50"
+                android:textSize="20sp"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="16dp" />
 
-    </RadioGroup>
-    
+            <EditText
+                android:ems="10"
+                android:hint="Username"
+                android:id="@+id/UsernameEditText"
+                android:inputType="textPersonName"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:textAlignment="viewStart"
+                android:textColorHighlight="#FF5722"
+                android:textColorLink="#4CAF50"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@+id/NameEditText"
+                tools:layout_editor_absoluteX="64dp" />
+
+            <EditText
+                android:ems="10"
+                android:hint="Mobile Number"
+                android:id="@+id/MobileNumberEditText"
+                android:inputType="phone"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:textAlignment="viewStart"
+                android:textColorHighlight="#FF5722"
+                android:textColorLink="#4CAF50"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@+id/UsernameEditText"
+                tools:layout_editor_absoluteX="64dp" />
+
+            <EditText
+                android:ems="10"
+                android:hint="Email"
+                android:id="@+id/EmailEditText"
+                android:inputType="textPersonName"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:textAlignment="viewStart"
+                android:textColorHighlight="#FF5722"
+                android:textColorLink="#4CAF50"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@+id/MobileNumberEditText"
+                tools:layout_editor_absoluteX="82dp" />
+
+            <EditText
+                android:ems="10"
+                android:hint="Password"
+                android:id="@+id/PasswordEditText"
+                android:inputType="textPassword"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:textAlignment="viewStart"
+                android:textColorHighlight="#FF5722"
+                android:textColorLink="#4CAF50"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@+id/EmailEditText"
+                tools:layout_editor_absoluteX="64dp" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
     <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sign Up"
-        android:textSize="20sp"
-        android:textColor="#ffffff"
-        android:layout_marginTop="20dp"
         android:background="@drawable/button_rounded"
-        android:id="@+id/SignUpButton"/>
+        android:id="@+id/SignUpButton"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Sign Up"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/body"
+        tools:layout_editor_absoluteX="64dp" />
 
 
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

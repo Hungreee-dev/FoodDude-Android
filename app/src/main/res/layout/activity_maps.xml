@@ -20,7 +20,13 @@
         android:layout_width="wrap_content"
         android:layout_height="58dp"
         android:layout_gravity="bottom|right"
-        android:text="Confirm Delivery Location" />
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/button_rounded"
+        android:padding="4dp"
+        android:textColor="@color/white"
+        android:text="Confirm Delivery Location"
+        android:textAllCaps="false"/>
 </FrameLayout>
 
 

@@ -1,14 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view"
+    >
+
+    <group>
+        <item
+            android:id="@+id/nav_home"
+            android:title="Home"
+            android:icon="@drawable/ic_baseline_home_24"
+            android:checkable="true"
+            />
+        <item
+            android:id="@+id/profile_nav"
+            android:title="Profile"
+            android:icon="@drawable/ic_baseline_person_24"
+            android:checkable="true"
+            />
+        <item
+            android:id="@+id/nav_cart"
+            android:title="My Cart"
+            android:icon="@drawable/cart_icon"
+            />
+        <item
+            android:id="@+id/nav_order"
+            android:title="My Orders"
+            android:icon="@drawable/ic_baseline_shopping_bag_24"
+            android:checkable="true"
+            />
+    </group>
+
+    <item android:title="LEGAL">
         <menu>
-            <item android:id="@+id/nav_home" android:title="Home"/>
-            <item android:id="@+id/profile_nav" android:title="Profile"/>
+            <item
+                android:id="@+id/terms_condition"
+                android:title="Legal Section"
+                android:icon="@drawable/terms_and_condition"
+                android:checkable="true"
+                />
         </menu>
     </item>
-    <item android:title="APP">
+
+    <item android:title="SUPPORT">
         <menu>
-            <item android:id="@+id/log_out" android:title="Log_Out"/>
+            <item
+                android:id="@+id/contact_us"
+                android:title="Contact Us"
+                android:icon="@drawable/ic_baseline_contact_us_24"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/about_us"
+                android:title="About Us"
+                android:icon="@drawable/terms_and_condition"
+                android:checkable="true"
+                />
+            <item
+                android:id="@+id/log_out"
+                android:title="Log Out"
+                android:icon="@drawable/ic_baseline_login_24"
+                />
         </menu>
     </item>
+
+
 </menu>

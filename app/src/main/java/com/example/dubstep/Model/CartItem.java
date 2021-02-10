@@ -1,20 +1,25 @@
 package com.example.dubstep.Model;
 
-public class CartItem {
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
+public class CartItem implements Serializable {
+    @SerializedName("name")
     String Name;
+    @SerializedName("price")
     String Price;
-    String Quantity;
-    String Product_ID;
+    @SerializedName("quantity")
+    int Quantity;
+
 
     public CartItem() {
     }
 
-
-    public CartItem(String name, String price, String quantity, String product_ID) {
+    public CartItem(String name, String price, int quantity) {
         Name = name;
         Price = price;
         Quantity = quantity;
-        Product_ID = product_ID;
     }
 
     public String getName() {
@@ -33,19 +38,12 @@ public class CartItem {
         Price = price;
     }
 
-    public String getQuantity() {
+    public int getQuantity() {
         return Quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(int quantity) {
         Quantity = quantity;
     }
 
-    public String getProduct_ID() {
-        return Product_ID;
-    }
-
-    public void setProduct_ID(String product_ID) {
-        Product_ID = product_ID;
-    }
 }

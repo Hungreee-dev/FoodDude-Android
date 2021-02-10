@@ -17,6 +17,7 @@ public class FoodItemViewHolder extends RecyclerView.ViewHolder {
     //public ImageView mFoodImage;
     public TextView mFoodItemPrice;
     public MaterialButton mAddToCart;
+    public ImageView foodItemImageView;
 
 
     public FoodItemViewHolder(@NonNull View itemView) {
@@ -26,6 +27,7 @@ public class FoodItemViewHolder extends RecyclerView.ViewHolder {
         mFoodItemPrice = (TextView) itemView.findViewById(R.id.food_price);
         //mFoodImage = (ImageView) itemView.findViewById(R.id.food_image);
         mAddToCart = (MaterialButton) itemView.findViewById(R.id.addtocart_btn);
+        foodItemImageView = itemView.findViewById(R.id.food_item_imageView);
     }
 
 }

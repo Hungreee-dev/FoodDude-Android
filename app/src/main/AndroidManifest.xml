@@ -1,35 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.dubstep">
-    <!--
-         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-         Google Maps Android API v2, but you must specify either coarse or fine
-         location permissions for the 'MyLocation' functionality.
-    -->
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".ViewHolder.ThankYouActivity"></activity>
-        <activity android:name=".Order_placed" />
 
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application xmlns:tools="http://schemas.android.com/tools"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_food_dude_icon"
+        android:label="FoodDude"
+        android:roundIcon="@drawable/ic_food_dude_icon"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        tools:replace="android:label,android:icon,android:usesCleartextTraffic,android:allowBackup">
+        <activity android:name=".PrivacyPolicyActivity"></activity>
+        <activity android:name=".TermsAndServices" />
+        <activity android:name=".RefundPolicyActivity" />
+        <activity android:name=".OrderDetailsActivity" />
+        <activity android:name=".UserVerifyActivity" />
+        <activity android:name=".PasswordResetActivity" />
+        <activity android:name=".FoodItemActivity" />
+        <activity android:name=".ConfirmActivity" />
+        <activity android:name=".ReferralActivity" />
+        <activity android:name=".AddAddressActivity" />
+        <activity android:name=".SelectAddressActivity" />
+        <activity android:name=".ThankYouActivity" />
+        <activity android:name=".Order_placed" />
         <activity
             android:name=".RiderMapsActivity"
             android:label="@string/title_activity_rider_maps" />
-
         <activity android:name=".ViewHolder.OtpActivity" />
         <activity android:name=".MapsActivity" />
         <activity android:name=".CartMainActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".RiderMainActivity">
-
-        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop" />
+        <activity android:name=".RiderMainActivity" />
         <activity android:name=".Splash_Screen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,25 +51,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
     </application>
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 </manifest>

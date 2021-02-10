@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.AboutUsFragment">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+
+        <TextView
+            android:id="@+id/about_us"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_brush_stroke"
+            android:padding="15dp"
+            android:layout_marginTop="8dp"
+            android:text="About Us"
+            android:textAlignment="center"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/scrollAboutUs"
+            />
+
+
+        <ScrollView
+            android:id="@+id/scrollAboutUs"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:paddingTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_us"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="15dp"
+                android:layout_marginHorizontal="24dp"
+                android:layout_margin="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="12dp"
+                    android:orientation="vertical"
+                    >
+
+                    <TextView
+                        android:id="@+id/about1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="10dp"
+                        android:paddingTop="10dp"
+                        android:text="@string/about_us1"
+                        android:textSize="18dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+
+                        />
+
+                    <TextView
+                        android:id="@+id/about2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/about1"
+                        android:paddingHorizontal="10dp"
+                        android:paddingTop="5dp"
+                        android:text="@string/about_us2"
+                        android:textSize="18dp"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <TextView
+                        android:id="@+id/about3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/about2"
+                        android:paddingHorizontal="10dp"
+                        android:paddingTop="5dp"
+                        android:text="@string/about_us3"
+                        android:textSize="18dp"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <TextView
+                        android:id="@+id/about4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/about3"
+                        android:paddingHorizontal="10dp"
+                        android:paddingTop="5dp"
+                        android:text="@string/about_us4"
+                        android:textSize="18dp"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+                    <TextView
+                        android:id="@+id/about5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/about4"
+                        android:paddingHorizontal="10dp"
+                        android:paddingTop="5dp"
+                        android:text="@string/about_us5"
+                        android:textSize="18dp"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <TextView
+                        android:id="@+id/about7"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/about5"
+                        android:paddingRight="30dp"
+                        android:textStyle="bold"
+                        android:paddingTop="10dp"
+                        android:text="@string/about_us7"
+                        android:textSize="18dp"
+                        android:textAlignment="textEnd"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</FrameLayout>
