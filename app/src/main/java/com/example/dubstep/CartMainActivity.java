@@ -11,9 +11,12 @@ import retrofit2.Response;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import com.example.dubstep.database.CartDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.example.dubstep.singleton.OrderDetails;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,6 +54,7 @@ public class CartMainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private MaterialButton mplaceOrder;
     private TextView mPriceTotal, mCartTotal, mDelivery, emptyCartMesage;
+    private Drawable d;
     private CardView cartTotalCard;
     private FirebaseAuth firebaseAuth;
     private List<CartItem> mCartItemList;
@@ -63,9 +68,12 @@ public class CartMainActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-      mplaceOrder = findViewById(R.id.btn_place_order);
+        mplaceOrder = findViewById(R.id.btn_place_order);
         emptyCartMesage = findViewById(R.id.empty_cart_text_view);
-
+        d = mplaceOrder.getCompoundDrawables()[2];
+        Animatable animatable = (Animatable)d;
+        animatable.start();
+        mplaceOrder.setCompoundDrawables(null,null,null,null);
         cartTotalCard = findViewById(R.id.total_cart);
         setUpRecycler();
         mplaceOrder.setOnClickListener(new View.OnClickListener() {
@@ -176,11 +184,15 @@ public class CartMainActivity extends AppCompatActivity {
                             public void onQuantityChange(int position, int quantity) {
                                 UserCart userCart = new UserCart(firebaseAuth.getUid(), mCartItemList.get(position));
                                 userCart.getCartItem().setQuantity(quantity);
+                                mplaceOrder.setClickable(false);
+                                mplaceOrder.setCompoundDrawables(null,null,d,null);
                                 CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
                                         .enqueue(new Callback<UserCart>() {
                                             @Override
                                             public void onResponse(Call<UserCart> call,
                                                     Response<UserCart> response) {
+                                                mplaceOrder.setClickable(true);
+                                                mplaceOrder.setCompoundDrawables(null,null,null,null);
                                                 if (!response.isSuccessful()){
                                                     Toast.makeText(CartMainActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                                                     return;
@@ -209,6 +221,8 @@ public class CartMainActivity extends AppCompatActivity {
                         adapter.setOnItemClickListener(new CartItemsAdapter.OnItemClickListener() {
                             @Override
                             public void onItemDelete(int position) {
+                                mplaceOrder.setClickable(false);
+                                mplaceOrder.setCompoundDrawables(null,null,d,null);
                                 UserCart userCart = new UserCart(firebaseAuth.getUid(), mCartItemList.get(position));
                                 userCart.getCartItem().setQuantity(0);
                                 CartDatabase.getInstance().editCartItem(userCart, IdTokenInstance.getToken())
@@ -216,8 +230,10 @@ public class CartMainActivity extends AppCompatActivity {
                                             @Override
                                             public void onResponse(Call<UserCart> call,
                                                     Response<UserCart> response) {
+                                                mplaceOrder.setCompoundDrawables(null,null,null,null);
+                                                mplaceOrder.setClickable(false);
                                                 if (!response.isSuccessful()){
-                                                    Toast.makeText(CartMainActivity.this, response.body().getError(), Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(CartMainActivity.this, "some error occured while deleting", Toast.LENGTH_SHORT).show();
                                                     return;
                                                 }
                                                 mCartItemList.remove(position);
