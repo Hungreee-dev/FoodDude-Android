@@ -24,6 +24,11 @@ public class Order {
     @SerializedName("Address")
     Address deliveryAddress;
 
+//    Created a constructor cause flask doesn't accepts url-encoded data on json
+    public Order(String userId){
+        this.userId = userId;
+    }
+
     public Order(String orderId, String userId, List<CartItem> cartItems, Billing billing, int orderStatus, Address deliveryAddress) {
         this.orderId = orderId;
         this.userId = userId;

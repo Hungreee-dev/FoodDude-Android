@@ -30,8 +30,11 @@ import com.example.dubstep.singleton.IdTokenInstance;
 import com.example.dubstep.viewmodel.OrderItemViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -67,14 +70,15 @@ public class OrderFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser = FirebaseAuth.getInstance().getCurrentUser();
+        Log.d(TAG, "onCreate: "+mUser.getUid());
         firstTime = true;
         orderAdapter = new OrderAdapter(getActivity().getApplicationContext());
 
         orderAdapter.setOnItemClickListener(new OrderAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(OrderItem orderItem) {
+            public void onItemClick(Order order) {
                 Intent intent = new Intent(getActivity(), OrderDetailsActivity.class);
-                intent.putExtra(orderDetailsIntent,orderItem.getOrderId());
+                intent.putExtra(orderDetailsIntent,new Gson().toJson(order));
                 startActivity(intent);
             }
         });
@@ -116,39 +120,42 @@ public class OrderFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                checkUndelivered();
+//                checkUndelivered();
+                fetchUserData(mUser.getUid());
             }
         });
 
-            orderItemViewModel.getAllOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
-            @Override
-            public void onChanged(List<OrderItem> orderItemsLocal) {
-                fetchedOrder = orderItemsLocal.size();
-                if (orderItemsLocal!=null && orderItemsLocal.size()>0){
-//                    orderItems = new ArrayList<>(orderItemsLocal);
-                    if (firstTime){
-                        noOrderPresent(false);
-                        firstTime = false;
-                        checkUndelivered();
-                        fetchNewOrderList(mUser.getUid(),orderItemsLocal);
-                    }
-                    Log.d(TAG, "onChanged: "+orderItemsLocal.size());
-                } else {
-//                    sqlite database is not created yet so fetch all the data
-                    firstTime = false;
-                    noOrderPresent(true);
-                    fetchUserData(mUser.getUid());
-//                    orderItems = new ArrayList<>();
-                }
+        fetchUserData(mUser.getUid());
 
-                if (fetchedOrder.equals(TotalOrders)){
-                    removeLoader(orderItemsLocal);
-                } else {
-
-                }
-
-            }
-        });
+//            orderItemViewModel.getAllOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
+//            @Override
+//            public void onChanged(List<OrderItem> orderItemsLocal) {
+//                fetchedOrder = orderItemsLocal.size();
+//                if (orderItemsLocal!=null && orderItemsLocal.size()>0){
+////                    orderItems = new ArrayList<>(orderItemsLocal);
+//                    if (firstTime){
+//                        noOrderPresent(false);
+//                        firstTime = false;
+//                        checkUndelivered();
+//                        fetchNewOrderList(mUser.getUid(),orderItemsLocal);
+//                    }
+//                    Log.d(TAG, "onChanged: "+orderItemsLocal.size());
+//                } else {
+////                    sqlite database is not created yet so fetch all the data
+//                    firstTime = false;
+//                    noOrderPresent(true);
+//                    fetchUserData(mUser.getUid());
+////                    orderItems = new ArrayList<>();
+//                }
+//
+//                if (fetchedOrder.equals(TotalOrders)){
+//                    removeLoader(orderItemsLocal);
+//                } else {
+//
+//                }
+//
+//            }
+//        });
 
     }
 
@@ -158,211 +165,215 @@ public class OrderFragment extends Fragment {
         orderItemViewModel.getAllOrders().removeObservers(OrderFragment.this);
     }
 
-    private void fetchNewOrderList(String uid, List<OrderItem> orderItemsLocal) {
-        synchronized (lock){
-            UserDatabase.getInstance().getUser(uid, IdTokenInstance.getToken()).enqueue(new Callback<User>() {
-                @Override
-                public void onResponse(Call<User> call, Response<User> response) {
-                    if (!response.isSuccessful()){
-                        Toast.makeText(getActivity(), "Network Error Reloading!!", Toast.LENGTH_SHORT).show();
-                        swipeRefreshLayout.setRefreshing(false);
-                        noOrderPresent(true);
-//                    recreate fragment
-                        return;
-                    }
+//    private void fetchNewOrderList(String uid, List<OrderItem> orderItemsLocal) {
+//        synchronized (lock){
+//            UserDatabase.getInstance().getUser(uid, IdTokenInstance.getToken()).enqueue(new Callback<User>() {
+//                @Override
+//                public void onResponse(Call<User> call, Response<User> response) {
+//                    if (!response.isSuccessful()){
+//                        Toast.makeText(getActivity(), "Network Error Reloading!!", Toast.LENGTH_SHORT).show();
+//                        swipeRefreshLayout.setRefreshing(false);
+//                        noOrderPresent(true);
+////                    recreate fragment
+//                        return;
+//                    }
+//
+//                    User user = response.body();
+//                    if(user.getOrders()!=null){
+//                        TotalOrders = user.getOrders().size();
+//                        if (TotalOrders.equals(fetchedOrder)){
+//                            removeLoader(orderItemsLocal);
+//                        } else{
+////                    fetch order data for new item only
+//                            for (String orderId :
+//                                    user.getOrders()) {
+//                                orderItemViewModel.getItem(orderId).observe(OrderFragment.this, new Observer<OrderItem>() {
+//                                    @Override
+//                                    public void onChanged(OrderItem orderItem) {
+//                                        if (orderItem==null){
+//                                            addOrderDetails(orderId);
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        }
+//
+//                    } else {
+//                        removeLoader(null);
+//                        noOrderPresent(true);
+//                    }
+//
+//                }
+//
+//                @Override
+//                public void onFailure(Call<User> call, Throwable t) {
+//                    Toast.makeText(getActivity(), "Some orders were not fetched successfully \n" + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    noOrderPresent(true);
+//                    swipeRefreshLayout.setRefreshing(false);
+//                }
+//            });
+//        }
+//    }
 
-                    User user = response.body();
-                    if(user.getOrders()!=null){
-                        TotalOrders = user.getOrders().size();
-                        if (TotalOrders.equals(fetchedOrder)){
-                            removeLoader(orderItemsLocal);
-                        } else{
-//                    fetch order data for new item only
-                            for (String orderId :
-                                    user.getOrders()) {
-                                orderItemViewModel.getItem(orderId).observe(OrderFragment.this, new Observer<OrderItem>() {
-                                    @Override
-                                    public void onChanged(OrderItem orderItem) {
-                                        if (orderItem==null){
-                                            addOrderDetails(orderId);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-
-                    } else {
-                        removeLoader(null);
-                        noOrderPresent(true);
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<User> call, Throwable t) {
-                    Toast.makeText(getActivity(), "Some orders were not fetched successfully \n" + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    noOrderPresent(true);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            });
-        }
-    }
-
-    private void checkUndelivered(){
-        final boolean[] checkUndeliveredOnce = {true};
-        synchronized (lock){
-            orderItemViewModel.getAllUndeliveredOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
-                @Override
-                public void onChanged(List<OrderItem> orderItems) {
-                    if (checkUndeliveredOnce[0] && (orderItems!=null && !orderItems.isEmpty())){
-                        checkUndeliveredOnce[0] = false;
-                        for (OrderItem orderItem :
-                                orderItems) {
-                            updateOrderDetails(orderItem.getOrderId());
-                        }
-                    }
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            });
-        }
-    }
+//    private void checkUndelivered(){
+//        final boolean[] checkUndeliveredOnce = {true};
+//        synchronized (lock){
+//            orderItemViewModel.getAllUndeliveredOrders().observe(OrderFragment.this, new Observer<List<OrderItem>>() {
+//                @Override
+//                public void onChanged(List<OrderItem> orderItems) {
+//                    if (checkUndeliveredOnce[0] && (orderItems!=null && !orderItems.isEmpty())){
+//                        checkUndeliveredOnce[0] = false;
+//                        for (OrderItem orderItem :
+//                                orderItems) {
+//                            updateOrderDetails(orderItem.getOrderId());
+//                        }
+//                    }
+//                    swipeRefreshLayout.setRefreshing(false);
+//                }
+//            });
+//        }
+//    }
 
     private void fetchUserData(String uid) {
-        UserDatabase.getInstance().getUser(uid, IdTokenInstance.getToken()).enqueue(new Callback<User>() {
+        Order reqBody = new Order(uid);
+        OrderDatabase.getInstance().getOrderFromId(reqBody).enqueue(new Callback<List<Order>>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(Call<List<Order>> call, Response<List<Order>> response) {
+                Log.d(TAG, "onResponse: "+response.code());
+                swipeRefreshLayout.setRefreshing(false);
                 if (!response.isSuccessful()){
-                    Toast.makeText(getActivity(), "Network Error Reloading!!", Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                    noOrderPresent(true);
-//                    recreate fragment
+                    Toast.makeText(getActivity(), "Unable to fetch your orders", Toast.LENGTH_SHORT).show();
+                    removeLoader(null);
                     return;
                 }
-
-                User user = response.body();
-                if(user.getOrders()!=null){
-                    TotalOrders = user.getOrders().size();
-                    orderIdList = new ArrayList<>(user.getOrders());
-//                    fetch order data of each order items
-                    fetchOrderData();
-                } else {
-                    TotalOrders = 0;
+//                Get the list of orders
+                List<Order> orders = response.body();
+                if (orders == null || orders .size() == 0){
                     removeLoader(null);
-                    noOrderPresent(true);
+                } else {
+                    orders.sort(new Comparator<Order>() {
+                        @Override
+                        public int compare(Order o1, Order o2) {
+                            if (o1.getBilling().getOrderTime().getTimestamp() == o2.getBilling().getOrderTime().getTimestamp())
+                                return 0;
+                            return o1.getBilling().getOrderTime().getTimestamp() > o2.getBilling().getOrderTime().getTimestamp() ? -1 : 1;
+                        }
+                    });
+                    removeLoader(orders);
                 }
-
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(getActivity(), "Some orders were not fetched successfully \n" + t.getMessage(), Toast.LENGTH_SHORT).show();
-                noOrderPresent(true);
-                swipeRefreshLayout.setRefreshing(false);
+            public void onFailure(Call<List<Order>> call, Throwable t) {
+                Toast.makeText(getActivity(), "Unable to fetch your orders "+t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                removeLoader(null);
             }
         });
     }
 
-    private void removeLoader(List<OrderItem> orderItemsLocal) {
-        if (orderItemsLocal!=null && orderItemsLocal.size()>0){
-            orderAdapter.submitList(orderItemsLocal);
+    private void removeLoader(List<Order> orders) {
+        if (orders!=null && orders.size()>0){
+            getActivity().findViewById(R.id.order_not_present_textview).setVisibility(View.GONE);
+            orderAdapter.submitList(orders);
         } else {
+            getActivity().findViewById(R.id.order_not_present_textview).setVisibility(View.VISIBLE);
             noOrderPresent(true);
         }
         progressDialog.dismiss();
     }
 
-    private void fetchOrderData() {
-        if (orderIdList==null || orderIdList.isEmpty()){
-            TotalOrders = 0;
-            removeLoader(null);
-            Toast.makeText(getActivity(), "No order placed", Toast.LENGTH_SHORT).show();
-            noOrderPresent(true);
-            swipeRefreshLayout.setRefreshing(false);
-        } else {
-            for (String orderId:orderIdList){
+//    private void fetchOrderData() {
+//        if (orderIdList==null || orderIdList.isEmpty()){
+//            TotalOrders = 0;
+//            removeLoader(null);
+//            Toast.makeText(getActivity(), "No order placed", Toast.LENGTH_SHORT).show();
+//            noOrderPresent(true);
+//            swipeRefreshLayout.setRefreshing(false);
+//        } else {
+//            for (String orderId:orderIdList){
+//
+//                addOrderDetails(orderId);
+//
+//            }
+//            noOrderPresent(false);
+//
+//
+//            swipeRefreshLayout.setRefreshing(false);
+//        }
+//    }
 
-                addOrderDetails(orderId);
+//    private void addOrderDetails(String orderId) {
+//        OrderDatabase.getInstance().getOrderFromId(orderId).enqueue(new Callback<Order>() {
+//            @Override
+//            public void onResponse(Call<Order> call, Response<Order> response) {
+//                if (!response.isSuccessful()){
+//                    Toast.makeText(getActivity(), "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                Log.d("order", "onAdd: "+response.body());
+//                Order order = response.body();
+//                OrderItem orderItem = new OrderItem(
+//                        order.getOrderId(),
+//                        order.getBilling().getOrderTime().getTimestamp(),
+//                        order.getOrderStatus(),
+//                        order.getBilling().getFinalAmount()
+//                        );
+//                fetchedOrder++;
+//                orderItemViewModel.insert(orderItem);
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Order> call, Throwable t) {
+//                Toast.makeText(getActivity(), "Some orders were not fetched successfully \n " +t.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
-            }
-            noOrderPresent(false);
-
-
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    }
-
-    private void addOrderDetails(String orderId) {
-        OrderDatabase.getInstance().getOrderFromId(orderId).enqueue(new Callback<Order>() {
-            @Override
-            public void onResponse(Call<Order> call, Response<Order> response) {
-                if (!response.isSuccessful()){
-                    Toast.makeText(getActivity(), "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Log.d("order", "onAdd: "+response.body());
-                Order order = response.body();
-                OrderItem orderItem = new OrderItem(
-                        order.getOrderId(),
-                        order.getBilling().getOrderTime().getTimestamp(),
-                        order.getOrderStatus(),
-                        order.getBilling().getFinalAmount()
-                        );
-                fetchedOrder++;
-                orderItemViewModel.insert(orderItem);
-
-            }
-
-            @Override
-            public void onFailure(Call<Order> call, Throwable t) {
-                Toast.makeText(getActivity(), "Some orders were not fetched successfully \n " +t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateOrderDetails(String orderId) {
-        synchronized (lock){
-            OrderDatabase.getInstance().getOrderFromId(orderId).enqueue(new Callback<Order>() {
-                @Override
-                public void onResponse(Call<Order> call, Response<Order> response) {
-                    if (!response.isSuccessful()){
-                        Toast.makeText(getActivity(), "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Order order = response.body();
-                    OrderItem orderItem = new OrderItem(
-                            order.getOrderId(),
-                            order.getBilling().getOrderTime().getTimestamp(),
-                            order.getOrderStatus(),
-                            order.getBilling().getFinalAmount()
-                    );
-
-                    orderItemViewModel.ifStatusChanged(orderId,orderItem.getStatus()).observe( OrderFragment.this, new Observer<OrderItem>() {
-                        int statusNow = orderItem.getStatus();
-                        boolean doneOnce = true;
-                        @Override
-                        public void onChanged(OrderItem oldOrderItem) {
-                            if (doneOnce){
-                                doneOnce = false;
-                                if (oldOrderItem != null){
-                                    Log.d("order", "onChanged: item update"+oldOrderItem);
-                                    oldOrderItem.setStatus(statusNow);
-                                    orderItemViewModel.update(oldOrderItem);
-                                }
-                            }
-
-                        }
-                    });
-
-                }
-
-                @Override
-                public void onFailure(Call<Order> call, Throwable t) {
-                    Toast.makeText(getActivity(), "Some orders were not fetched successfully \n " +t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-    }
+//    private void updateOrderDetails(String orderId) {
+//        synchronized (lock){
+//            OrderDatabase.getInstance().getOrderFromId(orderId).enqueue(new Callback<Order>() {
+//                @Override
+//                public void onResponse(Call<Order> call, Response<Order> response) {
+//                    if (!response.isSuccessful()){
+//                        Toast.makeText(getActivity(), "Some orders were not fetched successfully", Toast.LENGTH_SHORT).show();
+//                        return;
+//                    }
+//                    Order order = response.body();
+//                    OrderItem orderItem = new OrderItem(
+//                            order.getOrderId(),
+//                            order.getBilling().getOrderTime().getTimestamp(),
+//                            order.getOrderStatus(),
+//                            order.getBilling().getFinalAmount()
+//                    );
+//
+//                    orderItemViewModel.ifStatusChanged(orderId,orderItem.getStatus()).observe( OrderFragment.this, new Observer<OrderItem>() {
+//                        int statusNow = orderItem.getStatus();
+//                        boolean doneOnce = true;
+//                        @Override
+//                        public void onChanged(OrderItem oldOrderItem) {
+//                            if (doneOnce){
+//                                doneOnce = false;
+//                                if (oldOrderItem != null){
+//                                    Log.d("order", "onChanged: item update"+oldOrderItem);
+//                                    oldOrderItem.setStatus(statusNow);
+//                                    orderItemViewModel.update(oldOrderItem);
+//                                }
+//                            }
+//
+//                        }
+//                    });
+//
+//                }
+//
+//                @Override
+//                public void onFailure(Call<Order> call, Throwable t) {
+//                    Toast.makeText(getActivity(), "Some orders were not fetched successfully \n " +t.getMessage(), Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        }
+//
+//    }
 
     private void noOrderPresent(boolean state) {
         swipeRefreshLayout.setRefreshing(false);

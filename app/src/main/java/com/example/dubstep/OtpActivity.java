@@ -1,29 +1,23 @@
-package com.example.dubstep.ViewHolder;
+package com.example.dubstep;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.dubstep.LoginActivity;
-import com.example.dubstep.MainActivity;
 import com.example.dubstep.Model.Result;
 import com.example.dubstep.Model.User;
-import com.example.dubstep.R;
-import com.example.dubstep.SignUpActivity;
-import com.example.dubstep.ThankYouActivity;
-import com.example.dubstep.UserVerifyActivity;
 import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,6 +25,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskExecutors;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
@@ -38,13 +33,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
-import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
@@ -57,8 +47,7 @@ import retrofit2.Response;
 public class OtpActivity extends AppCompatActivity {
 
     Button verify_btn;
-    EditText phoneNoEnteredByTheUser;
-    ProgressBar progressBar;
+    ProgressDialog progressDialog;
     DatabaseReference databaseReference;
     public String phoneNo;
     String verificationCodeBySystem;
@@ -73,6 +62,8 @@ public class OtpActivity extends AppCompatActivity {
 //    TYPE_EXTRA -> 2 ->  from ProfileActivity
 
     FirebaseAuth firebaseAuth;
+    private MaterialButton resendOtpButton;
+    private CountDownTimer myTimer;
 
     private TextWatcher myTextWatcher(TextInputEditText currEditText){
         return new TextWatcher() {
@@ -148,9 +139,15 @@ public class OtpActivity extends AppCompatActivity {
         otpEditText[4].addTextChangedListener(myTextWatcher(otpEditText[4]));
         otpEditText[5].addTextChangedListener(myTextWatcher(otpEditText[5]));
 
+        resendOtpButton = findViewById(R.id.resend_otp_button);
         verify_btn = findViewById(R.id.verify_btn);
-        phoneNoEnteredByTheUser = findViewById(R.id.verification_code_entered_by_user);
-        progressBar = findViewById(R.id.progress_bar);
+        progressDialog = new ProgressDialog(OtpActivity.this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+        progressDialog.setCancelable(false);
 
         if (getIntent().hasExtra(OTP_EXTRA)){
             phoneNo = getIntent().getStringExtra(OTP_EXTRA);
@@ -174,7 +171,6 @@ public class OtpActivity extends AppCompatActivity {
         }
 
 
-        progressBar.setVisibility(View.GONE);
         sendVerificationCodeToUser(phoneNo);
 
 
@@ -184,7 +180,7 @@ public class OtpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 StringBuilder code = new StringBuilder();
                 for (TextInputEditText inputEditText: otpEditText){
-                    if (inputEditText.getText() == null){
+                    if (inputEditText.getText() == null || inputEditText.getText().toString().trim().equals("") ){
                         inputEditText.requestFocus();
                         inputEditText.setError("Can't be null");
                         return;
@@ -192,16 +188,23 @@ public class OtpActivity extends AppCompatActivity {
                         code.append(inputEditText.getText());
                     }
                 }
-
-                progressBar.setVisibility(View.VISIBLE);
+                progressDialog.show();
                 verifyCode(code.toString());
+            }
+        });
+
+        resendOtpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendVerificationCodeToUser(phoneNo);
             }
         });
     }
 
 
     private void sendVerificationCodeToUser(String phoneNo)  {
-
+        verify_btn.setEnabled(false);
+        resendOtpButton.setEnabled(false);
         PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
 
         try {
@@ -224,6 +227,9 @@ public class OtpActivity extends AppCompatActivity {
                 @Override
                 public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                     super.onCodeSent(s, forceResendingToken);
+                    verify_btn.setEnabled(true);
+                    progressDialog.dismiss();
+                    startTimerForResend();
                     //Get the code in global variable
                     verificationCodeBySystem = s;
                 }
@@ -232,37 +238,59 @@ public class OtpActivity extends AppCompatActivity {
                 public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
                     String code = phoneAuthCredential.getSmsCode();
                     if (code != null) {
-                        progressBar.setVisibility(View.VISIBLE);
                         verifyCode(code);
                     }
                 }
 
                 @Override
                 public void onVerificationFailed(@NonNull FirebaseException e) {
+                    progressDialog.dismiss();
                     Toast.makeText(OtpActivity.this,  e.getMessage(),Toast.LENGTH_LONG).show();
                 }
             };
+
+    private void startTimerForResend() {
+        myTimer =  new CountDownTimer(60000,1000){
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                Log.d("timer", "onTick: "+millisUntilFinished/1000);
+                resendOtpButton.setText( String.format("00:%d",millisUntilFinished/1000) );
+            }
+
+            @Override
+            public void onFinish() {
+                resendOtpButton.setText("RESEND");
+                resendOtpButton.setEnabled(true);
+            }
+        };
+        myTimer.start();
+    }
 
     private void verifyCode(String codeByUser) {
         Log.d("code", "verifyCode: "+codeByUser);
         setOtp(codeByUser);
 
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCodeBySystem, codeByUser);
-
-        switch (type){
-            case 0:
-                signInTheUserByCredentialsFirstTime(credential);
-                break;
-            case 1:
-                signInTheUserByCredentialsNormal(credential);
-                break;
-            case 2:
-                updateNumberOfUser(credential);
-                break;
-            default:
-                Toast.makeText(this, "Cant figure out mode of otp activity", Toast.LENGTH_SHORT).show();
-                finish();
-                break;
+        try {
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCodeBySystem, codeByUser);
+            progressDialog.show();
+            switch (type){
+                case 0:
+                    signInTheUserByCredentialsFirstTime(credential);
+                    break;
+                case 1:
+                    signInTheUserByCredentialsNormal(credential);
+                    break;
+                case 2:
+                    updateNumberOfUser(credential);
+                    break;
+                default:
+                    Toast.makeText(this, "Cant figure out mode of otp activity", Toast.LENGTH_SHORT).show();
+                    finish();
+                    break;
+            }
+        } catch (Exception e){
+            Toast.makeText(this, "There is a problem with the verification/credential information you provided", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -342,6 +370,7 @@ public class OtpActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.dismiss();
                         if (task.isSuccessful()) {
                             boolean verified = firebaseAuth.getCurrentUser().isEmailVerified();
                             String uid = firebaseAuth.getUid();
@@ -356,13 +385,11 @@ public class OtpActivity extends AppCompatActivity {
                                         });
 
                             } else{
-                                startActivity(new Intent(OtpActivity.this, UserVerifyActivity.class));
+                                startActivity(new Intent(OtpActivity.this, UserVerifyActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                 finish();
                             }
 
                         } else {
-
-                            progressBar.setVisibility(View.INVISIBLE);
                             Toast.makeText(OtpActivity.this,  "Login Failed or User not Available",Toast.LENGTH_SHORT).show();
 
                         }
@@ -399,7 +426,7 @@ public class OtpActivity extends AppCompatActivity {
                                         }
                                     });
                         } else {
-                            progressBar.setVisibility(View.INVISIBLE);
+                            progressDialog.dismiss();
                             Toast.makeText(OtpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -414,17 +441,18 @@ public class OtpActivity extends AppCompatActivity {
                         if (!response.isSuccessful()){
 //                            some error in updating
                             Toast.makeText(OtpActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.INVISIBLE);
+                            progressDialog.dismiss();
                             return;
                         }
 
                         if (response.body().getError()==null){
+                            progressDialog.dismiss();
 //                            updated successfuly
 
                             firebaseAuth.getCurrentUser().reload().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Log.d("otp", "onSuccess: " +new Gson().toJson(firebaseAuth.getCurrentUser()));
+
                                     boolean verified = firebaseAuth.getCurrentUser().isEmailVerified();
                                     Log.d("otp", "onSuccess: phone number updated");
                                     Log.d("otp", "email verified: "+verified);
@@ -445,7 +473,7 @@ public class OtpActivity extends AppCompatActivity {
                     public void onFailure(Call<User> call, Throwable t) {
 //                        some error in updating
                         Toast.makeText(OtpActivity.this, "Some error occured", Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.INVISIBLE);
+                        progressDialog.dismiss();
                     }
                 });
     }
@@ -456,7 +484,7 @@ public class OtpActivity extends AppCompatActivity {
                 .enqueue(new Callback<User>() {
                     @Override
                     public void onResponse(Call<User> call, Response<User> response) {
-                        Log.d("otp", "after get user");
+                        progressDialog.dismiss();
                         if(!response.isSuccessful()){
                             Toast.makeText(OtpActivity.this, new Gson().toJson(response.body()), Toast.LENGTH_SHORT).show();
                             return;
@@ -477,10 +505,18 @@ public class OtpActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
-                        progressBar.setVisibility(View.INVISIBLE);
+                        progressDialog.dismiss();
                         Toast.makeText(OtpActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (myTimer!=null){
+            myTimer.cancel();
+        }
+
+    }
 }

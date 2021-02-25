@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.dubstep.Fragment.PaymentOptionBottomSheetFragment;
 import com.example.dubstep.Model.CartItem;
 import com.example.dubstep.Model.Order;
+import com.example.dubstep.Model.OrderIdResponse;
 import com.example.dubstep.Model.PaymentRequest;
 import com.example.dubstep.Model.PromoDate;
 import com.example.dubstep.Model.Promocode;
@@ -63,6 +64,7 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
     private String mUid;
     OrderDetails orderDetails;
     private User user ;
+    double discountedAmount;
 
 
     @Override
@@ -126,6 +128,7 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
                         public void onResponse(Call<PromocodeResult> call, Response<PromocodeResult> response) {
                             if (!response.isSuccessful()){
                                 progressDialog.dismiss();
+                                Log.d("promocode", "onResponse: "+response.code());
                                 Toast.makeText(ReferralActivity.this, "There was some error while fetching data", Toast.LENGTH_SHORT).show();
                                 return;
                             }
@@ -189,14 +192,11 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
         promoCodeText.setVisibility(View.VISIBLE);
         promoCodeText.setText("Promocode applied \n Discount % :  "+String.valueOf(promocode.getPercentage())+"%");
         discountOnPromo.setVisibility(View.VISIBLE);
-        double discountedAmount = orderDetails.getBillingDetails().getFinalAmount();
-        Log.d("discount", "updatePromocode: "+totalDiscountPrice);
         discountedAmount = ((double) promocode.getPercentage() / 100.0) * totalDiscountPrice;
-        Log.d("discount", discountedAmount+"");
+        discountedAmount = Math.round(discountedAmount*100)/100.0;
         orderDetails.getBillingDetails().setFinalAmount( totalDiscountPrice-discountedAmount);
         orderDetails.getBillingDetails().setDiscount(promocode.getPercentage());
         orderDetails.getBillingDetails().setPromocode(promocode.getCode());
-        cartTotal.setText("Cart total : \u20B9 "+totalDiscountPrice);
         discountOnPromo.setText("Promocode Discount : - \u20B9 " + discountedAmount );
         totalPrice.setText("Total Amount \u20B9 "+ (totalDiscountPrice-discountedAmount) );
 
@@ -273,8 +273,7 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
         }
 //        mode is used for knowing what kind of check
 //        normal check == 0 or check before ordering == 1
-        Log.d("promocode", "checkPromoCode: "+promocode);
-        PromocodeDatabase.getInstance().availPromo(mUid,promocode,IdTokenInstance.getToken())
+        PromocodeDatabase.getInstance().availPromo(mUid,promocode,discountedAmount,IdTokenInstance.getToken())
                 .enqueue(new Callback<PromocodeResult>() {
                     @Override
                     public void onResponse(Call<PromocodeResult> call, Response<PromocodeResult> response) {
@@ -334,22 +333,42 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
             }
             orderDetails.getBillingDetails().setPaymentMethod("ONLINE");
             orderDetails.getBillingDetails().setOrderTime(new PromoDate(Calendar.getInstance().getTimeInMillis()));
-            String id = mUid+orderDetails.getBillingDetails().getOrderTime().getTimestamp();
-            Order order = new Order(
-                    id,
-                    mUid,
-                    orderDetails.getCartItems(),
-                    orderDetails.getBillingDetails(),
-                    0,
-                    orderDetails.getDeliveryAddress()
-            );
+            PaymentDatabase.getInstance().getOrderId(mUid,orderDetails.getBillingDetails().getFinalAmount(),1,IdTokenInstance.getToken())
+                    .enqueue(new Callback<OrderIdResponse>() {
+                        @Override
+                        public void onResponse(Call<OrderIdResponse> call, Response<OrderIdResponse> response) {
+                            if (response.isSuccessful()){
+                                if (!response.body().isError()){
+                                    String id = response.body().getMessage();
+                                    Order order = new Order(
+                                            id,
+                                            mUid,
+                                            orderDetails.getCartItems(),
+                                            orderDetails.getBillingDetails(),
+                                            0,
+                                            orderDetails.getDeliveryAddress()
+                                    );
 
-            progressDialog.dismiss();
-//                    function to create an order
-//            createOrder(order);
-            Intent intent = new Intent(this,ThankYouActivity.class);
-            intent.putExtra(ThankYouActivity.ORDER_EXTRA,new Gson().toJson(order));
-            startActivity(intent);
+                                    progressDialog.dismiss();
+
+                                    Intent intent = new Intent(ReferralActivity.this,ThankYouActivity.class);
+                                    intent.putExtra(ThankYouActivity.ORDER_EXTRA,new Gson().toJson(order));
+                                    startActivity(intent);
+
+                                }
+                            } else {
+                                progressDialog.dismiss();
+                                Toast.makeText(ReferralActivity.this, "Some error occurred " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<OrderIdResponse> call, Throwable t) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ReferralActivity.this, "Some error occurred "+t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
 
         } catch (Exception e){
             Toast.makeText(getBaseContext(),"Due to some error order was not completed .\n Please order again",Toast.LENGTH_SHORT).show();
@@ -369,25 +388,43 @@ public class ReferralActivity extends AppCompatActivity implements PaymentOption
             }
             orderDetails.getBillingDetails().setPaymentMethod("CASH");
             orderDetails.getBillingDetails().setOrderTime(new PromoDate(Calendar.getInstance().getTimeInMillis()));
-            String id = mUid+orderDetails.getBillingDetails().getOrderTime().getTimestamp();
-            Order order = new Order(
-                    id,
-                    mUid,
-                    orderDetails.getCartItems(),
-                    orderDetails.getBillingDetails(),
-                    0,
-                    orderDetails.getDeliveryAddress()
-            );
 
-            progressDialog.dismiss();
 
-//                    function to create an order
-//            createOrder(order);
+            PaymentDatabase.getInstance().getOrderId(mUid,orderDetails.getBillingDetails().getFinalAmount(),0,IdTokenInstance.getToken())
+                    .enqueue(new Callback<OrderIdResponse>() {
+                        @Override
+                        public void onResponse(Call<OrderIdResponse> call, Response<OrderIdResponse> response) {
+                            if (response.isSuccessful()){
+                                if (!response.body().isError()){
+                                    String id = response.body().getMessage();
+                                    Order order = new Order(
+                                            id,
+                                            mUid,
+                                            orderDetails.getCartItems(),
+                                            orderDetails.getBillingDetails(),
+                                            0,
+                                            orderDetails.getDeliveryAddress()
+                                    );
 
-            Intent intent = new Intent(this,ThankYouActivity.class);
-            intent.putExtra(ThankYouActivity.ORDER_EXTRA,new Gson().toJson(order));
-            startActivity(intent);
+                                    progressDialog.dismiss();
 
+                                    Intent intent = new Intent(ReferralActivity.this,ThankYouActivity.class);
+                                    intent.putExtra(ThankYouActivity.ORDER_EXTRA,new Gson().toJson(order));
+                                    startActivity(intent);
+
+                                }
+                            } else {
+                                progressDialog.dismiss();
+                                Toast.makeText(ReferralActivity.this, "Some error occurred", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<OrderIdResponse> call, Throwable t) {
+                            progressDialog.dismiss();
+                            Toast.makeText(ReferralActivity.this, "Some error occurred "+t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
         } catch (Exception e){
             Toast.makeText(getBaseContext(),"Due to some error order was not completed .\n Please order again",Toast.LENGTH_SHORT).show();

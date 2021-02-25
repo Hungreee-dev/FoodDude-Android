@@ -7,9 +7,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Slide;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -38,6 +40,7 @@ import com.example.dubstep.Interface.ItemClickListener;
 import com.example.dubstep.Model.FoodItem;
 import com.example.dubstep.Model.User;
 import com.example.dubstep.ViewHolder.FoodItemViewHolder;
+import com.example.dubstep.database.PaymentDatabase;
 import com.example.dubstep.viewmodel.OrderItemViewModel;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -58,6 +61,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.razorpay.Checkout;
+import com.razorpay.PaymentData;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -85,12 +90,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user == null) {
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();
                 }
             }
         };
+
+        firebaseAuth.addAuthStateListener(mAuthStateListener);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -145,15 +152,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        firebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-        firebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     @Override
@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 greetingUserHeader();
                 getSupportFragmentManager()
                         .beginTransaction()
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .replace(R.id.fragment_container,new HomeFragment())
                         .commit();
                 break;
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager()
                         .beginTransaction()
                         .addToBackStack(null)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .replace(R.id.fragment_container,new ProfileFragment())
                         .commit();
                 break;
@@ -198,17 +200,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .commit();
                 break;
             case R.id.log_out:
-                if (navigationView.getMenu().findItem(R.id.nav_order).isChecked()){
-                    getSupportFragmentManager()
-                            .popBackStack();
-
-                }
 //                mGoogleSignInClient.signOut();
+                Checkout.clearUserData(this);
+                firebaseAuth.signOut();
                 mGoogleSignInClient.revokeAccess().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        finish();
+                        firebaseAuth.removeAuthStateListener(mAuthStateListener);
                         new ViewModelProvider(MainActivity.this,
                                 ViewModelProvider.AndroidViewModelFactory.getInstance(MainActivity.this.getApplication())
                         ).get(OrderItemViewModel.class).deleteAllItemsAndLogout();
@@ -260,9 +258,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.closeDrawer(GravityCompat.START);
         } if(item == R.id.profile_nav||item == R.id.nav_order || item == R.id.terms_condition
             || item == R.id.contact_us || item == R.id.about_us ){
-//            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
-//            navigationView.setCheckedItem(R.id.nav_home);
-            getSupportFragmentManager().popBackStack();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_home);
+//            getSupportFragmentManager().popBackStack();
 //            FragmentManager fm = getSupportFragmentManager();
 //            for (int i = 0 ; i<= fm.getBackStackEntryCount() ; i++){
 //                Log.d("fragment", "onBackPressed: " + fm.getBackStackEntryAt(i).getName() + "   "+fm.getBackStackEntryAt(i).getId());
@@ -271,7 +269,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //            Log.d("fragment", "onBackPressed: " + R.id.profile_nav);
 //            String name = fm.getBackStackEntryAt(fm.getBackStackEntryCount()-1).getName();
 //            navigationView.setCheckedItem(Integer.parseInt(name));
-        } else {
+        } else if (item == R.id.nav_home){
+            finish();
+        }
+            else {
             super.onBackPressed();
         }
     }

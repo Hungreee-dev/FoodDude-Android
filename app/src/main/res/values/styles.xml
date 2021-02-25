@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
         <item name="android:fontFamily">@font/voces</item>
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
     </style>
 
     <style parent="android:Widget.TextView" name="SansSerif">
@@ -20,6 +21,20 @@
     <style name="roundedCornersImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
+        <item name="hintTextColor">@color/colorAccent</item>
+        <item name="boxStrokeColor">@color/colorAccent</item>
+    </style>
+
+    <style name="ThemeOverlay.App.TextInputLayout" parent="">
+        <item name="iconTint">@color/colorAccent</item>
+        <item name="colorError">@color/red</item>
+        <item name="startIconTint">@color/colorAccent</item>
+        <item name="counterTextColor">@color/colorAccent</item>
+        <item name="editTextStyle">@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox</item>
     </style>
 
 </resources>

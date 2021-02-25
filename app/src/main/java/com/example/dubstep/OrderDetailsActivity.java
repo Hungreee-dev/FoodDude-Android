@@ -50,7 +50,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TableLayout orderItems;
     private Chip orderStatus;
     private Order order;
-    private String orderIdString;
+    private String orderString;
     private ImageView orderStatusImageView;
     private LottieAnimationView orderStatusAnimation;
     private TextView orderStatusThankyouText;
@@ -61,15 +61,21 @@ public class OrderDetailsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_placed);
-        Log.d("details", getIntent().getStringExtra(OrderFragment.orderDetailsIntent));
-        mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (getIntent().hasExtra(OrderFragment.orderDetailsIntent)){
-            orderIdString = getIntent().getStringExtra(OrderFragment.orderDetailsIntent);
+            orderString = getIntent().getStringExtra(OrderFragment.orderDetailsIntent);
+            order = new Gson().fromJson(orderString,Order.class);
         } else {
             finish();
         }
-        setLoadingScreen(true);
-        fetchOrderDetails(orderIdString);
+//        setLoadingScreen(true);
+//        fetchOrderDetails(orderIdString);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.show();
+        progressDialog.setContentView(R.layout.progress_dialog);
+        progressDialog.getWindow().setBackgroundDrawableResource(
+                android.R.color.transparent
+        );
+        progressDialog.setCancelable(false);
 
         orderStatusImageView = findViewById(R.id.order_status_imageview);
         orderStatusAnimation = findViewById(R.id.order_status_animation);
@@ -98,19 +104,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
 //          Payment details
         paymentMethod = findViewById(R.id.textview_payment_method);
         paymentId = findViewById(R.id.textview_payment_id);
+        setLoadingScreen(false);
+        setData();
+
     }
 
     private void setLoadingScreen(boolean state) {
         if (state){
             findViewById(R.id.linearLayout3).setVisibility(View.INVISIBLE);
             findViewById(R.id.order_details_layout).setVisibility(View.INVISIBLE);
-            progressDialog = new ProgressDialog(this);
-            progressDialog.show();
-            progressDialog.setContentView(R.layout.progress_dialog);
-            progressDialog.getWindow().setBackgroundDrawableResource(
-                    android.R.color.transparent
-            );
-            progressDialog.setCancelable(false);
+
         } else {
             findViewById(R.id.linearLayout3).setVisibility(View.VISIBLE);
             findViewById(R.id.order_details_layout).setVisibility(View.VISIBLE);
@@ -118,29 +121,29 @@ public class OrderDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchOrderDetails(String orderIdString) {
-        OrderDatabase.getInstance().getOrderFromId(orderIdString).enqueue(new Callback<Order>() {
-            @Override
-            public void onResponse(Call<Order> call, Response<Order> response) {
-                if (!response.isSuccessful()){
-                    Toast.makeText(OrderDetailsActivity.this, "Unable to fetch order details", Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
-                }
-                if (response.body() != null){
-                    order = response.body();
-                    setLoadingScreen(false);
-                    setData();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Order> call, Throwable t) {
-                Toast.makeText(OrderDetailsActivity.this, "Unable to fetch order details", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        });
-    }
+//    private void fetchOrderDetails(String orderIdString) {
+//        OrderDatabase.getInstance().getOrderFromId(orderIdString).enqueue(new Callback<Order>() {
+//            @Override
+//            public void onResponse(Call<Order> call, Response<Order> response) {
+//                if (!response.isSuccessful()){
+//                    Toast.makeText(OrderDetailsActivity.this, "Unable to fetch order details", Toast.LENGTH_SHORT).show();
+//                    finish();
+//                    return;
+//                }
+//                if (response.body() != null){
+//                    order = response.body();
+//                    setLoadingScreen(false);
+//                    setData();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Order> call, Throwable t) {
+//                Toast.makeText(OrderDetailsActivity.this, "Unable to fetch order details", Toast.LENGTH_SHORT).show();
+//                finish();
+//            }
+//        });
+//    }
 
     private void setData() {
         int[][] states = new int[][] {
@@ -158,7 +161,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         };
 
         ColorStateList myList = new ColorStateList(states, colors);
-        orderId.setText(order.getOrderId().split(mUser)[1]);
+        orderId.setText(order.getOrderId());
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd MMM yyyy", Locale.US);
         Calendar cal  = Calendar.getInstance();
         cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());

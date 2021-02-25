@@ -1,28 +1,25 @@
 package com.example.dubstep;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PatternMatcher;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dubstep.Model.Result;
 import com.example.dubstep.Model.User;
-import com.example.dubstep.ViewHolder.OtpActivity;
 import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -34,8 +31,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -44,10 +39,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -113,19 +104,22 @@ public class LoginActivity extends AppCompatActivity {
         );
         progressDialog.dismiss();
 
-//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                .requestIdToken(getString(R.string.default_web_client_id))
-//                .requestEmail()
-//                .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
 
-//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-//        GoogleSignInButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                GSignIn();
-//            }
-//        });
+        SignInButton googleSignInButton = findViewById(R.id.LoginGoogleButton);
+
+        googleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+            }
+        });
 
 //        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
 //            @Override
@@ -196,7 +190,6 @@ public class LoginActivity extends AppCompatActivity {
                                                         checkUserData(uid);
                                                     }
                                                 });
-
                                     } else{
                                         startActivity(new Intent(LoginActivity.this, UserVerifyActivity.class));
                                         finish();
@@ -243,6 +236,7 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         inputLayoutPhone.setError(null);
                         btn_login_otp.setClickable(true);
+                        hideKeyboard(LoginActivity.this);
                     }
                 }
             }
@@ -251,6 +245,17 @@ public class LoginActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         };
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private View.OnClickListener mylistner() {
@@ -365,7 +370,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-
+        progressDialog.show();
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -375,17 +380,24 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             boolean newuser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            Log.d("user", "onComplete: "+newuser);
                             if (newuser) {
-                                startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+                                Intent intent =new Intent(LoginActivity.this, SignUpActivity.class);
+                                intent.putExtra(SignUpActivity.NAME_EXTRA,acct.getDisplayName());
+                                intent.putExtra(SignUpActivity.EMAIL_EXTRA,acct.getEmail());
+                                startActivity(intent);
                             }
                             else {
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class)); //change later based on rider/customer
+                                String uid = firebaseAuth.getUid();
+                                firebaseAuth.getAccessToken(true)
+                                        .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                                            @Override
+                                            public void onSuccess(GetTokenResult getTokenResult) {
+                                                IdTokenInstance.setToken(getTokenResult.getToken());
+                                                checkUserData(uid);
+                                            }
+                                        });
                             }
-
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(LoginActivity.this,  "Login Failed or User not Available",Toast.LENGTH_SHORT).show();
-
                         }
                     }
                 });
@@ -427,5 +439,10 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

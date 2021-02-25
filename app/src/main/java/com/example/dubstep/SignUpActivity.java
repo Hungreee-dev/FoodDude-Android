@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -16,30 +15,22 @@ import android.widget.Toast;
 
 import com.example.dubstep.Model.Result;
 import com.example.dubstep.Model.User;
-import com.example.dubstep.ViewHolder.OtpActivity;
 import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-
-import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,9 +43,11 @@ public class SignUpActivity extends AppCompatActivity {
     Button SignUp;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog1;
+    boolean fromGoogleSignIn;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
     public static String NUMBER_EXTRA = "com.example.dubstep.newPhoneNumber";
     public static String EMAIL_EXTRA = "com.example.dubstep.newEmail";
+    public static String NAME_EXTRA = "com.example.dubstep.newName";
 
 
 
@@ -70,6 +63,11 @@ public class SignUpActivity extends AppCompatActivity {
         txtpassword = (EditText) findViewById(R.id.PasswordEditText);
         SignUp = (Button) findViewById(R.id.SignUpButton);
         firebaseAuth = FirebaseAuth.getInstance();
+        fromGoogleSignIn = false;
+        if (getIntent().hasExtra(NAME_EXTRA)){
+            txtFullName.setText(getIntent().getStringExtra(NAME_EXTRA));
+            fromGoogleSignIn = true;
+        }
 
         if (getIntent().hasExtra(NUMBER_EXTRA)){
             txtMobileNumber.setText(getIntent().getStringExtra(NUMBER_EXTRA).substring(3,13));
@@ -152,7 +150,12 @@ public class SignUpActivity extends AppCompatActivity {
                         if (!response.isSuccessful()){
                             Log.d("OTP", "onResponse: "+new Gson().toJson(response.code()));
                             if (response.code()==404){
-                                checkIfEmailExists(phoneNo,email);
+                                if (!fromGoogleSignIn){
+                                    checkIfEmailExists(phoneNo,email);
+                                } else {
+
+                                }
+
                             } else if (response.code()==401){
                                 Toast.makeText(SignUpActivity.this, "Re - enter your number", Toast.LENGTH_SHORT).show();
                                 progressDialog1.dismiss();
@@ -216,6 +219,93 @@ public class SignUpActivity extends AppCompatActivity {
             numberProto = phoneUtil.parse(txtMobileNumber.getText().toString(), "IN");
             MobileNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.E164);
             firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                FirebaseAuth.getInstance().getAccessToken(true)
+                                        .addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                                            @Override
+                                            public void onSuccess(GetTokenResult getTokenResult) {
+                                                IdTokenInstance.setToken(getTokenResult.getToken());
+
+                                                final User details = new User(
+                                                        fullName,
+                                                        MobileNumber.substring(3,13),
+                                                        email,
+                                                        firebaseUser.getUid()
+                                                );
+                                                UserDatabase.getInstance().addUser(details, IdTokenInstance.getToken())
+                                                        .enqueue(new Callback<Result>() {
+                                                            @Override
+                                                            public void onResponse(Call<Result> call, Response<Result> response) {
+                                                                if (!response.isSuccessful()){
+                                                                    Toast.makeText(SignUpActivity.this, response.body().getError() + "Try again", Toast.LENGTH_SHORT).show();
+                                                                    return;
+                                                                }if (response.body().getMessage()!=null){
+//                                                                        User created successfully
+                                                                    Toast.makeText(SignUpActivity.this, "Email Registration successful", Toast.LENGTH_SHORT).show();
+                                                                    firebaseUser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            Toast.makeText(SignUpActivity.this,"Verify email , then login again",Toast.LENGTH_LONG).show();
+                                                                            Intent intent = new Intent(SignUpActivity.this, OtpActivity.class);
+                                                                            details.phoneNumber = MobileNumber;
+                                                                            intent.putExtra(OtpActivity.OTP_EXTRA,MobileNumber);
+                                                                            intent.putExtra(OtpActivity.USER_EXTRA,new Gson().toJson(details));
+                                                                            intent.putExtra(OtpActivity.TYPE_EXTRA,0);
+                                                                            startActivity(intent);
+                                                                            progressDialog1.dismiss();
+                                                                            finish();
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onFailure(Call<Result> call, Throwable t) {
+                                                                Toast.makeText(SignUpActivity.this, "Some error occured ! \n Please try again" +t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                                            }
+                                                        });
+                                            }
+                                        });
+
+
+
+
+                            } else {
+
+                                Toast.makeText(SignUpActivity.this, "Authentication failed"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                progressDialog1.dismiss();
+
+                            }
+
+
+                        }
+                    });
+
+        } catch (NumberParseException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    private void linkUserWithEmail() {
+
+        try {
+            String email = txtemail.getText().toString().trim();
+            String password = txtpassword.getText().toString().trim();
+            String fullName = txtFullName.getText().toString();
+            String Username = txtusername.getText().toString();
+            String MobileNumber;
+            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+            Phonenumber.PhoneNumber numberProto = null;
+            numberProto = phoneUtil.parse(txtMobileNumber.getText().toString(), "IN");
+            MobileNumber = phoneUtil.format(numberProto, PhoneNumberUtil.PhoneNumberFormat.E164);
+            AuthCredential credential = EmailAuthProvider.getCredential(email,password);
+            firebaseAuth.getCurrentUser().linkWithCredential(credential)
                     .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {

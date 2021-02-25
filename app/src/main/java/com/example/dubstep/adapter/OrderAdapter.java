@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewHolder> {
+public class OrderAdapter extends ListAdapter<Order, OrderAdapter.OrderViewHolder> {
     private OnItemClickListener listener;
 
     Context mContext;
@@ -39,20 +39,20 @@ public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewH
         super(DIFF_CALLBACK);
     }
 
-    private static final DiffUtil.ItemCallback<OrderItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<OrderItem>() {
+    private static final DiffUtil.ItemCallback<Order> DIFF_CALLBACK = new DiffUtil.ItemCallback<Order>() {
         @Override
-        public boolean areItemsTheSame(@NonNull OrderItem oldItem, @NonNull OrderItem newItem) {
+        public boolean areItemsTheSame(@NonNull Order oldItem, @NonNull Order newItem) {
             return oldItem.getOrderId().equals(newItem.getOrderId());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull OrderItem oldItem, @NonNull OrderItem newItem) {
-            if (oldItem.getStatus() != newItem.getStatus()){
+        public boolean areContentsTheSame(@NonNull Order oldItem, @NonNull Order newItem) {
+            if (oldItem.getOrderStatus() != newItem.getOrderStatus()){
                 return false;
-            } else if (!oldItem.getTimestamp().equals(newItem.getTimestamp())){
-                return false;
+            } else if (oldItem.getBilling().getOrderTime().getTimestamp()==newItem.getBilling().getOrderTime().getTimestamp()) {
+                return oldItem.getBilling().getFinalAmount() == newItem.getBilling().getFinalAmount();
             } else {
-                return oldItem.getTotalAmount() == newItem.getTotalAmount();
+                return false;
             }
         }
     };
@@ -66,18 +66,18 @@ public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewH
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        OrderItem orderItem = getOrderItem(position);
+        Order order = getOrderItem(position);
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.US);
         Calendar cal  = Calendar.getInstance();
-        cal.setTimeInMillis(orderItem.getTimestamp());
+        cal.setTimeInMillis(order.getBilling().getOrderTime().getTimestamp());
         holder.orderTimeTextview.setText(sdf.format(cal.getTime()));
 
-        holder.orderIdTextview.setText(orderItem.getOrderId().split(FirebaseAuth.getInstance().getUid())[1]);
-        holder.orderAmountTextview.setText("\u20B9 "+orderItem.getTotalAmount());
+        holder.orderIdTextview.setText(order.getOrderId());
+        holder.orderAmountTextview.setText("\u20B9 "+order.getBilling().getFinalAmount());
         String status;
         int colorInt;
         int statusIcon = drawable.ic_cooking_time;
-        switch (orderItem.getStatus()){
+        switch (order.getOrderStatus()){
             case 0:
                 status = "Processing";
                 colorInt = mContext.getColor(color.processing);
@@ -107,14 +107,14 @@ public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewH
             @Override
             public void onClick(View v) {
                 if (listener!=null && position!=RecyclerView.NO_POSITION){
-                    listener.onItemClick(orderItem);
+                    listener.onItemClick(order);
                 }
             }
         });
 
     }
 
-    public OrderItem getOrderItem(int position){
+    public Order getOrderItem(int position){
         return getItem(position);
     }
 
@@ -136,7 +136,7 @@ public class OrderAdapter extends ListAdapter<OrderItem, OrderAdapter.OrderViewH
     }
 
     public interface OnItemClickListener{
-        void onItemClick(OrderItem orderItem);
+        void onItemClick(Order Order);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){

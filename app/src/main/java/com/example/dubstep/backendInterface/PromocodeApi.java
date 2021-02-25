@@ -37,6 +37,7 @@ public interface PromocodeApi {
     @POST("/api/promocode/avail-promocode")
     Call<PromocodeResult> availPromo(@Field("uid") String uid,
                                      @Field("promocode")String promocode,
+                                     @Field("discount") double discount,
                                      @Header("authorization")String authorizationHeader);
 
 }

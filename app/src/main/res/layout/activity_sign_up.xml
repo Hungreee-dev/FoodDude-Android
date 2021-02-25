@@ -39,7 +39,6 @@
         android:id="@+id/body"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="16dp"
         app:layout_constraintBottom_toTopOf="@+id/SignUpButton"
         app:layout_constraintEnd_toEndOf="parent"

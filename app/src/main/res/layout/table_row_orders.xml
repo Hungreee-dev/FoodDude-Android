@@ -44,7 +44,7 @@
         android:textSize="14sp"
         android:textStyle="normal"
         android:layout_gravity="center_vertical"
-        android:layout_weight="0.1"
+        android:layout_weight="0.2"
         />
 
 
