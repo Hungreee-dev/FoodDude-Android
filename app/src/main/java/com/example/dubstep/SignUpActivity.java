@@ -20,6 +20,7 @@ import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -39,7 +40,7 @@ import retrofit2.Response;
 public class SignUpActivity extends AppCompatActivity {
 
     private static final String TAG = "SignUpActivity";
-    EditText txtFullName, txtusername, txtemail, txtpassword, txtMobileNumber;
+    TextInputEditText txtFullName, txtusername, txtemail, txtpassword, txtMobileNumber;
     Button SignUp;
     private FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog1;
@@ -56,11 +57,11 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        txtemail = (EditText) findViewById(R.id.EmailEditText);
-        txtFullName = (EditText) findViewById(R.id.NameEditText);
-        txtusername = (EditText) findViewById(R.id.UsernameEditText);
-        txtMobileNumber = (EditText) findViewById(R.id.MobileNumberEditText);
-        txtpassword = (EditText) findViewById(R.id.PasswordEditText);
+        txtemail = (TextInputEditText) findViewById(R.id.EmailEditText1);
+        txtFullName = (TextInputEditText) findViewById(R.id.NameEditText1);
+        txtusername = (TextInputEditText) findViewById(R.id.UsernameEditText1);
+        txtMobileNumber = (TextInputEditText) findViewById(R.id.MobileNumberEditText1);
+        txtpassword = (TextInputEditText) findViewById(R.id.PasswordEditText1);
         SignUp = (Button) findViewById(R.id.SignUpButton);
         firebaseAuth = FirebaseAuth.getInstance();
         fromGoogleSignIn = false;

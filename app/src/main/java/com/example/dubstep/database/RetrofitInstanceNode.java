@@ -21,8 +21,8 @@ public class RetrofitInstanceNode {
                     .build();
 
             instance = new Retrofit.Builder()
-//                    .baseUrl("https://fooddude-node.herokuapp.com/")
-                    .baseUrl("http://192.168.43.234:3030")
+                    .baseUrl("https://fooddude-node.herokuapp.com/")
+//                    .baseUrl("http://192.168.43.234:3030")
                     .addConverterFactory(GsonConverterFactory.create())
 //                    .client(okHttpClient)
                     .build();

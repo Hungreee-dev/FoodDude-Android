@@ -51,7 +51,7 @@
             android:padding="20dp">
 
 
-            <EditText
+            <com.google.android.material.textfield.TextInputLayout
                 android:ems="10"
                 android:hint="Full Name"
                 android:id="@+id/NameEditText"
@@ -63,9 +63,16 @@
                 android:textColorLink="#4CAF50"
                 android:textSize="20sp"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="16dp" />
+                tools:layout_editor_absoluteX="16dp" >
 
-            <EditText
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/NameEditText1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:ems="10"
                 android:hint="Username"
                 android:id="@+id/UsernameEditText"
@@ -78,9 +85,16 @@
                 android:textColorLink="#4CAF50"
                 android:textSize="20sp"
                 app:layout_constraintTop_toBottomOf="@+id/NameEditText"
-                tools:layout_editor_absoluteX="64dp" />
+                tools:layout_editor_absoluteX="64dp" >
 
-            <EditText
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/UsernameEditText1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:ems="10"
                 android:hint="Mobile Number"
                 android:id="@+id/MobileNumberEditText"
@@ -92,10 +106,22 @@
                 android:textColorHighlight="#FF5722"
                 android:textColorLink="#4CAF50"
                 android:textSize="20sp"
+                app:counterMaxLength="10"
+                app:counterEnabled="true"
                 app:layout_constraintTop_toBottomOf="@+id/UsernameEditText"
-                tools:layout_editor_absoluteX="64dp" />
+                tools:layout_editor_absoluteX="64dp" >
 
-            <EditText
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/MobileNumberEditText1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:ems="10"
                 android:hint="Email"
                 android:id="@+id/EmailEditText"
@@ -108,9 +134,18 @@
                 android:textColorLink="#4CAF50"
                 android:textSize="20sp"
                 app:layout_constraintTop_toBottomOf="@+id/MobileNumberEditText"
-                tools:layout_editor_absoluteX="82dp" />
+                tools:layout_editor_absoluteX="82dp" >
 
-            <EditText
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/EmailEditText1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:ems="10"
                 android:hint="Password"
                 android:id="@+id/PasswordEditText"
@@ -123,7 +158,15 @@
                 android:textColorLink="#4CAF50"
                 android:textSize="20sp"
                 app:layout_constraintTop_toBottomOf="@+id/EmailEditText"
-                tools:layout_editor_absoluteX="64dp" />
+                tools:layout_editor_absoluteX="64dp" >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/PasswordEditText1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

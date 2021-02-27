@@ -26,6 +26,7 @@ import com.example.dubstep.database.UserDatabase;
 import com.example.dubstep.singleton.IdTokenInstance;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -43,12 +44,12 @@ public class AddAddressActivity extends AppCompatActivity {
     public final static String EXTRA_ADDRESS=
             "com.example.dubstep.extra_address";
 
-    EditText pincodeEditText;
-    EditText houseNoEditText;
-    EditText address1EditText;
-    EditText address2EditText;
-    EditText cityEditText;
-    EditText stateEditText;
+    TextInputEditText pincodeEditText;
+    TextInputEditText houseNoEditText;
+    TextInputEditText address1EditText;
+    TextInputEditText address2EditText;
+    TextInputEditText cityEditText;
+    TextInputEditText stateEditText;
     TextView pincodeNotFound;
     FirebaseUser mUser;
     FirebaseDatabase mDatabase;
@@ -62,12 +63,12 @@ public class AddAddressActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_address);
         ExtendedFloatingActionButton btn = findViewById(R.id.add_address_button);
-        pincodeEditText = findViewById(R.id.pincode_editText);
-        houseNoEditText = findViewById(R.id.houseNo_editText);
-        address1EditText = findViewById(R.id.address1_editText);
-        address2EditText = findViewById(R.id.address2_editText);
-        cityEditText = findViewById(R.id.city_editText);
-        stateEditText = findViewById(R.id.state_editText);
+        pincodeEditText = findViewById(R.id.pincode_editText1);
+        houseNoEditText = findViewById(R.id.houseNo_editText1);
+        address1EditText = findViewById(R.id.address1_editText1);
+        address2EditText = findViewById(R.id.address2_editText1);
+        cityEditText = findViewById(R.id.city_editText1);
+        stateEditText = findViewById(R.id.state_editText1);
         pincodeNotFound = findViewById(R.id.pincode_not_found_textview);
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
