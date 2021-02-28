@@ -171,7 +171,6 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/city_editText" >
-
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/state_editText1"
                         android:layout_width="match_parent"
@@ -180,39 +179,23 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/add_address_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:backgroundTint="@color/colorAccent"
                     android:gravity="center"
-                    android:id="@+id/add_address_button"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
                     android:onClick="addAddress"
                     android:text="CHANGE"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.94"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/state_editText"
-                    android:layout_margin="8dp"
                     app:layout_constraintVertical_bias="0.2" />
 
-                <TextView
-                    android:id="@+id/pincode_not_found_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="Sorry not delivering to that pincode yet!!"
-                    android:textAlignment="viewStart"
-                    android:textColor="#FF0000"
-                    android:textSize="24sp"
-                    android:layout_marginStart="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/add_address_button"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/state_editText"
-                    android:onClick="addAddress"
-                    app:layout_constraintVertical_bias="0.2"
-                    android:visibility="invisible"
-                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 

@@ -6,11 +6,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -69,7 +71,7 @@ public class AddAddressActivity extends AppCompatActivity {
         address2EditText = findViewById(R.id.address2_editText1);
         cityEditText = findViewById(R.id.city_editText1);
         stateEditText = findViewById(R.id.state_editText1);
-        pincodeNotFound = findViewById(R.id.pincode_not_found_textview);
+        //pincodeNotFound = findViewById(R.id.pincode_not_found_textview);
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
         mPincode = new ArrayList<String>();
@@ -123,7 +125,7 @@ public class AddAddressActivity extends AppCompatActivity {
 
     public void addAddress(View view) {
         progressDialog.show();
-        pincodeNotFound.setVisibility(View.INVISIBLE);
+        //pincodeNotFound.setVisibility(View.INVISIBLE);
         pincode = (pincodeEditText.getText().toString()!=null)?pincodeEditText.getText().toString():"";
         if(pincode.equals("")){
             Toast.makeText(this,"Pincode can't be blank",Toast.LENGTH_SHORT).show();
@@ -222,7 +224,17 @@ public class AddAddressActivity extends AppCompatActivity {
 
 
         } else {
-            pincodeNotFound.setVisibility(View.VISIBLE);
+            //pincodeNotFound.setVisibility(View.VISIBLE);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("We do not Deliver to that Pincode yet. Stay tuned for more updates!");
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogLayout = inflater.inflate(R.layout.alert_dialog_with_imageview, null);
+            builder.setPositiveButton(
+                    "OK",
+                    null);
+            builder.setView(dialogLayout);
+            builder.show();
         }
         progressDialog.dismiss();
     }
