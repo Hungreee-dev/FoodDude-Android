@@ -17,14 +17,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_brush_stroke"
-            android:text="LEGALS"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:padding="12dp"
+            android:text="Legals"
             android:textAlignment="center"
             android:textColor="#650E08"
-            android:textSize="30sp"
-            android:padding="12dp"
-            android:layout_marginTop="8dp"
-            />
+            android:textSize="34sp" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/terms_condition_card"
