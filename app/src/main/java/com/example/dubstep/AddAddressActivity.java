@@ -229,8 +229,8 @@ public class AddAddressActivity extends AppCompatActivity {
         } else {
             //pincodeNotFound.setVisibility(View.VISIBLE);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("We do not Deliver to that Pincode yet. Stay tuned for more updates!");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.CustomAlertDialog);
+            builder.setMessage("We do not deliver to that Pincode yet. Stay tuned for more updates!");
             LayoutInflater inflater = getLayoutInflater();
             View dialogLayout = inflater.inflate(R.layout.alert_dialog_with_imageview, null);
             builder.setPositiveButton(
