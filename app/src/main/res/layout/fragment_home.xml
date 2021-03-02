@@ -18,6 +18,7 @@
         android:layout_marginTop="20dp"
         android:layout_width="80dp"
         android:src="@drawable/logo_circle"
+        android:transitionName="imageMain"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"

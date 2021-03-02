@@ -52,7 +52,7 @@ public class AddAddressActivity extends AppCompatActivity {
     TextInputEditText address2EditText;
     TextInputEditText cityEditText;
     TextInputEditText stateEditText;
-    TextView pincodeNotFound;
+    //TextView pincodeNotFound;
     FirebaseUser mUser;
     FirebaseDatabase mDatabase;
     String pincode;
@@ -82,21 +82,24 @@ public class AddAddressActivity extends AppCompatActivity {
         progressDialog.getWindow().setBackgroundDrawableResource(
                 android.R.color.transparent
         );
-        pincodeEditText.addTextChangedListener(new TextWatcher() {
+        /*pincodeEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
 
-            @Override
+            /*@Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 pincodeNotFound.setVisibility(View.INVISIBLE);
             }
+
+
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
+        */
         if(getIntent().hasExtra(EXTRA_ADDRESS)) {
             setAddress();
         } else {
@@ -226,8 +229,8 @@ public class AddAddressActivity extends AppCompatActivity {
         } else {
             //pincodeNotFound.setVisibility(View.VISIBLE);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("We do not Deliver to that Pincode yet. Stay tuned for more updates!");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.CustomAlertDialog);
+            builder.setMessage("We do not deliver to that Pincode yet. Stay tuned for more updates!");
             LayoutInflater inflater = getLayoutInflater();
             View dialogLayout = inflater.inflate(R.layout.alert_dialog_with_imageview, null);
             builder.setPositiveButton(
@@ -235,6 +238,8 @@ public class AddAddressActivity extends AppCompatActivity {
                     null);
             builder.setView(dialogLayout);
             builder.show();
+            View v = getWindow().getDecorView();
+            v.setBackgroundResource(android.R.color.transparent);
         }
         progressDialog.dismiss();
     }

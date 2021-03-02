@@ -13,6 +13,7 @@
         android:id="@+id/logoImage"
         android:layout_height="350dp"
         android:layout_width="match_parent"
+        android:transitionName="imageMain"
         android:src="@drawable/logo_circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"

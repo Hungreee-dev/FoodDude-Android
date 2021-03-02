@@ -9,8 +9,11 @@
         <item name="viewInflaterClass">androidx.appcompat.app.AppCompatViewInflater</item>
         <item name="android:fontFamily">@font/voces</item>
         <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
-
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/border</item>
+    </style>
     <style parent="android:Widget.TextView" name="SansSerif">
         <item name="android:fontFamily">@font/voces</item>
     </style>

@@ -17,18 +17,18 @@
             android:id="@+id/about_us"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_brush_stroke"
-            android:padding="15dp"
             android:layout_marginTop="8dp"
+            android:background="@drawable/ic_brush_stroke"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:padding="15dp"
             android:text="About Us"
             android:textAlignment="center"
-            android:textSize="26sp"
+            android:textSize="30sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/scrollAboutUs"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/scrollAboutUs"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <ScrollView
