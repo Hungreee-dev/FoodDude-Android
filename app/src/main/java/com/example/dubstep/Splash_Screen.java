@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,7 +34,7 @@ public class Splash_Screen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash__screen);
 
-        dubstep = findViewById(R.id.dubstepText);
+        dubstep =findViewById(R.id.dubstepText);
         dabba = findViewById(R.id.dabbaText);
         logo = findViewById(R.id.logoImage);
         mAuth = FirebaseAuth.getInstance();
@@ -88,5 +90,7 @@ public class Splash_Screen extends AppCompatActivity {
             }
 
         },SPLASH_SCREEN);
+        Animation myanim = AnimationUtils.loadAnimation(this,R.anim.splashanimation);
+        dubstep.startAnimation(myanim);
     }
 }
