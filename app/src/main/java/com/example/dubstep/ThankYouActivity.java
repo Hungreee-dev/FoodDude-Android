@@ -9,7 +9,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ import retrofit2.Response;
 public class ThankYouActivity extends AppCompatActivity implements PaymentResultWithDataListener {
 
     private static final String TAG = "ThankYouActivity";
+    ImageView logo;
     Button continueButton;
    // private ImageView thankYouImage;
 //    LottieAnimationView animationView;
@@ -54,7 +58,7 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thank_you);
-
+        logo = findViewById(R.id.icon_image_view);
         successAnimation = findViewById(R.id.success_animation);
         failAnimation = findViewById(R.id.fail_animation);
         bgView= findViewById(R.id.bg_view);
@@ -102,6 +106,8 @@ public class ThankYouActivity extends AppCompatActivity implements PaymentResult
                 );
             }
         });
+        Animation myanim = AnimationUtils.loadAnimation(this,R.anim.splashanimation);
+        logo.startAnimation(myanim);
     }
 
     private void fetchUserData() {
