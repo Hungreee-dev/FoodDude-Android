@@ -1,11 +1,15 @@
 package com.example.dubstep;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,7 +34,7 @@ public class Splash_Screen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash__screen);
 
-        dubstep = findViewById(R.id.dubstepText);
+        dubstep =findViewById(R.id.dubstepText);
         dabba = findViewById(R.id.dabbaText);
         logo = findViewById(R.id.logoImage);
         mAuth = FirebaseAuth.getInstance();
@@ -39,6 +43,7 @@ public class Splash_Screen extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+
 
                 if(currentUser != null) {
                     if (currentUser.isEmailVerified()){
@@ -52,27 +57,40 @@ public class Splash_Screen extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(GetTokenResult getTokenResult) {
                                             IdTokenInstance.setToken(getTokenResult.getToken());
-                                            startActivity(new Intent(Splash_Screen.this, MainActivity.class));
+                                            Intent intent=new Intent(Splash_Screen.this, MainActivity.class);
+                                            ActivityOptionsCompat options = ActivityOptionsCompat.
+                                                    makeSceneTransitionAnimation(Splash_Screen.this, (View)logo, "imageMain");
+                                            startActivity(intent, options.toBundle());
                                             finish();
 
                                         }
                                     });
                         }else{
-                            startActivity(new Intent(Splash_Screen.this, LoginActivity.class));
+                            Intent intent=new Intent(Splash_Screen.this, LoginActivity.class);
+                            ActivityOptionsCompat options = ActivityOptionsCompat.
+                                    makeSceneTransitionAnimation(Splash_Screen.this, (View)logo, "imageMain");
+                            startActivity(intent, options.toBundle());
                             finish();
-
                         }
                     } else {
-                        startActivity(new Intent(Splash_Screen.this, LoginActivity.class));
+                        Intent intent=new Intent(Splash_Screen.this, LoginActivity.class);
+                        ActivityOptionsCompat options = ActivityOptionsCompat.
+                                makeSceneTransitionAnimation(Splash_Screen.this, (View)logo, "imageMain");
+                        startActivity(intent, options.toBundle());
                         finish();
-
                     }
                 } else {
-                    startActivity(new Intent(Splash_Screen.this, LoginActivity.class));
+                    Intent intent=new Intent(Splash_Screen.this, LoginActivity.class);
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeSceneTransitionAnimation(Splash_Screen.this, (View)logo, "imageMain");
+                    startActivity(intent, options.toBundle());
                     finish();
 
                 }
             }
+
         },SPLASH_SCREEN);
+        Animation myanim = AnimationUtils.loadAnimation(this,R.anim.splashanimation);
+        dubstep.startAnimation(myanim);
     }
 }

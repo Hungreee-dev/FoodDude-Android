@@ -11,14 +11,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|top"
+            android:layout_margin="16dp"
             android:background="@drawable/ic_brush_stroke"
+            android:fontFamily="sans-serif-condensed-medium"
             android:padding="12dp"
-            android:text="EDIT PROFILE"
+            android:text="Edit Profile"
             android:textAlignment="center"
             android:textColor="#650E08"
-            android:textSize="30sp"
-            android:layout_margin="16dp"
-            />
+            android:textSize="30sp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -134,15 +134,16 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/UpdateButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:background="@drawable/button_rounded"
-            android:text="UPDATE"
-            android:textColor="#ffffff"
-            android:textSize="25sp" />
+                <Button
+                    android:id="@+id/UpdateButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:background="@drawable/button_rounded"
+                    android:fontFamily="sans-serif-condensed-medium"
+                    android:text="UPDATE"
+                    android:textColor="#ffffff"
+                    android:textSize="25sp" />
         </LinearLayout>
         </androidx.cardview.widget.CardView>
 

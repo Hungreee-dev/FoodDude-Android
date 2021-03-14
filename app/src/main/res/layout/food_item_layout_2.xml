@@ -1,105 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="200dp"
-android:padding="10dp"
-android:layout_marginTop="10dp"
-android:layout_marginStart="15dp"
-android:layout_marginEnd="15dp"
-app:cardElevation="15dp"
-app:cardCornerRadius="15dp"
-    >
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
 
-    <TextView
-        android:id="@+id/food_name"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="29dp"
-        android:layout_marginStart="4dp"
-        android:layout_width="150dp"
-        android:padding="6dp"
-        android:text="ITEM NAME"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:elevation="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/food_price"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="16dp"
-        android:elevation="5dp"
-        android:layout_width="wrap_content"
-        android:text="PRICE:"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/food_name" />
-
-
-    <com.google.android.material.button.MaterialButton
-        style="?attr/materialButtonOutlinedStyle"
-        android:id="@+id/addtocart_btn"
-        android:layout_gravity="bottom"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Add to cart"
-        android:backgroundTint="@color/orangeBg"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:elevation="6dp"
-        android:layout_marginEnd="6dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:elevation="1dp"
-        android:id="@+id/imageView4"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp"
-        android:layout_marginStart="56dp"
-        android:layout_width="wrap_content"
-        android:scaleX="20"
-        android:scaleY="20"
-        android:src="@drawable/circle"
-        app:layout_constraintBottom_toBottomOf="@+id/food_item_imageView"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/veg_non_veg_icon"
-        android:layout_height="26dp"
-        android:layout_width="26dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="16dp"
-        android:elevation="6dp"
-        android:src="@drawable/ic_non_veg_icon"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/food_item_imageView" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/food_item_imageView"
-        android:layout_height="match_parent"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        style="?attr/actionButtonStyle"
         android:layout_width="match_parent"
-        app:layout_constraintHeight_percent="110"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars"
-        android:foreground="@drawable/gradient_food_item"
-        app:shapeAppearanceOverlay="@style/roundedCornersImageView"
-        />
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:clipToPadding="false">
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_margin="4dp"
+            app:cardElevation="10dp"
+            app:cardCornerRadius="15dp"
+            >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="4dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/food_item_imageView"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="50dp"
+                    app:layout_constraintHeight_percent="110"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:srcCompat="@tools:sample/avatars"
+                    app:shapeAppearanceOverlay="@style/roundedCornersImageView"
+                    />
+
+                <TextView
+                    android:id="@+id/food_name"
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="10dp"
+                    android:text="ITEM NAME"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@+id/food_item_imageView"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/food_price"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:text="Price:xxxx"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/food_item_imageView"
+                    app:layout_constraintTop_toBottomOf="@+id/food_name" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+                <ImageView
+                    android:id="@+id/veg_non_veg_icon"
+                    android:layout_height="26dp"
+                    android:layout_width="26dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginBottom="50dp"
+                    android:elevation="6dp"
+                    android:src="@drawable/ic_non_veg_icon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addtocart_btn"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginEnd="6dp"
+                    app:layout_constraintTop_toBottomOf="@+id/veg_non_veg_icon"
+                    android:backgroundTint="@color/orangeBg"
+                    android:elevation="6dp"
+                    android:fontFamily="sans-serif-condensed-medium"
+                    android:text="Add to cart"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+        </com.google.android.material.card.MaterialCardView>
 
-</com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+

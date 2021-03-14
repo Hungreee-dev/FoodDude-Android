@@ -26,7 +26,9 @@
         android:layout_width="wrap_content"
         android:text="Cart empty!"
         android:padding="4dp"
-        android:textSize="20sp"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        android:fontFamily="sans-serif-condensed-medium"
         android:textStyle="bold"
         android:gravity="center"
         android:background="@drawable/ic_brush_stroke"
@@ -56,25 +58,23 @@
 
             <TextView
                 android:id="@+id/cart_total_textView"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="@string/cart_total"
                 android:textAlignment="center"
-                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/DdeliveryTextView"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
                 android:text="@string/delivery_charge"
                 android:textAlignment="center"
-                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cart_total_textView" />
 
@@ -88,14 +88,13 @@
 
             <TextView
                 android:id="@+id/total_price_text_view"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:layout_width="wrap_content"
                 android:text="Total Price : ₹ --"
                 android:textAlignment="center"
-                android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"

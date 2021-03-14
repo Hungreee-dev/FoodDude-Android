@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="30dp"
-    android:background="@drawable/gradient_food_item"
-    android:backgroundTint="@color/orangeLight"
+    android:background="@drawable/gradient_bg"
     tools:context=".LoginActivity"
     >
 
@@ -18,6 +17,7 @@
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:padding="20dp"
+        android:transitionName="imageMain"
         android:src="@drawable/logo_circle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,6 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="phone"
+            android:textColor="@color/black"
             android:textColorHighlight="#FF5722"
             android:textColorLink="#4CAF50"
             android:maxLength="10"

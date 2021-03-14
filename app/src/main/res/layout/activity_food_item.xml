@@ -11,19 +11,19 @@
 
     <TextView
         android:id="@+id/food_item_base_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/food_item_recycler"
+        android:layout_width="249dp"
+        android:layout_height="72dp"
         android:background="@drawable/ic_brush_stroke"
-        android:textAlignment="center"
-        android:text="BaseName"
-        android:textStyle="bold"
+        android:fontFamily="sans-serif-condensed-medium"
         android:padding="15dp"
-        android:textSize="26sp"
-        />
+        android:text="BaseName"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/food_item_recycler"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/food_item_recycler"
@@ -41,17 +41,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:layout_margin="32dp"
         android:clickable="true"
         android:src="@drawable/cart_icon"
         app:backgroundTint="@color/colorPrimaryDark"
         app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.019"
+        app:layout_constraintHorizontal_bias="0.966"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.995"
+        app:layout_constraintVertical_bias="0.013"
         app:rippleColor="@color/colorAccent"
         app:tint="@android:color/white" />
 
